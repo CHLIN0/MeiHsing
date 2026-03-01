@@ -12,6 +12,105 @@ const {
 } = Astro.props;
 
 const siteUrl = 'https://ms.linho.me';
+const canonicalUrl = new URL(Astro.url.pathname, siteUrl).href;
+
+// Person schema (enriched)
+const personSchema = {
+  "@context": "https://schema.org",
+  "@type": "Person",
+  "@id": `${siteUrl}/#person`,
+  "name": "林美杏",
+  "alternateName": "Mei-Hsing Lin",
+  "jobTitle": "鋼琴家、音樂教育家",
+  "description": description,
+  "url": siteUrl,
+  "image": `${siteUrl}/head.JPG`,
+  "sameAs": [
+    "https://www.facebook.com/piano.lin.3",
+    "https://www.instagram.com/meishing888/",
+    "https://www.youtube.com/@%E6%9E%97%E7%BE%8E%E6%9D%8F-w2d"
+  ],
+  "worksFor": {
+    "@type": "Organization",
+    "name": "YAMAHA 音樂教室"
+  },
+  "knowsAbout": ["鋼琴", "音樂教育", "合唱指揮", "YAMAHA 音樂系統", "古典鋼琴", "爵士鋼琴", "自彈自唱", "樂理教學", "樂齡音樂教育"],
+  "hasCredential": [
+    { "@type": "EducationalOccupationalCredential", "name": "YAMAHA 鋼琴教師資格" },
+    { "@type": "EducationalOccupationalCredential", "name": "YAMAHA 電子琴教師資格" },
+  ],
+  "hasOccupation": {
+    "@type": "Occupation",
+    "name": "鋼琴教師",
+    "occupationLocation": { "@type": "City", "name": "高雄市" },
+    "description": "鋼琴教學、合唱團指揮與伴奏、樂齡音樂推廣",
+    "skills": "古典鋼琴, 爵士鋼琴, 自彈自唱, 樂理教學, 合唱指揮",
+  },
+};
+
+// WebSite schema
+const websiteSchema = {
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  "@id": `${siteUrl}/#website`,
+  "url": siteUrl,
+  "name": "林美杏老師 | 鋼琴家 · 音樂教育家",
+  "description": description,
+  "publisher": { "@id": `${siteUrl}/#person` },
+  "inLanguage": "zh-Hant",
+};
+
+// EducationalOrganization schema
+const orgSchema = {
+  "@context": "https://schema.org",
+  "@type": "EducationalOrganization",
+  "@id": `${siteUrl}/#org`,
+  "name": "林美杏音樂教室",
+  "description": "提供古典鋼琴、爵士鋼琴、自彈自唱及樂理教學，適合兒童、青少年及樂齡學員。",
+  "url": siteUrl,
+  "founder": { "@id": `${siteUrl}/#person` },
+  "areaServed": { "@type": "City", "name": "高雄市" },
+  "knowsAbout": ["鋼琴教學", "音樂啟蒙", "合唱指導", "樂齡音樂"],
+};
+
+// Review/Testimonial schema
+const reviewSchema = {
+  "@context": "https://schema.org",
+  "@type": "EducationalOrganization",
+  "name": "林美杏音樂教室",
+  "review": [
+    {
+      "@type": "Review",
+      "reviewBody": "美杏老師讓我家孩子從討厭練琴，變成每天主動坐在鋼琴前。她那種溫柔但堅定的教學方式，真的很神奇。",
+      "author": { "@type": "Person", "name": "王媽媽" },
+      "reviewRating": { "@type": "Rating", "ratingValue": "5", "bestRating": "5" },
+    },
+    {
+      "@type": "Review",
+      "reviewBody": "跟美杏老師學了三年，她不只教琴，更教我如何用音樂表達自己。每堂課都像在說一個新故事。",
+      "author": { "@type": "Person", "name": "陳同學" },
+      "reviewRating": { "@type": "Rating", "ratingValue": "5", "bestRating": "5" },
+    },
+    {
+      "@type": "Review",
+      "reviewBody": "退休後加入樂齡班，美杏老師的課程讓我重新找到生活的樂趣。音樂真的不分年齡！",
+      "author": { "@type": "Person", "name": "林伯伯" },
+      "reviewRating": { "@type": "Rating", "ratingValue": "5", "bestRating": "5" },
+    },
+    {
+      "@type": "Review",
+      "reviewBody": "美杏老師帶領合唱團三十年，她對音樂的熱情感染了每一個團員。我們不只是在唱歌，更是在分享快樂。",
+      "author": { "@type": "Person", "name": "張團員" },
+      "reviewRating": { "@type": "Rating", "ratingValue": "5", "bestRating": "5" },
+    },
+  ],
+  "aggregateRating": {
+    "@type": "AggregateRating",
+    "ratingValue": "5",
+    "bestRating": "5",
+    "ratingCount": "4",
+  },
+};
 ---
 
 <!doctype html>
@@ -20,15 +119,21 @@ const siteUrl = 'https://ms.linho.me';
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="description" content={description} />
+    <meta name="author" content="林美杏" />
+    <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
     <meta name="generator" content={Astro.generator} />
+
+    <!-- Canonical -->
+    <link rel="canonical" href={canonicalUrl} />
 
     <!-- Open Graph -->
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
     <meta property="og:type" content="website" />
-    <meta property="og:url" content={siteUrl} />
+    <meta property="og:url" content={canonicalUrl} />
     <meta property="og:image" content={`${siteUrl}${ogImage}`} />
     <meta property="og:locale" content="zh_TW" />
+    <meta property="og:site_name" content="林美杏老師 | 鋼琴家 · 音樂教育家" />
 
     <!-- Twitter -->
     <meta name="twitter:card" content="summary_large_image" />
@@ -52,26 +157,17 @@ const siteUrl = 'https://ms.linho.me';
 
     <title>{title}</title>
 
-    <!-- JSON-LD Structured Data -->
-    <script type="application/ld+json" set:html={JSON.stringify({
-      "@context": "https://schema.org",
-      "@type": "Person",
-      "name": "林美杏",
-      "jobTitle": "鋼琴家、音樂教育家",
-      "description": description,
-      "url": siteUrl,
-      "image": `${siteUrl}/head.JPG`,
-      "sameAs": [
-        "https://www.facebook.com/piano.lin.3",
-        "https://www.instagram.com/meishing888/",
-        "https://www.youtube.com/@%E6%9E%97%E7%BE%8E%E6%9D%8F-w2d"
-      ],
-      "worksFor": {
-        "@type": "Organization",
-        "name": "YAMAHA 音樂教室"
-      },
-      "knowsAbout": ["鋼琴", "音樂教育", "合唱指揮", "YAMAHA 音樂系統"]
-    })} />
+    <!-- JSON-LD Structured Data: Person -->
+    <script type="application/ld+json" set:html={JSON.stringify(personSchema)} />
+
+    <!-- JSON-LD Structured Data: WebSite -->
+    <script type="application/ld+json" set:html={JSON.stringify(websiteSchema)} />
+
+    <!-- JSON-LD Structured Data: EducationalOrganization -->
+    <script type="application/ld+json" set:html={JSON.stringify(orgSchema)} />
+
+    <!-- JSON-LD Structured Data: Reviews -->
+    <script type="application/ld+json" set:html={JSON.stringify(reviewSchema)} />
   </head>
   <body class="bg-paper text-warm-700 font-sans">
     <a href="#main-content" class="skip-to-content">跳至主要內容</a>
