@@ -1,100 +1,148 @@
 import { useState, useEffect } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+
+const navLinks = [
+    { href: '#about', label: '關於' },
+    { href: '#experience', label: '經歷' },
+    { href: '#gallery', label: '相簿' },
+    { href: '#video', label: '影音' },
+    { href: '#contact', label: '聯繫' },
+];
 
 export default function Nav() {
-    const [isScrolled, setIsScrolled] = useState(false);
-    const [isMobileOpen, setIsMobileOpen] = useState(false);
+    const [scrolled, setScrolled] = useState(false);
+    const [mobileOpen, setMobileOpen] = useState(false);
 
     useEffect(() => {
-        const handleScroll = () => {
-            setIsScrolled(window.scrollY > 50);
-        };
-        window.addEventListener('scroll', handleScroll);
-        return () => window.removeEventListener('scroll', handleScroll);
+        const onScroll = () => setScrolled(window.scrollY > 40);
+        window.addEventListener('scroll', onScroll, { passive: true });
+        return () => window.removeEventListener('scroll', onScroll);
     }, []);
 
+    useEffect(() => {
+        if (mobileOpen) {
+            document.body.style.overflow = 'hidden';
+        } else {
+            document.body.style.overflow = '';
+        }
+        return () => { document.body.style.overflow = ''; };
+    }, [mobileOpen]);
+
     return (
-        <nav
-            className={`fixed w-full z-50 transition-all duration-500 ${isScrolled
-                    ? 'bg-background/90 backdrop-blur-md py-3 shadow-lg shadow-black/50'
-                    : 'bg-transparent py-6'
+        <header
+            className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${scrolled
+                ? 'bg-white/85 backdrop-blur-md shadow-sm border-b border-gold-muted'
+                : 'bg-transparent'
                 }`}
         >
-            <div className="max-w-6xl mx-auto px-6 flex justify-between items-center">
-                <a href="/" className="flex items-center gap-3 group">
+            <nav className="max-w-6xl mx-auto px-6 flex items-center justify-between h-18" aria-label="主導航">
+                {/* Logo + Name */}
+                <a href="/" className="flex items-center gap-3 group cursor-pointer">
                     <img
                         src="/logo.png"
-                        alt="ML Logo"
-                        className="w-10 h-10 rounded-full object-cover border border-amber-500/30 group-hover:border-amber-500 transition-colors"
+                        alt="林美杏老師 Logo"
+                        width={40}
+                        height={40}
+                        className="rounded-full"
                     />
-                    <span className="text-xl md:text-2xl font-serif text-amber-500 tracking-widest">
-                        Lin Mei-Hsing
-                    </span>
+                    <div className="flex flex-col leading-tight">
+                        <span className={`font-serif text-lg font-medium tracking-wide transition-colors duration-300 ${scrolled ? 'text-piano' : 'text-cream'}`}>
+                            林美杏音樂教室
+                        </span>
+                        <span className={`text-[0.65rem] font-sans tracking-[0.15em] uppercase transition-colors duration-300 ${scrolled ? 'text-warm-500' : 'text-warm-300'}`}>
+                            Piano · Music
+                        </span>
+                    </div>
                 </a>
 
-                {/* Desktop Navigation */}
-                <div className="hidden md:flex items-center space-x-8 text-sm tracking-widest uppercase">
-                    <a href="#about" className="hover:text-amber-500 transition-colors">
-                        關於老師
-                    </a>
-                    <a href="#certifications" className="hover:text-amber-500 transition-colors">
-                        專業資格
-                    </a>
-                    <a href="#experience" className="hover:text-amber-500 transition-colors">
-                        教學生涯
-                    </a>
-                    <a href="#gallery" className="hover:text-amber-500 transition-colors">
-                        音樂時光
-                    </a>
-                    <a
-                        href="/links"
-                        className="px-4 py-2 border border-amber-500/50 text-amber-500 rounded-sm hover:bg-amber-500/10 transition-colors"
-                    >
-                        聯繫我
-                    </a>
-                </div>
+                {/* Desktop Nav */}
+                <ul className="hidden md:flex items-center gap-8">
+                    {navLinks.map(({ href, label }) => (
+                        <li key={href}>
+                            <a
+                                href={href}
+                                className={`text-sm font-sans font-medium transition-colors duration-200 cursor-pointer ${scrolled ? 'text-warm-600 hover:text-gold' : 'text-warm-100 hover:text-gold-light'}`}
+                            >
+                                {label}
+                            </a>
+                        </li>
+                    ))}
+                    <li>
+                        <a href="#contact" className="btn-cta text-sm py-2 px-5 cursor-pointer">
+                            預約試聽
+                        </a>
+                    </li>
+                </ul>
 
                 {/* Mobile Hamburger */}
                 <button
-                    className="md:hidden text-stone-300 p-2"
-                    onClick={() => setIsMobileOpen(!isMobileOpen)}
-                    aria-label="Toggle menu"
+                    className="md:hidden flex flex-col gap-1.5 p-2 cursor-pointer touch-target"
+                    onClick={() => setMobileOpen(!mobileOpen)}
+                    aria-label={mobileOpen ? '關閉選單' : '開啟選單'}
+                    aria-expanded={mobileOpen}
                 >
-                    <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        {isMobileOpen ? (
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                        ) : (
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-                        )}
-                    </svg>
+                    <motion.span
+                        className={`block w-6 h-[2px] origin-center transition-colors duration-300 ${scrolled ? 'bg-piano' : 'bg-cream'}`}
+                        animate={mobileOpen ? { rotate: 45, y: 5 } : { rotate: 0, y: 0 }}
+                        transition={{ duration: 0.2 }}
+                    />
+                    <motion.span
+                        className={`block w-6 h-[2px] transition-colors duration-300 ${scrolled ? 'bg-piano' : 'bg-cream'}`}
+                        animate={mobileOpen ? { opacity: 0 } : { opacity: 1 }}
+                        transition={{ duration: 0.15 }}
+                    />
+                    <motion.span
+                        className={`block w-6 h-[2px] origin-center transition-colors duration-300 ${scrolled ? 'bg-piano' : 'bg-cream'}`}
+                        animate={mobileOpen ? { rotate: -45, y: -5 } : { rotate: 0, y: 0 }}
+                        transition={{ duration: 0.2 }}
+                    />
                 </button>
-            </div>
+            </nav>
 
-            {/* Mobile Menu */}
-            {isMobileOpen && (
-                <div className="md:hidden bg-background/95 backdrop-blur-md border-t border-stone-800 mt-2">
-                    <div className="flex flex-col px-6 py-4 space-y-4 text-sm tracking-widest uppercase">
-                        <a href="#about" className="hover:text-amber-500 transition-colors" onClick={() => setIsMobileOpen(false)}>
-                            關於老師
-                        </a>
-                        <a href="#certifications" className="hover:text-amber-500 transition-colors" onClick={() => setIsMobileOpen(false)}>
-                            專業資格
-                        </a>
-                        <a href="#experience" className="hover:text-amber-500 transition-colors" onClick={() => setIsMobileOpen(false)}>
-                            教學生涯
-                        </a>
-                        <a href="#gallery" className="hover:text-amber-500 transition-colors" onClick={() => setIsMobileOpen(false)}>
-                            音樂時光
-                        </a>
-                        <a
-                            href="/links"
-                            className="text-amber-500 hover:text-amber-400 transition-colors"
-                            onClick={() => setIsMobileOpen(false)}
+            {/* Mobile Slide-out */}
+            <AnimatePresence>
+                {mobileOpen && (
+                    <>
+                        <motion.div
+                            className="fixed inset-0 bg-black/20 backdrop-blur-sm z-40"
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 0 }}
+                            onClick={() => setMobileOpen(false)}
+                            style={{ overscrollBehavior: 'contain' }}
+                        />
+                        <motion.div
+                            className="fixed top-0 right-0 h-full w-72 bg-ivory z-50 shadow-2xl flex flex-col pt-24 px-8"
+                            initial={{ x: '100%' }}
+                            animate={{ x: 0 }}
+                            exit={{ x: '100%' }}
+                            transition={{ type: 'spring', stiffness: 300, damping: 30 }}
+                            style={{ overscrollBehavior: 'contain' }}
                         >
-                            聯繫我
-                        </a>
-                    </div>
-                </div>
-            )}
-        </nav>
+                            {navLinks.map(({ href, label }, i) => (
+                                <motion.a
+                                    key={href}
+                                    href={href}
+                                    onClick={() => setMobileOpen(false)}
+                                    className="py-4 text-lg font-serif text-piano border-b border-gold-muted cursor-pointer"
+                                    initial={{ opacity: 0, x: 20 }}
+                                    animate={{ opacity: 1, x: 0 }}
+                                    transition={{ delay: i * 0.05 + 0.1 }}
+                                >
+                                    {label}
+                                </motion.a>
+                            ))}
+                            <a
+                                href="#contact"
+                                onClick={() => setMobileOpen(false)}
+                                className="btn-cta mt-8 justify-center cursor-pointer"
+                            >
+                                預約試聽
+                            </a>
+                        </motion.div>
+                    </>
+                )}
+            </AnimatePresence>
+        </header>
     );
 }

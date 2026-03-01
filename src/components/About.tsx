@@ -1,66 +1,69 @@
 import { motion } from 'framer-motion';
-import { fadeInUp, staggerContainer } from '../animations/variants';
+import { fadeInLeft, fadeInRight, staggerContainer, viewportOnce } from '../animations/variants';
 
 export default function About() {
     return (
-        <section id="about" className="py-24 md:py-32 relative">
+        <section id="about" className="bg-cream section-padding" aria-labelledby="about-heading">
             <div className="max-w-6xl mx-auto px-6">
-                <div className="flex flex-col md:flex-row gap-16 items-center">
-                    <motion.div
-                        initial="hidden"
-                        whileInView="visible"
-                        viewport={{ once: true, margin: '-100px' }}
-                        variants={fadeInUp}
-                        className="w-full md:w-5/12 relative"
-                    >
-                        <div className="aspect-[3/4] overflow-hidden rounded-t-full border border-stone-800 p-2 relative">
+                <motion.div
+                    className="flex flex-col lg:flex-row items-center gap-12 lg:gap-20"
+                    variants={staggerContainer(0.2)}
+                    initial="hidden"
+                    whileInView="visible"
+                    viewport={viewportOnce}
+                >
+                    {/* Image */}
+                    <motion.div variants={fadeInLeft} className="relative flex-shrink-0 w-full lg:w-2/5">
+                        <div className="relative aspect-[3/4] max-w-sm mx-auto lg:mx-0 overflow-hidden rounded-2xl border-gold-ornate">
                             <img
                                 src="/head1.jpeg"
-                                alt="林美杏老師"
-                                className="w-full h-full object-cover rounded-t-full transition-all duration-700"
+                                alt="林美杏老師在音樂會上的照片"
+                                width={400}
+                                height={533}
+                                className="w-full h-full object-cover"
+                                loading="lazy"
                             />
-                            <div className="absolute -bottom-6 -right-6 w-32 h-32 bg-background border border-amber-900/30 rounded-full flex items-center justify-center">
-                                <span className="text-amber-500 font-serif text-center text-sm">
-                                    40+ Years
-                                    <br />
-                                    Experience
-                                </span>
+                            {/* Overlay gradient */}
+                            <div className="absolute bottom-0 left-0 right-0 h-1/3 bg-gradient-to-t from-piano/40 to-transparent" />
+                        </div>
+                        {/* Decorative staff lines */}
+                        <div className="absolute -bottom-6 -right-6 w-24 opacity-20" aria-hidden="true">
+                            <div className="divider-staff">
+                                <span /><span /><span /><span /><span />
                             </div>
                         </div>
                     </motion.div>
 
-                    <motion.div
-                        initial="hidden"
-                        whileInView="visible"
-                        viewport={{ once: true, margin: '-100px' }}
-                        variants={staggerContainer}
-                        className="w-full md:w-7/12 space-y-8"
-                    >
-                        <motion.div variants={fadeInUp} className="flex items-center space-x-4">
-                            <div className="h-px bg-amber-500 w-12" />
-                            <h3 className="text-amber-500 font-serif tracking-widest text-xl">ABOUT</h3>
-                        </motion.div>
-                        <motion.h2
-                            variants={fadeInUp}
-                            className="text-3xl md:text-5xl font-serif text-white leading-snug"
-                        >
-                            深耕音樂教育
-                            <br />
-                            跨越世代的音樂橋樑
-                        </motion.h2>
-                        <motion.div
-                            variants={fadeInUp}
-                            className="space-y-6 text-stone-400 leading-relaxed font-light tracking-wide text-lg"
-                        >
+                    {/* Text content */}
+                    <motion.div variants={fadeInRight} className="lg:w-3/5">
+                        <p className="text-gold font-sans text-base tracking-[0.15em] uppercase mb-3">
+                            About the Teacher
+                        </p>
+                        <h2 id="about-heading" className="font-serif text-heading text-piano mb-8">
+                            關於美杏老師
+                        </h2>
+
+                        <div className="space-y-5 text-warm-600 text-lg leading-relaxed">
                             <p>
-                                林美杏老師在音樂教育領域深耕近四十年。秉持著對音樂的無比熱忱，她不僅在體制內外的音樂教室擁有豐富的指導經驗，更將這份愛延伸至社區與長者。
+                                美杏老師擁有<strong className="text-piano font-medium">近四十年</strong>的鋼琴教學經驗，
+                                於 YAMAHA 音樂教室擔任資深講師超過 31 年，同時擔任合唱團指揮與伴奏長達 30 年。
                             </p>
                             <p>
-                                從古典鋼琴的嚴謹、爵士鋼琴的奔放，到合唱團的凝聚力，美杏老師用音樂串聯起不同世代的心。近年來更致力於樂齡音樂教育，將心靈成長、人際關係與音樂律動結合，讓音樂成為滋養生命的靈藥。
+                                她擅長以<em className="text-gold font-serif">細膩的聲音想像</em>與肢體律動訓練，
+                                帶領學生探索音樂的層次與故事。無論是初學啟蒙的幼童，還是重拾琴鍵的樂齡學員，
+                                她都能用溫暖與耐心點燃他們對音樂的熱情。
                             </p>
-                        </motion.div>
+                            <p>
+                                她相信，音樂不只是技巧的累積，更是心靈的滋養。每一堂課，都是一場最美的陪伴。
+                            </p>
+                        </div>
+
+                        {/* Decorative quote */}
+                        <blockquote className="mt-8 pl-6 border-l-2 border-gold-light/40 italic font-serif text-xl text-warm-500">
+                            「每個孩子都有自己的音樂天賦，<br />我只是幫他們找到那個聲音。」
+                        </blockquote>
                     </motion.div>
-                </div>
+                </motion.div>
             </div>
         </section>
     );

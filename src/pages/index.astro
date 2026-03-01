@@ -3,23 +3,29 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 import Nav from '../components/Nav';
 import Hero from '../components/Hero';
 import About from '../components/About';
-import Certifications from '../components/Certifications';
+import Stats from '../components/Stats';
 import Experience from '../components/Experience';
+import Certifications from '../components/Certifications';
 import Gallery from '../components/Gallery';
+import VideoSection from '../components/VideoSection';
+import Testimonials from '../components/Testimonials';
+import Contact from '../components/Contact';
 import Footer from '../components/Footer';
+import '../styles/global.css';
 ---
 
-<BaseLayout title="林美杏 | 鋼琴家與音樂教育家 — Lin Mei-Hsing">
-  <!-- Nav & Hero: 頁面載入即 hydrate（需要 scroll 監聽 & 進場動畫） -->
+<BaseLayout title="林美杏老師 | 鋼琴家 · 音樂教育家">
   <Nav client:load />
-  <Hero client:load />
-
-  <!-- 以下區塊：滾動到可見才 hydrate（節省首屏 JS） -->
-  <About client:visible />
-  <Certifications client:visible />
-  <Experience client:visible />
-  <Gallery client:visible />
-
-  <!-- Footer: 純靜態渲染，不需要 client JS -->
-  <Footer client:visible />
+  <main id="main-content">
+    <Hero client:load />
+    <About client:visible />
+    <Stats client:visible />
+    <Experience client:visible />
+    <Certifications client:visible />
+    <Gallery client:visible />
+    <VideoSection client:visible />
+    <Testimonials client:visible />
+    <Contact client:visible />
+  </main>
+  <Footer />
 </BaseLayout>

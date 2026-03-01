@@ -1,63 +1,97 @@
 import { motion } from 'framer-motion';
-import { Award, Piano, BookOpen } from 'lucide-react';
-import { fadeInUp } from '../animations/variants';
-import type { Certification } from '../types';
+import { fadeInUp, staggerContainer, viewportOnce } from '../animations/variants';
 
-const certifications: Certification[] = [
+const certifications = [
     {
-        icon: <Award className="w-8 h-8 text-amber-500 mb-4" />,
-        title: 'YAMAHA 音樂檢定',
-        desc: '具備鋼琴五級、電子琴五級，以及指導級四級資格。曾長期擔任檢定監考官。',
-        year: '1987 - 1999',
+        title: 'YAMAHA 指導級四級',
+        org: 'YAMAHA Music Foundation',
+        year: '1999',
+        desc: 'Fundamentals Grade 4 — YAMAHA 系統最高等級教學認證，具備完整的音樂教育指導能力。',
     },
     {
-        icon: <Piano className="w-8 h-8 text-amber-500 mb-4" />,
-        title: 'KAWAI 音樂能力檢定',
-        desc: '取得 KAWAI 演奏等級五級 (Performance Grade 5) 專業資格。',
+        title: 'YAMAHA 鋼琴演奏五級',
+        org: 'YAMAHA Music Foundation',
+        year: '1988',
+        desc: 'Fundamentals Grade 5 — 涵蓋獨奏、即興演奏與視奏能力的鋼琴演奏認證。',
+    },
+    {
+        title: 'YAMAHA 電子琴五級',
+        org: 'YAMAHA Music Foundation',
+        year: '1987',
+        desc: 'Electone Grade 5 — 電子琴演奏能力檢定，展現多元樂器演奏實力。',
+    },
+    {
+        title: 'KAWAI 演奏五級',
+        org: 'KAWAI Music Foundation',
         year: '1985',
+        desc: 'Performance Grade 5 — KAWAI 鋼琴演奏能力檢定，奠定堅實演奏基礎。',
     },
     {
-        icon: <BookOpen className="w-8 h-8 text-amber-500 mb-4" />,
-        title: '樂齡教育專業',
-        desc: '具備高雄市政府教育局核發之「樂齡學習專業人員（一般課程講師）」培訓證明。',
-        year: 'Professional',
+        title: '樂齡學習專業人員',
+        org: '高雄市政府教育局',
+        year: '',
+        desc: '取得一般課程講師培訓證明書，具備樂齡教育專業資格。',
+    },
+    {
+        title: '功在樂教紀念獎',
+        org: 'YAMAHA 功學社',
+        year: '2017',
+        desc: '31 年教學貢獻卓著，退休時由功學社山葉樂器頒發「功在樂教」紀念獎座。',
     },
 ];
 
 export default function Certifications() {
     return (
-        <section id="certifications" className="py-24 bg-surface relative border-y border-stone-900">
-            <div className="max-w-6xl mx-auto px-6">
+        <section className="bg-cream section-padding" aria-labelledby="cert-heading">
+            <div className="max-w-5xl mx-auto px-6">
                 <motion.div
-                    initial="hidden"
-                    whileInView="visible"
-                    viewport={{ once: true }}
-                    variants={fadeInUp}
-                    className="text-center mb-16"
+                    className="text-center mb-10"
+                    initial={{ opacity: 0, y: 20 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.6 }}
+                    viewport={viewportOnce}
                 >
-                    <h3 className="text-amber-500 font-serif tracking-widest text-lg mb-2">QUALIFICATIONS</h3>
-                    <h2 className="text-3xl md:text-4xl font-serif text-white">專業認證與資格</h2>
+                    <p className="text-gold font-sans text-base tracking-[0.2em] uppercase mb-3">
+                        Qualifications
+                    </p>
+                    <h2 id="cert-heading" className="font-serif text-heading text-piano">
+                        專業資格與榮譽
+                    </h2>
                 </motion.div>
 
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-                    {certifications.map((item, index) => (
+                <motion.div
+                    className="grid md:grid-cols-2 lg:grid-cols-3 gap-6"
+                    variants={staggerContainer(0.08)}
+                    initial="hidden"
+                    whileInView="visible"
+                    viewport={viewportOnce}
+                >
+                    {certifications.map((cert) => (
                         <motion.div
-                            key={index}
-                            initial="hidden"
-                            whileInView="visible"
-                            viewport={{ once: true }}
+                            key={cert.title}
                             variants={fadeInUp}
-                            className="bg-card p-10 rounded-sm border border-stone-800 hover:border-amber-900/50 transition-colors group"
+                            className="glass-card p-7 group cursor-default hover:border-gold-light/30 transition-colors duration-200"
                         >
-                            {item.icon}
-                            <div className="text-xs text-stone-500 mb-2 font-mono">{item.year}</div>
-                            <h4 className="text-xl text-white font-serif mb-4 group-hover:text-amber-400 transition-colors">
-                                {item.title}
-                            </h4>
-                            <p className="text-stone-400 font-light leading-relaxed">{item.desc}</p>
+                            <div className="flex items-start gap-4">
+                                <div className="flex-shrink-0 w-10 h-10 rounded-full bg-gold/10 flex items-center justify-center mt-1">
+                                    <svg className="w-5 h-5 text-gold" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+                                        <path d="M12 15l-3.5 2 .67-3.9L6 10.1l3.9-.57L12 6l1.58 3.53 3.9.57-2.83 2.76.67 3.9z" />
+                                    </svg>
+                                </div>
+                                <div>
+                                    <h3 className="font-serif text-xl text-piano mb-0.5">{cert.title}</h3>
+                                    <div className="flex items-center gap-2 mb-2.5">
+                                        <p className="text-gold text-xs font-sans tracking-wider uppercase">{cert.org}</p>
+                                        {cert.year && (
+                                            <span className="text-warm-400 text-xs font-sans tabular-nums">· {cert.year}</span>
+                                        )}
+                                    </div>
+                                    <p className="text-warm-600 text-base leading-relaxed">{cert.desc}</p>
+                                </div>
+                            </div>
                         </motion.div>
                     ))}
-                </div>
+                </motion.div>
             </div>
         </section>
     );
