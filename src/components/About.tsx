@@ -16,7 +16,7 @@ export default function About() {
                     <motion.div variants={fadeInLeft} className="relative flex-shrink-0 w-full lg:w-2/5">
                         <div className="relative aspect-[3/4] max-w-sm mx-auto lg:mx-0 overflow-hidden rounded-2xl border-gold-ornate">
                             <img
-                                src="/head1.jpeg"
+                                src="/head1.webp"
                                 alt="林美杏老師在音樂會上的照片"
                                 width={400}
                                 height={533}

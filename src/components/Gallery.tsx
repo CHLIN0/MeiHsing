@@ -22,7 +22,7 @@ function getCategoryImages(category: Exclude<Category, 'all'>): string[] {
     const tab = categoryTabs.find(t => t.id === category);
     if (!tab) return [];
     return Array.from({ length: tab.count }, (_, i) =>
-        `/gallery/${category}/${category}-${String(i + 1).padStart(2, '0')}.jpeg`
+        `/gallery/${category}/${category}-${String(i + 1).padStart(2, '0')}.webp`
     );
 }
 

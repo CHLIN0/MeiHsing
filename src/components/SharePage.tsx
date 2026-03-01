@@ -58,7 +58,7 @@ export default function SharePage() {
                     <motion.section variants={fadeInUp} className="text-center mb-12">
                         <div className="w-32 h-32 mx-auto mb-6 rounded-full overflow-hidden border-2 border-amber-500/30 p-1">
                             <img
-                                src="/head1.jpeg"
+                                src="/head1.webp"
                                 alt="林美杏老師"
                                 className="w-full h-full object-cover rounded-full"
                             />

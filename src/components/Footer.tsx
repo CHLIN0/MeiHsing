@@ -11,7 +11,7 @@ export default function Footer() {
                     {/* Logo + name */}
                     <div className="flex items-center gap-3">
                         <img
-                            src="/logo.png"
+                            src="/logo.webp"
                             alt=""
                             width={32}
                             height={32}

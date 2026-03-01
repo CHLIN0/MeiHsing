@@ -30,8 +30,8 @@ MS/
 │   │   ├── music-class/       # 音樂班
 │   │   └── volunteer/         # 志工
 │   ├── background2.webp       # 首屏背景
-│   ├── logo.png               # 網站 Logo
-│   └── head1.jpeg             # 個人肖像
+│   ├── logo.webp               # 網站 Logo
+│   └── head1.webp             # 個人肖像
 └── src/                       # 原始碼
     ├── animations/
     │   └── variants.ts        # Framer Motion 共用動畫設定

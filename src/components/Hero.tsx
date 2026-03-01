@@ -73,7 +73,7 @@ export default function Hero() {
                             <div className="absolute -inset-3 rounded-full border border-gold-light/20" />
                             {/* Photo */}
                             <img
-                                src="/head.JPG"
+                                src="/head.webp"
                                 alt="林美杏老師"
                                 width={320}
                                 height={320}
@@ -88,7 +88,7 @@ export default function Hero() {
                     </motion.div>
 
                     {/* Text content */}
-                    <motion.div variants={fadeInUp} className="text-center lg:text-left max-w-xl">
+                    <motion.div variants={fadeInUp} className="text-center lg:text-left max-w-2xl">
                         <p className="text-gold-light/70 font-sans text-base tracking-[0.2em] uppercase mb-3">
                             Piano Artist & Mentor
                         </p>
@@ -102,13 +102,13 @@ export default function Hero() {
                             「音樂是我們成長中不可多得的陪伴」
                         </p>
 
-                        <p className="text-warm-200 text-lg leading-relaxed mb-5 max-w-lg mx-auto lg:mx-0">
-                            三十幾年音樂教育深耕，以細膩的聲音想像與肢體律動訓練，
+                        <p className="text-warm-200 text-lg leading-relaxed mb-5 max-w-xl mx-auto lg:mx-0">
+                            三十幾年音樂教育深耕，YAMAHA 資深音樂講師，以細膩的聲音想像與肢體律動訓練，
                             陪伴每一位學生探索音樂的層次與故事。
                         </p>
 
                         {/* Current positions — highlighted cards */}
-                        <ul className="mb-6 space-y-3 text-lg text-warm-100 max-w-lg mx-auto lg:mx-0 list-none">
+                        <ul className="mb-6 space-y-3 text-lg text-warm-100 max-w-xl mx-auto lg:mx-0 list-none">
                             <li className="flex items-center gap-3 bg-white/10 backdrop-blur-sm rounded-lg px-4 py-2.5 border border-gold-light/20">
                                 <span className="text-gold-light text-base flex-shrink-0" aria-hidden="true">▸</span>
                                 岡山長青學苑合唱團老師兼伴奏

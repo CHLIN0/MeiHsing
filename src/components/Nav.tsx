@@ -39,7 +39,7 @@ export default function Nav() {
                 {/* Logo + Name */}
                 <a href="/" className="flex items-center gap-3 group cursor-pointer">
                     <img
-                        src="/logo.png"
+                        src="/logo.webp"
                         alt="林美杏老師 Logo"
                         width={40}
                         height={40}
