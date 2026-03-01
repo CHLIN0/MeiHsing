@@ -22,8 +22,6 @@ MS/
 ├── tsconfig.json              # TypeScript 嚴格模式設定
 ├── package.json               # 專案依賴與腳本
 ├── resume.md                  # 老師履歷資料 (供內容參考)
-├── .github/workflows/
-│   └── deploy.yml             # GitHub Actions 自動部署腳本
 ├── public/                    # 靜態資源
 │   ├── gallery/               # 藝廊照片 (已分類整理)
 │   │   ├── choir/             # 合唱團
@@ -93,11 +91,16 @@ npm run build
 
 ## 部署說明 (Deployment)
 
-本專案已設定好完全由 **GitHub Actions** 自動部署至 **GitHub Pages**。
+本專案透過 **Cloudflare Pages** 部署，並串聯 GitHub repository 自動觸發建置。
 
-1. **版本控制**: 確保程式碼推送到 GitHub repository。
-2. **自動觸發**: 每當程式碼推送到 `main` 分支時，`.github/workflows/deploy.yml` 會自動執行。
-3. **GitHub Pages 設定**:
-   - 進入 Repository 的 **Settings** -> **Pages**。
-   - 在 **Build and deployment** 區塊中，將 **Source** 設定為 `GitHub Actions`。
-4. **上線**: 部署完成後，網站即會更新於 `https://meishing.github.io`。
+### Cloudflare Pages 設定
+
+1. **連結 GitHub**: 在 Cloudflare Dashboard 中建立新的 Pages 專案，連結此 GitHub repository。
+2. **建置設定**:
+   - **Framework preset**: `Astro`
+   - **Build command**: `npm run build`
+   - **Build output directory**: `dist`
+   - **Node.js version**: `20` (在 Environment variables 中設定 `NODE_VERSION=20`)
+3. **自動部署**: 每當推送到 `main` 分支時，Cloudflare Pages 會自動觸發建置與部署。
+4. **自訂域名**: 在 Cloudflare Pages 專案的 **Custom domains** 中新增 `ms.linho.me`。
+5. **上線**: 部署完成後，網站即可透過 `https://ms.linho.me` 存取。

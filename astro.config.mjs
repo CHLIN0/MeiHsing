@@ -3,7 +3,7 @@ import react from '@astrojs/react';
 import tailwind from '@astrojs/tailwind';
 
 export default defineConfig({
-    site: 'https://meishing.github.io',
+    site: 'https://ms.linho.me',
     integrations: [react(), tailwind()],
     output: 'static',
 });
