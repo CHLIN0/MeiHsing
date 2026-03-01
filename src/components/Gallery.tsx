@@ -1,4 +1,4 @@
-import { useState, useCallback, useMemo } from 'react';
+import { useState, useCallback, useMemo, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { fadeInUp, staggerContainer, lightboxOverlay, lightboxContent, viewportOnce } from '../animations/variants';
 
@@ -42,6 +42,11 @@ const tabs: GalleryTab[] = [
 export default function Gallery() {
     const [activeTab, setActiveTab] = useState<Category>('all');
     const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
+    const [isExpanded, setIsExpanded] = useState(false);
+
+    useEffect(() => {
+        setIsExpanded(false);
+    }, [activeTab]);
 
     const images = useMemo(() =>
         activeTab === 'all' ? getAllImages() : getCategoryImages(activeTab as Exclude<Category, 'all'>),
@@ -111,37 +116,54 @@ export default function Gallery() {
                 </div>
 
                 {/* Photo Grid */}
-                <AnimatePresence mode="wait">
-                    <motion.div
-                        key={activeTab}
-                        className="columns-2 md:columns-3 lg:columns-4 gap-4 space-y-4"
-                        variants={staggerContainer(0.05)}
-                        initial="hidden"
-                        animate="visible"
-                        exit={{ opacity: 0, transition: { duration: 0.2 } }}
-                    >
-                        {images.map((src, i) => (
-                            <motion.div
-                                key={src}
-                                variants={fadeInUp}
-                                className="break-inside-avoid cursor-pointer group"
-                                onClick={() => openLightbox(i)}
+                <div className={`relative transition-all duration-700 ease-in-out ${!isExpanded && images.length > 8 ? 'max-h-[60vh] md:max-h-[80vh] overflow-hidden' : ''}`}>
+                    <AnimatePresence mode="wait">
+                        <motion.div
+                            key={activeTab}
+                            className={`columns-2 md:columns-3 lg:columns-4 gap-4 space-y-4 ${!isExpanded && images.length > 8 ? 'pb-12' : ''}`}
+                            variants={staggerContainer(0.05)}
+                            initial="hidden"
+                            animate="visible"
+                            exit={{ opacity: 0, transition: { duration: 0.2 } }}
+                        >
+                            {images.map((src, i) => (
+                                <motion.div
+                                    key={src}
+                                    variants={fadeInUp}
+                                    className="break-inside-avoid cursor-pointer group"
+                                    onClick={() => openLightbox(i)}
+                                >
+                                    <div className="relative overflow-hidden rounded-xl">
+                                        <img
+                                            src={src}
+                                            alt={`${tabs.find(t => t.id === activeTab)?.label || ''} 照片 ${i + 1}`}
+                                            className="w-full h-auto block transition-transform duration-500 group-hover:scale-105"
+                                            loading="lazy"
+                                            width={400}
+                                            height={300}
+                                        />
+                                        <div className="absolute inset-0 bg-piano/0 group-hover:bg-piano/10 transition-colors duration-300" />
+                                    </div>
+                                </motion.div>
+                            ))}
+                        </motion.div>
+                    </AnimatePresence>
+
+                    {/* Show More Overlay */}
+                    {!isExpanded && images.length > 8 && (
+                        <div className="absolute bottom-0 left-0 right-0 h-48 bg-gradient-to-t from-ivory via-ivory/90 to-transparent flex items-end justify-center pb-6 md:pb-8 pointer-events-none">
+                            <button
+                                onClick={() => setIsExpanded(true)}
+                                className="px-8 py-3 rounded-full bg-gold text-white font-sans font-medium hover:bg-gold/90 transition-all shadow-[0_4px_20px_rgba(212,175,55,0.4)] hover:shadow-[0_6px_25px_rgba(212,175,55,0.5)] hover:-translate-y-1 pointer-events-auto flex items-center gap-2"
                             >
-                                <div className="relative overflow-hidden rounded-xl">
-                                    <img
-                                        src={src}
-                                        alt={`${tabs.find(t => t.id === activeTab)?.label || ''} 照片 ${i + 1}`}
-                                        className="w-full h-auto block transition-transform duration-500 group-hover:scale-105"
-                                        loading="lazy"
-                                        width={400}
-                                        height={300}
-                                    />
-                                    <div className="absolute inset-0 bg-piano/0 group-hover:bg-piano/10 transition-colors duration-300" />
-                                </div>
-                            </motion.div>
-                        ))}
-                    </motion.div>
-                </AnimatePresence>
+                                更多
+                                <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                    <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+                                </svg>
+                            </button>
+                        </div>
+                    )}
+                </div>
             </div>
 
             {/* Lightbox */}
