@@ -1,0 +1,25 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Nav from '../components/Nav';
+import Hero from '../components/Hero';
+import About from '../components/About';
+import Certifications from '../components/Certifications';
+import Experience from '../components/Experience';
+import Gallery from '../components/Gallery';
+import Footer from '../components/Footer';
+---
+
+<BaseLayout title="林美杏 | 鋼琴家與音樂教育家 — Lin Mei-Hsing">
+  <!-- Nav & Hero: 頁面載入即 hydrate（需要 scroll 監聽 & 進場動畫） -->
+  <Nav client:load />
+  <Hero client:load />
+
+  <!-- 以下區塊：滾動到可見才 hydrate（節省首屏 JS） -->
+  <About client:visible />
+  <Certifications client:visible />
+  <Experience client:visible />
+  <Gallery client:visible />
+
+  <!-- Footer: 純靜態渲染，不需要 client JS -->
+  <Footer client:visible />
+</BaseLayout>
