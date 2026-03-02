@@ -359,6 +359,25 @@ export default function Contact() {
                             </a>
                         ))}
 
+                        {/* All links page */}
+                        <a
+                            href="/links"
+                            className="glass-card p-4 flex items-center gap-4 group cursor-pointer hover:border-gold-light/30 transition-colors duration-200 block"
+                        >
+                            <div className="w-9 h-9 rounded-full bg-gold/10 flex items-center justify-center text-gold group-hover:bg-gold/20 transition-colors duration-200 flex-shrink-0">
+                                <svg viewBox="0 0 24 24" className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+                                    <path strokeLinecap="round" strokeLinejoin="round" d="M7.217 10.907a2.25 2.25 0 100 2.186m0-2.186c.18.324.283.696.283 1.093s-.103.77-.283 1.093m0-2.186l9.566-5.314m-9.566 7.5l9.566 5.314m0-12.814a2.25 2.25 0 103.935 2.186 2.25 2.25 0 00-3.935-2.186zm0 12.814a2.25 2.25 0 103.933-2.185 2.25 2.25 0 00-3.933 2.185z" />
+                                </svg>
+                            </div>
+                            <div className="flex-1">
+                                <span className="font-sans font-medium text-piano text-base block">查看所有連結</span>
+                                <span className="text-warm-500 text-sm">含 QR Code，方便分享</span>
+                            </div>
+                            <svg className="w-4 h-4 text-warm-400 group-hover:text-gold transition-colors duration-200" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+                                <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
+                            </svg>
+                        </a>
+
                         {/* Tagline */}
                         <p className="text-center text-warm-500 text-base italic font-serif pt-2">
                             ♩ 期待與你在音樂中相遇。

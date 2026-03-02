@@ -7,6 +7,7 @@ const navLinks = [
     { href: '#gallery', label: '相簿' },
     { href: '#video', label: '影音' },
     { href: '#contact', label: '聯繫' },
+    { href: '/links', label: '分享' },
 ];
 
 export default function Nav() {
