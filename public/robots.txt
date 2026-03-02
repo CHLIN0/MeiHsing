@@ -1,6 +1,6 @@
 # Sitemap
 Sitemap: https://ms.linho.me/sitemap-index.xml
-
+Sitemap: https://ms.linho.me/sitemap-0.xml
 # Allow all crawlers
 User-agent: *
 Allow: /
