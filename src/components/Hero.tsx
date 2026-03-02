@@ -129,7 +129,7 @@ export default function Hero() {
 
                         {/* Teaching subjects */}
                         <div className="flex flex-wrap gap-2 mb-8 justify-center lg:justify-start">
-                            {['古典鋼琴', '爵士鋼琴', '自彈自唱', '樂理教學'].map((subject) => (
+                            {['古典鋼琴', '爵士鋼琴', '自彈自唱', '樂理教學', '空靈鼓'].map((subject) => (
                                 <span
                                     key={subject}
                                     className="inline-flex items-center px-4 py-2 rounded-full bg-white/12 border border-gold-light/35 text-warm-100 text-sm font-sans tracking-wide backdrop-blur-sm"
