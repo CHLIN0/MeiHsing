@@ -4,9 +4,9 @@ export default {
     theme: {
         extend: {
             fontFamily: {
-                serif: ['"Cormorant"', 'serif'],
+                serif: ['"Cormorant"', '"Noto Serif TC"', '"思源宋體"', '"Songti TC"', '"PingFang TC"', '"Microsoft JhengHei"', 'sans-serif'],
                 sans: ['"Montserrat"', '"Noto Sans TC"', 'sans-serif'],
-                display: ['"Cormorant"', 'serif'],
+                display: ['"Cormorant"', '"Noto Serif TC"', '"思源宋體"', '"Songti TC"', '"PingFang TC"', '"Microsoft JhengHei"', 'sans-serif'],
             },
             colors: {
                 ivory: '#FAF7F2',

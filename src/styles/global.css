@@ -25,7 +25,7 @@
   h4,
   h5,
   h6 {
-    font-family: 'Cormorant', serif;
+    font-family: 'Cormorant', 'Noto Serif TC', '思源宋體', 'Songti TC', 'PingFang TC', 'Microsoft JhengHei', sans-serif;
     text-wrap: balance;
     color: #2C1810;
   }
