@@ -1,0 +1,2295 @@
+.concert-page {
+    --concert-ivory: #fffaf2;
+    --concert-paper: #f8eee5;
+    --concert-blush: #ead7d5;
+    --concert-blush-soft: #f4e7e4;
+    --concert-ink: #43332e;
+    --concert-muted: #725f56;
+    --concert-gold: #8e6536;
+    --concert-gold-light: #c9a574;
+    --concert-sage: #68705c;
+    --concert-night: #2e211d;
+    min-height: 100vh;
+    overflow: clip;
+    color: var(--concert-ink);
+    background:
+        radial-gradient(circle at 9% 10%, rgba(234, 215, 213, 0.46), transparent 28rem),
+        var(--concert-ivory);
+}
+
+.concert-shell {
+    width: min(1180px, calc(100% - 3rem));
+    margin-inline: auto;
+}
+
+.concert-page [id] {
+    scroll-margin-top: 5.75rem;
+}
+
+.concert-eyebrow {
+    margin: 0;
+    color: var(--concert-gold);
+    font-family: 'Cormorant', 'Times New Roman', serif;
+    font-size: 0.82rem;
+    font-weight: 600;
+    line-height: 1.4;
+    letter-spacing: 0.24em;
+    text-transform: uppercase;
+}
+
+.concert-rule {
+    width: 8.5rem;
+    height: 1px;
+    margin-block: 1.7rem 1.8rem;
+    background: linear-gradient(90deg, var(--concert-gold), transparent);
+}
+
+.concert-button {
+    display: inline-flex;
+    min-height: 3rem;
+    align-items: center;
+    justify-content: center;
+    padding: 0.82rem 1.35rem;
+    border: 1px solid transparent;
+    border-radius: 999px;
+    font-family: 'Noto Sans TC', sans-serif;
+    font-size: 0.9rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-decoration: none;
+    transition: transform 180ms ease, background-color 180ms ease, border-color 180ms ease, color 180ms ease;
+}
+
+.concert-button:hover {
+    transform: translateY(-2px);
+}
+
+.concert-button:active {
+    transform: translateY(0);
+}
+
+.concert-button--primary {
+    color: #fffaf2;
+    background: var(--concert-ink);
+    box-shadow: 0 12px 32px rgba(67, 51, 46, 0.15);
+}
+
+.concert-button--primary:hover {
+    background: #2f231f;
+}
+
+.concert-button--ghost {
+    color: var(--concert-ink);
+    border-color: rgba(67, 51, 46, 0.36);
+    background: rgba(255, 250, 242, 0.42);
+}
+
+.concert-button--ghost:hover {
+    border-color: var(--concert-ink);
+    background: rgba(255, 250, 242, 0.82);
+}
+
+.concert-button--light {
+    color: var(--concert-night);
+    background: var(--concert-ivory);
+}
+
+.concert-button--outline-light {
+    color: var(--concert-ivory);
+    border-color: rgba(255, 250, 242, 0.5);
+    background: transparent;
+}
+
+.concert-button--outline-light:hover {
+    border-color: var(--concert-ivory);
+    background: rgba(255, 250, 242, 0.08);
+}
+
+/* Event navigation */
+.concert-nav {
+    position: fixed;
+    top: 0;
+    right: 0;
+    left: 0;
+    z-index: 60;
+    border-bottom: 1px solid rgba(142, 101, 54, 0.16);
+    background: rgba(255, 250, 242, 0.78);
+    box-shadow: 0 10px 32px rgba(67, 51, 46, 0.04);
+    backdrop-filter: blur(18px) saturate(120%);
+    -webkit-backdrop-filter: blur(18px) saturate(120%);
+}
+
+.concert-nav__inner {
+    display: flex;
+    min-height: 4.75rem;
+    align-items: center;
+    justify-content: space-between;
+    gap: 2rem;
+}
+
+.concert-nav__brand {
+    display: flex;
+    min-width: 0;
+    align-items: center;
+    gap: 0.75rem;
+    color: var(--concert-ink);
+    text-decoration: none;
+}
+
+.concert-nav__brand img {
+    width: 2.35rem;
+    height: 2.35rem;
+    flex: 0 0 auto;
+    border: 1px solid rgba(142, 101, 54, 0.25);
+    border-radius: 50%;
+    box-shadow: 0 4px 14px rgba(67, 51, 46, 0.09);
+}
+
+.concert-nav__brand span {
+    display: flex;
+    min-width: 0;
+    flex-direction: column;
+    line-height: 1.2;
+}
+
+.concert-nav__brand strong {
+    overflow: hidden;
+    font-family: 'Noto Serif TC', serif;
+    font-size: 0.98rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.concert-nav__brand small {
+    margin-top: 0.2rem;
+    color: var(--concert-muted);
+    font-family: 'Cormorant', serif;
+    font-size: 0.62rem;
+    font-weight: 600;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+}
+
+.concert-nav__links {
+    display: flex;
+    align-items: center;
+    gap: 1.65rem;
+}
+
+.concert-nav__links a {
+    min-height: 2.75rem;
+    display: inline-flex;
+    align-items: center;
+    color: var(--concert-muted);
+    font-size: 0.82rem;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-decoration: none;
+    transition: color 160ms ease;
+}
+
+.concert-nav__links a:hover {
+    color: var(--concert-gold);
+}
+
+.concert-nav__links .concert-nav__home {
+    padding-inline: 1rem;
+    color: var(--concert-ivory);
+    border-radius: 999px;
+    background: var(--concert-ink);
+}
+
+.concert-nav__links .concert-nav__home:hover {
+    color: white;
+    background: #2f231f;
+}
+
+/* Hero: desktop uses the stage visual; mobile swaps to the poster artwork. */
+.concert-hero {
+    position: relative;
+    min-height: max(46rem, 100svh);
+    display: flex;
+    align-items: center;
+    isolation: isolate;
+    overflow: hidden;
+    background: #efe3d7;
+}
+
+.concert-hero__art,
+.concert-hero__art img,
+.concert-hero__veil {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+}
+
+.concert-hero__art {
+    z-index: -3;
+}
+
+.concert-hero__art img {
+    object-fit: cover;
+    object-position: center;
+    animation: concert-hero-settle 1.8s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+}
+
+.concert-hero__veil {
+    z-index: -2;
+    background:
+        linear-gradient(90deg, rgba(255, 250, 242, 0.9) 0%, rgba(255, 250, 242, 0.72) 37%, rgba(255, 250, 242, 0.14) 67%, transparent 82%),
+        linear-gradient(180deg, rgba(255, 250, 242, 0.05) 48%, rgba(53, 39, 31, 0.2) 100%);
+}
+
+.concert-hero::after {
+    content: '';
+    position: absolute;
+    right: 0;
+    bottom: -1px;
+    left: 0;
+    z-index: 1;
+    height: 4.5rem;
+    background: linear-gradient(176deg, transparent 48%, var(--concert-ivory) 49%);
+    pointer-events: none;
+}
+
+.concert-hero__inner {
+    position: relative;
+    z-index: 2;
+    padding-block: 8.5rem 7rem;
+}
+
+.concert-hero__copy {
+    width: min(48rem, 66%);
+    color: var(--concert-ink);
+    text-shadow: 0 2px 18px rgba(255, 252, 247, 0.9);
+    animation: concert-copy-rise 900ms 180ms ease-out both;
+}
+
+.concert-hero__kicker {
+    margin: 1.35rem 0 0;
+    font-family: 'Noto Sans TC', sans-serif;
+    font-size: clamp(1.35rem, 2.2vw, 2.15rem);
+    font-weight: 600;
+    letter-spacing: 0.2em;
+}
+
+.concert-hero h1 {
+    margin: 0;
+    color: var(--concert-ink);
+    font-family: 'Noto Serif TC', serif;
+    font-size: clamp(4.6rem, 8.8vw, 7.7rem);
+    font-weight: 500;
+    line-height: 1.04;
+    letter-spacing: 0.1em;
+    white-space: nowrap;
+}
+
+.concert-hero__theme-line {
+    margin: 0.55rem 0 0;
+    color: #5b453c;
+    font-family: 'Noto Serif TC', serif;
+    font-size: clamp(2rem, 4.2vw, 3.6rem);
+    font-weight: 500;
+    line-height: 1.2;
+    letter-spacing: 0.18em;
+}
+
+.concert-hero__facts {
+    display: flex;
+    gap: clamp(2rem, 4vw, 4.5rem);
+    margin: 2.7rem 0 0;
+}
+
+.concert-hero__facts > div {
+    min-width: 15rem;
+    padding-left: 1rem;
+    border-left: 2px solid rgba(142, 101, 54, 0.62);
+}
+
+.concert-hero__facts dt {
+    color: var(--concert-gold);
+    font-family: 'Cormorant', serif;
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.19em;
+    text-transform: uppercase;
+}
+
+.concert-hero__facts dd {
+    margin: 0.35rem 0 0;
+    font-size: clamp(1.05rem, 1.5vw, 1.3rem);
+    font-weight: 600;
+    letter-spacing: 0.04em;
+}
+
+.concert-hero__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.85rem;
+    margin-top: 2.3rem;
+}
+
+.concert-hero__scroll {
+    position: absolute;
+    right: clamp(2rem, 4vw, 4.5rem);
+    bottom: 4.6rem;
+    z-index: 3;
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    color: rgba(255, 250, 242, 0.9);
+    font-family: 'Cormorant', serif;
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.2em;
+    text-decoration: none;
+    text-shadow: 0 2px 12px rgba(46, 33, 29, 0.7);
+    text-transform: uppercase;
+}
+
+.concert-hero__scroll-line {
+    display: block;
+    width: 3.5rem;
+    height: 1px;
+    background: currentColor;
+    transform-origin: left;
+    animation: concert-scroll-line 2.4s ease-in-out infinite;
+}
+
+/* Story */
+.concert-story {
+    position: relative;
+    padding-block: clamp(6rem, 10vw, 9rem);
+    background:
+        radial-gradient(circle at 8% 20%, rgba(234, 215, 213, 0.42), transparent 24rem),
+        var(--concert-ivory);
+}
+
+.concert-story::before {
+    content: '♪';
+    position: absolute;
+    top: 7%;
+    left: 3%;
+    color: rgba(142, 101, 54, 0.08);
+    font-family: 'Cormorant', serif;
+    font-size: clamp(8rem, 18vw, 16rem);
+    line-height: 1;
+    transform: rotate(-8deg);
+    pointer-events: none;
+}
+
+.concert-story__grid {
+    display: grid;
+    grid-template-columns: minmax(0, 0.95fr) minmax(22rem, 0.72fr);
+    align-items: center;
+    gap: clamp(3rem, 7vw, 7rem);
+}
+
+.concert-story__copy h2,
+.concert-section-heading h2,
+.concert-credits h2,
+.concert-closing h2 {
+    margin: 1.15rem 0 0;
+    color: var(--concert-ink);
+    font-family: 'Noto Serif TC', serif;
+    font-size: clamp(2.45rem, 5vw, 4.6rem);
+    font-weight: 500;
+    line-height: 1.28;
+    letter-spacing: 0.04em;
+}
+
+.concert-story__lead {
+    margin: 2rem 0 0;
+    color: #57433a;
+    font-family: 'Noto Serif TC', serif;
+    font-size: clamp(1.25rem, 2vw, 1.65rem);
+    font-weight: 500;
+    line-height: 1.8;
+}
+
+.concert-story__lead + p {
+    margin: 1.15rem 0 0;
+    max-width: 43rem;
+    color: var(--concert-muted);
+    font-size: 1rem;
+    line-height: 2;
+}
+
+.concert-story__stats {
+    display: flex;
+    gap: clamp(1.5rem, 4vw, 3.5rem);
+    margin: 2.8rem 0 0;
+    padding-top: 1.75rem;
+    border-top: 1px solid rgba(142, 101, 54, 0.28);
+}
+
+.concert-story__stats div {
+    min-width: 5.8rem;
+}
+
+.concert-story__stats dt {
+    color: var(--concert-gold);
+    font-family: 'Cormorant', serif;
+    font-size: clamp(2rem, 4vw, 3.2rem);
+    font-weight: 500;
+    line-height: 1;
+}
+
+.concert-story__stats dd {
+    margin: 0.55rem 0 0;
+    color: var(--concert-muted);
+    font-size: 0.76rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+}
+
+.concert-story__image {
+    position: relative;
+    margin: 0;
+}
+
+.concert-story__image::before {
+    content: '';
+    position: absolute;
+    inset: -1.1rem 1.1rem 1.1rem -1.1rem;
+    z-index: 0;
+    border: 1px solid rgba(142, 101, 54, 0.42);
+    border-radius: 14rem 14rem 1.5rem 1.5rem;
+}
+
+.concert-story__image img {
+    position: relative;
+    z-index: 1;
+    width: 100%;
+    aspect-ratio: 4 / 5.2;
+    display: block;
+    border-radius: 14rem 14rem 1.5rem 1.5rem;
+    box-shadow: 0 30px 70px rgba(67, 51, 46, 0.16);
+    object-fit: cover;
+    object-position: center 45%;
+}
+
+.concert-story__image figcaption {
+    position: relative;
+    z-index: 2;
+    width: 82%;
+    margin: -2.2rem auto 0;
+    padding: 1rem 1.3rem;
+    color: var(--concert-muted);
+    border: 1px solid rgba(142, 101, 54, 0.22);
+    background: rgba(255, 250, 242, 0.92);
+    box-shadow: 0 14px 36px rgba(67, 51, 46, 0.09);
+    font-family: 'Noto Serif TC', serif;
+    font-size: 0.9rem;
+    line-height: 1.7;
+    text-align: center;
+}
+
+/* Programme: one editorial sheet, not a grid of generic cards. */
+.concert-programme {
+    position: relative;
+    padding-block: clamp(6.5rem, 11vw, 10rem);
+    background:
+        linear-gradient(135deg, rgba(234, 215, 213, 0.84), rgba(248, 238, 229, 0.96) 46%, rgba(228, 218, 199, 0.78));
+}
+
+.concert-programme::before,
+.concert-programme::after {
+    content: '';
+    position: absolute;
+    border-radius: 50%;
+    background: rgba(255, 250, 242, 0.28);
+    filter: blur(1px);
+    pointer-events: none;
+}
+
+.concert-programme::before {
+    top: 2rem;
+    right: -9rem;
+    width: 24rem;
+    height: 24rem;
+}
+
+.concert-programme::after {
+    bottom: 5rem;
+    left: -7rem;
+    width: 19rem;
+    height: 19rem;
+}
+
+.concert-section-heading {
+    position: relative;
+    z-index: 1;
+    max-width: 48rem;
+}
+
+.concert-section-heading--center {
+    margin-inline: auto;
+    text-align: center;
+}
+
+.concert-section-heading > p:last-child {
+    margin: 1.35rem auto 0;
+    max-width: 40rem;
+    color: var(--concert-muted);
+    line-height: 1.9;
+}
+
+.concert-programme__jump {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1.2rem;
+    margin-top: 2rem;
+}
+
+.concert-programme__jump a {
+    display: inline-flex;
+    min-height: 2.75rem;
+    align-items: center;
+    gap: 0.55rem;
+    color: var(--concert-ink);
+    font-family: 'Noto Serif TC', serif;
+    font-size: 0.86rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-decoration: none;
+}
+
+.concert-programme__jump a span {
+    color: var(--concert-gold);
+    font-family: 'Cormorant', serif;
+    font-size: 0.74rem;
+    font-weight: 700;
+    letter-spacing: 0.16em;
+}
+
+.concert-programme__jump i {
+    width: 2.5rem;
+    height: 1px;
+    background: rgba(142, 101, 54, 0.42);
+}
+
+.concert-programme__jump a:hover,
+.concert-programme__jump a:focus-visible {
+    color: var(--concert-gold);
+}
+
+.concert-programme__paper {
+    position: relative;
+    z-index: 1;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    margin-top: clamp(2rem, 4vw, 3.5rem);
+    overflow: hidden;
+    border: 1px solid rgba(142, 101, 54, 0.27);
+    background:
+        linear-gradient(90deg, transparent calc(50% - 0.5px), rgba(142, 101, 54, 0.22) calc(50% - 0.5px), rgba(142, 101, 54, 0.22) calc(50% + 0.5px), transparent calc(50% + 0.5px)),
+        rgba(255, 252, 247, 0.93);
+    box-shadow: 0 38px 90px rgba(82, 60, 48, 0.13);
+}
+
+.concert-programme__paper::before {
+    content: '';
+    position: absolute;
+    top: 2.05rem;
+    right: 0;
+    left: 0;
+    height: 2.3rem;
+    opacity: 0.13;
+    background: repeating-linear-gradient(to bottom, var(--concert-gold) 0 1px, transparent 1px 0.45rem);
+    pointer-events: none;
+}
+
+.concert-programme__half {
+    min-width: 0;
+    padding: clamp(2rem, 4vw, 3.6rem);
+}
+
+.concert-programme__half-heading {
+    position: relative;
+    display: flex;
+    min-height: 6.5rem;
+    align-items: end;
+    justify-content: space-between;
+    gap: 1.5rem;
+    padding-bottom: 1.45rem;
+    border-bottom: 1px solid rgba(142, 101, 54, 0.58);
+}
+
+.concert-programme__half-heading > div > p {
+    margin: 0;
+    color: var(--concert-gold);
+    font-family: 'Cormorant', serif;
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+}
+
+.concert-programme__half-heading h3 {
+    margin: 0.4rem 0 0;
+    color: var(--concert-ink);
+    font-family: 'Noto Serif TC', serif;
+    font-size: clamp(2rem, 3vw, 2.8rem);
+    font-weight: 500;
+    letter-spacing: 0.12em;
+}
+
+.concert-programme__host {
+    margin: 0 0 0.35rem;
+    color: var(--concert-muted);
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-align: right;
+}
+
+.concert-programme__list {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.concert-programme__entry {
+    display: grid;
+    grid-template-columns: 2.8rem minmax(0, 1fr);
+    gap: 0.85rem;
+    padding: 1.03rem 0;
+    border-bottom: 1px solid rgba(142, 101, 54, 0.14);
+}
+
+.concert-programme__entry--feature {
+    margin-inline: -0.8rem;
+    padding-inline: 0.8rem;
+    background: linear-gradient(90deg, rgba(234, 215, 213, 0.36), transparent 88%);
+}
+
+.concert-programme__number {
+    padding-top: 0.1rem;
+    color: var(--concert-gold);
+    font-family: 'Cormorant', serif;
+    font-size: 0.94rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+}
+
+.concert-programme__content {
+    min-width: 0;
+}
+
+.concert-programme__title-line {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 0.75rem;
+}
+
+.concert-programme__title-line h4 {
+    min-width: 0;
+    margin: 0;
+    color: var(--concert-ink);
+    font-family: 'Noto Serif TC', serif;
+    font-size: 1.02rem;
+    font-weight: 600;
+    line-height: 1.55;
+    letter-spacing: 0.025em;
+}
+
+.concert-programme__format {
+    flex: 0 0 auto;
+    color: var(--concert-gold);
+    font-size: 0.64rem;
+    font-weight: 700;
+    line-height: 1.2;
+    letter-spacing: 0.06em;
+    white-space: nowrap;
+}
+
+.concert-programme__performer {
+    margin: 0.3rem 0 0;
+    color: var(--concert-muted);
+    font-size: 0.8rem;
+    font-weight: 500;
+    line-height: 1.6;
+}
+
+.concert-programme__details {
+    margin-top: 0.42rem;
+    padding-left: 0.7rem;
+    border-left: 1px solid rgba(142, 101, 54, 0.42);
+}
+
+.concert-programme__details p {
+    margin: 0;
+    color: #7b6960;
+    font-size: 0.68rem;
+    line-height: 1.65;
+}
+
+.concert-programme__masked-title {
+    min-height: 1.5rem;
+    display: flex;
+    align-items: center;
+}
+
+.concert-programme__masked-title > span {
+    width: min(12rem, 58vw);
+    height: 1.05rem;
+    display: block;
+    border-radius: 0.1rem;
+    background:
+        linear-gradient(110deg, transparent 0 42%, rgba(255, 250, 242, 0.18) 48%, transparent 54%),
+        var(--concert-ink);
+    box-shadow: 0 4px 13px rgba(67, 51, 46, 0.14);
+}
+
+.concert-programme__entry--masked .concert-programme__performer {
+    margin-top: 0.5rem;
+    font-weight: 600;
+}
+
+.concert-programme__intermission {
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    margin-top: 1.25rem;
+    color: var(--concert-gold);
+}
+
+.concert-programme__intermission span {
+    height: 1px;
+    flex: 1;
+    background: linear-gradient(90deg, transparent, rgba(142, 101, 54, 0.55));
+}
+
+.concert-programme__intermission span:last-child {
+    transform: rotate(180deg);
+}
+
+.concert-programme__intermission p {
+    margin: 0;
+    font-family: 'Noto Serif TC', serif;
+    font-size: 0.82rem;
+    font-weight: 600;
+    letter-spacing: 0.22em;
+}
+
+/* Teacher note reuses the programme interior hands artwork as a cinematic panel. */
+.concert-gratitude {
+    position: relative;
+    min-height: 46rem;
+    display: flex;
+    align-items: center;
+    isolation: isolate;
+    overflow: hidden;
+    background: var(--concert-night);
+}
+
+.concert-gratitude__art,
+.concert-gratitude__veil {
+    position: absolute;
+    inset: 0;
+    z-index: -2;
+}
+
+.concert-gratitude__art img {
+    width: 100%;
+    height: 100%;
+    display: block;
+    object-fit: cover;
+    object-position: 72% 54%;
+    filter: saturate(0.82) contrast(1.02);
+}
+
+.concert-gratitude__veil {
+    z-index: -1;
+    background:
+        linear-gradient(90deg, rgba(36, 25, 22, 0.98) 0%, rgba(36, 25, 22, 0.89) 39%, rgba(36, 25, 22, 0.38) 69%, rgba(36, 25, 22, 0.16) 100%),
+        linear-gradient(180deg, rgba(36, 25, 22, 0.08), rgba(36, 25, 22, 0.42));
+}
+
+.concert-gratitude__inner {
+    padding-block: clamp(6rem, 10vw, 9rem);
+}
+
+.concert-gratitude__copy {
+    width: min(42rem, 58%);
+}
+
+.concert-gratitude .concert-eyebrow {
+    color: var(--concert-gold-light);
+}
+
+.concert-gratitude h2 {
+    margin: 1.2rem 0 0;
+    color: var(--concert-ivory);
+    font-family: 'Noto Serif TC', serif;
+    font-size: clamp(2.7rem, 5.3vw, 4.8rem);
+    font-weight: 500;
+    line-height: 1.28;
+    letter-spacing: 0.06em;
+}
+
+.concert-gratitude blockquote {
+    margin: 2.5rem 0 0;
+    padding: 0.2rem 0 0.2rem 1.6rem;
+    border-left: 2px solid rgba(201, 165, 116, 0.75);
+}
+
+.concert-gratitude blockquote p {
+    margin: 0;
+    color: #f8eee5;
+    font-family: 'Noto Serif TC', serif;
+    font-size: clamp(1.25rem, 2vw, 1.6rem);
+    line-height: 1.9;
+    letter-spacing: 0.03em;
+}
+
+.concert-gratitude blockquote footer {
+    margin-top: 1rem;
+    color: var(--concert-gold-light);
+    font-size: 0.78rem;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+}
+
+.concert-gratitude__thanks {
+    margin: 2.1rem 0 0;
+    color: rgba(248, 238, 229, 0.76);
+    font-size: 0.93rem;
+    line-height: 1.95;
+}
+
+/* Credits and choir directory */
+.concert-credits {
+    position: relative;
+    padding-block: clamp(6rem, 10vw, 9rem);
+    background:
+        radial-gradient(circle at 92% 12%, rgba(234, 215, 213, 0.58), transparent 27rem),
+        var(--concert-ivory);
+}
+
+.concert-credits__grid {
+    display: grid;
+    grid-template-columns: minmax(18rem, 0.7fr) minmax(0, 1.3fr);
+    gap: clamp(2.5rem, 6vw, 6rem);
+    margin-top: clamp(3rem, 6vw, 5rem);
+}
+
+.concert-sponsors,
+.concert-choirs {
+    padding-top: 1.6rem;
+    border-top: 1px solid rgba(142, 101, 54, 0.42);
+}
+
+.concert-credits__label {
+    margin: 0;
+    color: var(--concert-gold);
+    font-family: 'Cormorant', serif;
+    font-size: 0.73rem;
+    font-weight: 700;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+}
+
+.concert-sponsors h3,
+.concert-choirs h3 {
+    margin: 0.75rem 0 0;
+    color: var(--concert-ink);
+    font-family: 'Noto Serif TC', serif;
+    font-size: clamp(1.65rem, 3vw, 2.35rem);
+    font-weight: 500;
+    letter-spacing: 0.08em;
+}
+
+.concert-sponsors ul {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.6rem 1.2rem;
+    margin: 2rem 0 0;
+    padding: 0;
+    list-style: none;
+}
+
+.concert-sponsors li {
+    color: var(--concert-ink);
+    font-family: 'Noto Serif TC', serif;
+    font-size: clamp(1.35rem, 2.5vw, 2rem);
+    line-height: 1.5;
+}
+
+.concert-sponsors li:not(:last-child)::after {
+    content: '·';
+    margin-left: 1.2rem;
+    color: var(--concert-gold-light);
+}
+
+.concert-credits__signature {
+    margin-top: 2.4rem;
+    padding-top: 1.3rem;
+    border-top: 1px solid rgba(142, 101, 54, 0.18);
+}
+
+.concert-credits__signature p {
+    margin: 0.35rem 0 0;
+    color: var(--concert-muted);
+    font-size: 0.78rem;
+    letter-spacing: 0.08em;
+}
+
+.concert-choirs__groups {
+    margin-top: 1.5rem;
+}
+
+.concert-choirs details {
+    border-bottom: 1px solid rgba(142, 101, 54, 0.18);
+}
+
+.concert-choirs summary {
+    min-height: 4.25rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    color: var(--concert-ink);
+    cursor: pointer;
+    font-family: 'Noto Serif TC', serif;
+    font-size: 1rem;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    list-style: none;
+}
+
+.concert-choirs summary::-webkit-details-marker {
+    display: none;
+}
+
+.concert-choirs summary::after {
+    content: '+';
+    width: 1.8rem;
+    height: 1.8rem;
+    display: grid;
+    flex: 0 0 auto;
+    place-items: center;
+    color: var(--concert-gold);
+    border: 1px solid rgba(142, 101, 54, 0.35);
+    border-radius: 50%;
+    font-family: 'Montserrat', sans-serif;
+    font-size: 1rem;
+    font-weight: 400;
+}
+
+.concert-choirs summary > span:last-child {
+    margin-left: auto;
+    color: var(--concert-muted);
+    font-family: 'Noto Sans TC', sans-serif;
+    font-size: 0.72rem;
+    font-weight: 500;
+    letter-spacing: 0.06em;
+}
+
+.concert-choirs details[open] summary::after {
+    content: '−';
+}
+
+.concert-choirs details[open] summary {
+    color: var(--concert-gold);
+}
+
+.concert-choirs details ul {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 0.52rem 1rem;
+    margin: 0;
+    padding: 0.4rem 0 1.6rem;
+    list-style: none;
+}
+
+.concert-choirs details li {
+    color: var(--concert-muted);
+    font-size: 0.78rem;
+    line-height: 1.6;
+}
+
+/* Closing */
+.concert-closing {
+    position: relative;
+    overflow: hidden;
+    color: var(--concert-ivory);
+    background:
+        radial-gradient(circle at 74% 0%, rgba(201, 165, 116, 0.15), transparent 26rem),
+        linear-gradient(135deg, #3b2a24, #273027 120%);
+}
+
+.concert-closing::before,
+.concert-closing::after {
+    content: '';
+    position: absolute;
+    width: 9rem;
+    height: 3.8rem;
+    opacity: 0.12;
+    border-radius: 100% 0 100% 0;
+    background: var(--concert-blush);
+    transform: rotate(32deg);
+}
+
+.concert-closing::before {
+    top: 15%;
+    left: -2rem;
+}
+
+.concert-closing::after {
+    right: 4%;
+    bottom: 8%;
+    transform: rotate(-24deg) scale(0.7);
+}
+
+.concert-closing__inner {
+    position: relative;
+    z-index: 1;
+    max-width: 52rem;
+    padding-block: clamp(6rem, 11vw, 9rem);
+    text-align: center;
+}
+
+.concert-closing .concert-eyebrow {
+    color: var(--concert-gold-light);
+}
+
+.concert-closing h2 {
+    color: var(--concert-ivory);
+}
+
+.concert-closing__inner > p:not(.concert-eyebrow) {
+    margin: 1.5rem auto 0;
+    max-width: 38rem;
+    color: rgba(255, 250, 242, 0.72);
+    line-height: 1.9;
+}
+
+.concert-closing__actions {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.85rem;
+    margin-top: 2.3rem;
+}
+
+@keyframes concert-hero-settle {
+    from { opacity: 0.84; transform: scale(1.035); }
+    to { opacity: 1; transform: scale(1); }
+}
+
+@keyframes concert-copy-rise {
+    from { opacity: 0; transform: translateY(1.2rem); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes concert-scroll-line {
+    0%, 100% { transform: scaleX(0.36); opacity: 0.5; }
+    50% { transform: scaleX(1); opacity: 1; }
+}
+
+@media (max-width: 1020px) {
+    .concert-nav__links {
+        gap: 1rem;
+    }
+
+    .concert-nav__links a:first-child {
+        display: none;
+    }
+
+    .concert-hero__copy {
+        width: 72%;
+    }
+
+    .concert-story__grid {
+        grid-template-columns: minmax(0, 1fr) minmax(18rem, 0.62fr);
+        gap: 3.5rem;
+    }
+
+    .concert-programme__paper {
+        grid-template-columns: 1fr;
+        background: rgba(255, 252, 247, 0.93);
+    }
+
+    .concert-programme__half + .concert-programme__half {
+        border-top: 1px solid rgba(142, 101, 54, 0.3);
+    }
+
+    .concert-programme__paper::before {
+        display: none;
+    }
+
+    .concert-credits__grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 760px) {
+    .concert-shell {
+        width: min(100% - 2rem, 42rem);
+    }
+
+    .concert-nav__inner {
+        min-height: 4.25rem;
+    }
+
+    .concert-nav__brand img {
+        width: 2.1rem;
+        height: 2.1rem;
+    }
+
+    .concert-nav__brand strong {
+        font-size: 0.86rem;
+    }
+
+    .concert-nav__brand small {
+        display: none;
+    }
+
+    .concert-nav__links a {
+        display: none;
+    }
+
+    .concert-nav__links a[href="#programme"],
+    .concert-nav__links .concert-nav__home {
+        min-height: 2.5rem;
+        display: inline-flex;
+    }
+
+    .concert-nav__links .concert-nav__home {
+        padding-inline: 0.8rem;
+    }
+
+    .concert-hero {
+        min-height: max(48rem, 100svh);
+        align-items: flex-start;
+    }
+
+    .concert-hero__art img {
+        object-position: center 42%;
+    }
+
+    .concert-hero__veil {
+        background:
+            linear-gradient(180deg, rgba(255, 250, 242, 0.96) 0%, rgba(255, 250, 242, 0.83) 39%, rgba(255, 250, 242, 0.36) 66%, rgba(48, 35, 29, 0.15) 100%),
+            linear-gradient(90deg, rgba(255, 250, 242, 0.24), transparent 80%);
+    }
+
+    .concert-hero::after {
+        height: 2.8rem;
+    }
+
+    .concert-hero__inner {
+        padding-block: 7.25rem 9rem;
+    }
+
+    .concert-hero__copy {
+        width: 100%;
+        text-align: left;
+    }
+
+    .concert-eyebrow {
+        font-size: 0.68rem;
+        letter-spacing: 0.17em;
+    }
+
+    .concert-hero__kicker {
+        margin-top: 1rem;
+        font-size: 1.08rem;
+        letter-spacing: 0.12em;
+    }
+
+    .concert-rule {
+        margin-block: 1.25rem 1.35rem;
+    }
+
+    .concert-hero h1 {
+        font-size: clamp(3.1rem, 16vw, 4.9rem);
+        letter-spacing: 0.06em;
+    }
+
+    .concert-hero__theme-line {
+        margin-top: 0.35rem;
+        font-size: clamp(1.65rem, 8.5vw, 2.5rem);
+        letter-spacing: 0.11em;
+    }
+
+    .concert-hero__facts {
+        display: grid;
+        gap: 0.95rem;
+        margin-top: 1.75rem;
+    }
+
+    .concert-hero__facts > div {
+        min-width: 0;
+        padding-left: 0.8rem;
+    }
+
+    .concert-hero__facts dd {
+        font-size: 0.98rem;
+    }
+
+    .concert-hero__actions {
+        margin-top: 1.6rem;
+    }
+
+    .concert-button {
+        min-height: 2.85rem;
+        padding-inline: 1rem;
+        font-size: 0.78rem;
+    }
+
+    .concert-hero__scroll {
+        right: 1.2rem;
+        bottom: 3.2rem;
+    }
+
+    .concert-hero__scroll span:first-child {
+        display: none;
+    }
+
+    .concert-story__grid {
+        grid-template-columns: 1fr;
+    }
+
+    .concert-story__copy h2,
+    .concert-section-heading h2,
+    .concert-closing h2 {
+        font-size: clamp(2.15rem, 11vw, 3.2rem);
+    }
+
+    .concert-story__stats {
+        justify-content: space-between;
+        gap: 0.75rem;
+    }
+
+    .concert-story__stats div {
+        min-width: 0;
+    }
+
+    .concert-story__stats dt {
+        font-size: 2.1rem;
+    }
+
+    .concert-story__image {
+        width: min(92%, 28rem);
+        margin-inline: auto;
+    }
+
+    .concert-programme__half {
+        padding: 1.5rem 1.15rem 2rem;
+    }
+
+    .concert-programme__half-heading {
+        min-height: 5.2rem;
+    }
+
+    .concert-programme__half-heading h3 {
+        font-size: 2rem;
+    }
+
+    .concert-programme__host {
+        max-width: 11rem;
+    }
+
+    .concert-programme__entry {
+        grid-template-columns: 2.25rem minmax(0, 1fr);
+        gap: 0.45rem;
+        padding-block: 0.95rem;
+    }
+
+    .concert-programme__title-line {
+        display: block;
+    }
+
+    .concert-programme__format {
+        display: inline-block;
+        margin-top: 0.25rem;
+    }
+
+    .concert-programme__entry--feature {
+        margin-inline: -0.45rem;
+        padding-inline: 0.45rem;
+    }
+
+    .concert-gratitude {
+        min-height: 47rem;
+        align-items: end;
+    }
+
+    .concert-gratitude__art img {
+        object-position: 53% center;
+    }
+
+    .concert-gratitude__veil {
+        background:
+            linear-gradient(180deg, rgba(36, 25, 22, 0.22) 0%, rgba(36, 25, 22, 0.54) 38%, rgba(36, 25, 22, 0.96) 74%, rgba(36, 25, 22, 0.99) 100%);
+    }
+
+    .concert-gratitude__inner {
+        padding-block: 12rem 5rem;
+    }
+
+    .concert-gratitude__copy {
+        width: 100%;
+    }
+
+    .concert-gratitude h2 {
+        font-size: clamp(2.3rem, 11vw, 3.4rem);
+    }
+
+    .concert-gratitude blockquote {
+        margin-top: 1.8rem;
+    }
+
+    .concert-gratitude blockquote p {
+        font-size: 1.12rem;
+    }
+
+    .concert-choirs summary {
+        align-items: flex-start;
+        padding-block: 0.85rem;
+    }
+
+    .concert-choirs summary > span:last-child {
+        display: none;
+    }
+
+    .concert-choirs details ul {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .concert-sponsors li:not(:last-child)::after {
+        margin-left: 0.75rem;
+    }
+}
+
+@media (max-width: 390px) {
+    .concert-shell {
+        width: calc(100% - 1.4rem);
+    }
+
+    .concert-nav__brand strong {
+        max-width: 8rem;
+    }
+
+    .concert-nav__links {
+        gap: 0.4rem;
+    }
+
+    .concert-nav__links a[href="#programme"] {
+        font-size: 0.74rem;
+    }
+
+    .concert-nav__links .concert-nav__home {
+        padding-inline: 0.65rem;
+        font-size: 0.7rem;
+    }
+
+    .concert-hero h1 {
+        font-size: 3rem;
+    }
+
+    .concert-hero__theme-line {
+        font-size: 1.55rem;
+    }
+
+    .concert-story__stats dd {
+        font-size: 0.66rem;
+    }
+
+    .concert-programme__half-heading {
+        min-height: 0;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.55rem;
+    }
+
+    .concert-programme__half-heading h3 {
+        white-space: nowrap;
+    }
+
+    .concert-programme__host {
+        max-width: none;
+        margin: 0;
+        text-align: left;
+    }
+
+    .concert-choirs details ul {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .concert-hero__art img,
+    .concert-hero__copy,
+    .concert-hero__scroll-line {
+        animation: none;
+    }
+}
+
+/* 2026 concert reading-first redesign: a full score sheet, followed by one closing movement. */
+.concert-programme__layout {
+    width: min(1480px, calc(100% - 4rem));
+    margin-inline: auto;
+}
+
+.concert-programme {
+    padding-block: clamp(4.75rem, 8vw, 7.5rem) clamp(6rem, 10vw, 9rem);
+}
+
+.concert-programme__masthead {
+    width: min(1080px, 100%);
+    display: grid;
+    grid-template-columns: minmax(15rem, 0.72fr) minmax(22rem, 1fr);
+    align-items: end;
+    gap: clamp(2rem, 5vw, 5rem);
+    margin-inline: auto;
+    padding-bottom: 2rem;
+    border-bottom: 1px solid rgba(142, 101, 54, 0.38);
+}
+
+.concert-programme__masthead h2 {
+    margin: 0.7rem 0 0;
+    color: var(--concert-ink);
+    font-family: 'Noto Serif TC', serif;
+    font-size: clamp(2.8rem, 5vw, 3.6rem);
+    font-weight: 500;
+    line-height: 1.2;
+    letter-spacing: 0.12em;
+}
+
+.concert-programme__masthead > p {
+    margin: 0;
+    color: var(--concert-muted);
+    font-size: 1rem;
+    line-height: 1.9;
+}
+
+.concert-programme__jump {
+    margin-top: 1.35rem;
+}
+
+.concert-programme__jump a {
+    min-height: 3rem;
+    font-size: 0.94rem;
+}
+
+.concert-programme__jump a span {
+    font-size: 0.8rem;
+}
+
+.concert-programme__paper {
+    width: min(1080px, 100%);
+    display: block;
+    margin: 2.15rem auto 0;
+    overflow: hidden;
+    border-color: rgba(142, 101, 54, 0.32);
+    background:
+        linear-gradient(90deg, rgba(234, 215, 213, 0.15), transparent 14%, transparent 86%, rgba(234, 215, 213, 0.12)),
+        rgba(255, 252, 247, 0.97);
+    box-shadow: 0 42px 100px rgba(82, 60, 48, 0.15);
+}
+
+.concert-programme__paper::before {
+    display: block;
+}
+
+.concert-programme__half {
+    padding: 4.25rem clamp(3.25rem, 6vw, 5rem) 3.5rem;
+}
+
+.concert-programme__half + .concert-programme__half {
+    border-top: 1px solid rgba(142, 101, 54, 0.34);
+}
+
+.concert-programme__half-heading {
+    min-height: 0;
+    align-items: end;
+    padding-bottom: 1.6rem;
+}
+
+.concert-programme__half-heading > div > p {
+    font-size: 0.8rem;
+}
+
+.concert-programme__half-heading h3 {
+    font-size: clamp(2.1rem, 3.4vw, 2.55rem);
+}
+
+.concert-programme__host {
+    margin-bottom: 0.4rem;
+    font-size: 0.88rem;
+    line-height: 1.6;
+}
+
+.concert-programme__entry {
+    grid-template-columns: 3.5rem minmax(0, 1fr);
+    gap: 1.15rem;
+    padding: 1.25rem 0;
+}
+
+.concert-programme__number {
+    padding-top: 0.14rem;
+    font-size: 1.05rem;
+}
+
+.concert-programme__content {
+    display: grid;
+    grid-template-columns: minmax(0, 1.15fr) minmax(15rem, 0.85fr);
+    align-items: start;
+    gap: 0.45rem clamp(2rem, 4vw, 4rem);
+}
+
+.concert-programme__title-line {
+    align-items: flex-start;
+}
+
+.concert-programme__title-line h4 {
+    font-size: 1.2rem;
+    line-height: 1.5;
+}
+
+.concert-programme__format {
+    margin-top: 0.28rem;
+    font-size: 0.75rem;
+    line-height: 1.45;
+}
+
+.concert-programme__meta {
+    min-width: 0;
+}
+
+.concert-programme__performer {
+    margin: 0;
+    font-size: 0.92rem;
+    line-height: 1.65;
+}
+
+.concert-programme__details {
+    margin-top: 0.42rem;
+    padding-left: 0.85rem;
+}
+
+.concert-programme__details p {
+    font-size: 0.82rem;
+    line-height: 1.75;
+}
+
+.concert-programme__entry--feature {
+    margin-inline: -1.1rem;
+    padding-inline: 1.1rem;
+}
+
+.concert-programme__masked-title {
+    min-height: 1.8rem;
+}
+
+.concert-programme__masked-title > span {
+    width: min(14rem, 100%);
+    height: 1.15rem;
+}
+
+.concert-programme__intermission {
+    margin-top: 1.8rem;
+}
+
+.concert-programme__intermission p {
+    font-size: 0.92rem;
+}
+
+.concert-gratitude {
+    min-height: 0;
+    display: block;
+    background: var(--concert-night);
+}
+
+.concert-gratitude__art img {
+    object-position: 72% 24%;
+    filter: saturate(0.82) contrast(1.04);
+}
+
+.concert-gratitude__veil {
+    background:
+        linear-gradient(90deg, rgba(36, 25, 22, 0.98) 0%, rgba(36, 25, 22, 0.86) 45%, rgba(36, 25, 22, 0.48) 76%, rgba(36, 25, 22, 0.32) 100%),
+        linear-gradient(180deg, rgba(36, 25, 22, 0.18), rgba(36, 25, 22, 0.92) 78%, rgba(36, 25, 22, 0.99));
+}
+
+.concert-gratitude__inner {
+    padding-block: clamp(5.5rem, 9vw, 8rem) clamp(4.5rem, 8vw, 7rem);
+}
+
+.concert-gratitude__heading {
+    max-width: 52rem;
+}
+
+.concert-gratitude .concert-eyebrow {
+    color: var(--concert-gold-light);
+}
+
+.concert-gratitude h2 {
+    margin: 1rem 0 0;
+    color: var(--concert-ivory);
+    font-family: 'Noto Serif TC', serif;
+    font-size: clamp(2.75rem, 5vw, 3.85rem);
+    font-weight: 500;
+    line-height: 1.3;
+    letter-spacing: 0.06em;
+}
+
+.concert-gratitude__message {
+    display: grid;
+    grid-template-columns: minmax(0, 1.1fr) minmax(20rem, 0.9fr);
+    align-items: start;
+    gap: clamp(3rem, 7vw, 7rem);
+    margin-top: 3rem;
+}
+
+.concert-gratitude blockquote {
+    margin: 0;
+    padding: 0.2rem 0 0.2rem 1.6rem;
+    border-left: 2px solid rgba(201, 165, 116, 0.78);
+}
+
+.concert-gratitude blockquote p {
+    margin: 0;
+    color: #f8eee5;
+    font-family: 'Noto Serif TC', serif;
+    font-size: clamp(1.35rem, 2.1vw, 1.7rem);
+    line-height: 1.85;
+    letter-spacing: 0.025em;
+}
+
+.concert-gratitude blockquote footer {
+    margin-top: 1rem;
+    color: var(--concert-gold-light);
+    font-size: 0.86rem;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+}
+
+.concert-gratitude__thanks {
+    margin: 0;
+    padding-top: 0.25rem;
+}
+
+.concert-gratitude__thanks > p:last-child {
+    margin: 1rem 0 0;
+    color: rgba(248, 238, 229, 0.84);
+    font-size: 1rem;
+    line-height: 2;
+}
+
+.concert-gratitude__registry {
+    display: grid;
+    grid-template-columns: minmax(18rem, 0.78fr) minmax(0, 1.22fr);
+    gap: clamp(2.5rem, 6vw, 6rem);
+    margin-top: clamp(4rem, 8vw, 6rem);
+    padding: clamp(2.25rem, 5vw, 4rem);
+    color: var(--concert-ink);
+    border: 1px solid rgba(201, 165, 116, 0.34);
+    background: rgba(255, 250, 242, 0.94);
+    box-shadow: 0 34px 80px rgba(15, 10, 8, 0.24);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+}
+
+.concert-gratitude__registry .concert-sponsors,
+.concert-gratitude__registry .concert-choirs {
+    padding-top: 0;
+    border-top: 0;
+}
+
+.concert-credits__label {
+    font-size: 0.8rem;
+}
+
+.concert-gratitude__registry .concert-credits__label {
+    color: var(--concert-gold);
+}
+
+.concert-gratitude__registry .concert-sponsors h3,
+.concert-gratitude__registry .concert-choirs h3 {
+    font-size: clamp(1.75rem, 2.6vw, 2.25rem);
+}
+
+.concert-gratitude__registry .concert-sponsors ul {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.7rem 1.5rem;
+    margin-top: 1.75rem;
+}
+
+.concert-gratitude__registry .concert-sponsors li {
+    font-size: 1.25rem;
+    line-height: 1.5;
+}
+
+.concert-gratitude__registry .concert-sponsors li::after {
+    display: none;
+}
+
+.concert-credits__roles {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1.25rem;
+    margin: 2.2rem 0 0;
+    padding-top: 1.4rem;
+    border-top: 1px solid rgba(142, 101, 54, 0.22);
+}
+
+.concert-credits__roles dt {
+    color: var(--concert-gold);
+    font-size: 0.78rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+}
+
+.concert-credits__roles dd {
+    margin: 0.45rem 0 0;
+    color: var(--concert-ink);
+    font-family: 'Noto Serif TC', serif;
+    font-size: 1.08rem;
+    font-weight: 600;
+}
+
+.concert-gratitude__registry .concert-choirs summary {
+    min-height: 4.5rem;
+    font-size: 1rem;
+}
+
+.concert-gratitude__registry .concert-choirs details li {
+    font-size: 0.9rem;
+    line-height: 1.7;
+}
+
+.concert-gratitude__closing {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 2rem;
+    margin-top: 2.5rem;
+}
+
+.concert-gratitude__signoff {
+    margin: 0;
+    color: rgba(255, 250, 242, 0.72);
+    font-family: 'Noto Serif TC', serif;
+    font-size: 1rem;
+    letter-spacing: 0.16em;
+}
+
+.concert-gratitude__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1.5rem;
+}
+
+.concert-gratitude__actions a {
+    min-height: 2.75rem;
+    display: inline-flex;
+    align-items: center;
+    color: var(--concert-ivory);
+    border-bottom: 1px solid rgba(201, 165, 116, 0.62);
+    font-size: 0.88rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-decoration: none;
+}
+
+.concert-gratitude__actions a:hover,
+.concert-gratitude__actions a:focus-visible {
+    color: var(--concert-gold-light);
+}
+
+@media (max-width: 1180px) {
+    .concert-programme__layout {
+        width: min(100% - 3rem, 1080px);
+    }
+
+    .concert-nav__links a:first-child {
+        display: inline-flex;
+    }
+
+    .concert-programme__content {
+        grid-template-columns: minmax(0, 1fr) minmax(13rem, 0.72fr);
+    }
+
+    .concert-gratitude__registry {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 760px) {
+    .concert-programme__layout {
+        width: calc(100% - 1.5rem);
+    }
+
+    .concert-programme {
+        padding-block: 4rem 5.5rem;
+    }
+
+    .concert-programme__masthead {
+        display: block;
+        padding-inline: 0.35rem;
+    }
+
+    .concert-programme__masthead h2 {
+        font-size: 2.55rem;
+    }
+
+    .concert-programme__masthead > p {
+        margin-top: 1.2rem;
+        font-size: 0.96rem;
+    }
+
+    .concert-programme__jump {
+        gap: 0.8rem;
+    }
+
+    .concert-programme__jump i {
+        width: 1.6rem;
+    }
+
+    .concert-programme__paper {
+        margin-top: 1.6rem;
+    }
+
+    .concert-programme__half {
+        padding: 3.6rem 1.35rem 2.6rem;
+    }
+
+    .concert-programme__half-heading {
+        min-height: 0;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.6rem;
+    }
+
+    .concert-programme__half-heading h3 {
+        font-size: 2rem;
+        white-space: nowrap;
+    }
+
+    .concert-programme__host {
+        max-width: none;
+        margin: 0;
+        font-size: 0.86rem;
+        text-align: left;
+    }
+
+    .concert-programme__entry {
+        grid-template-columns: 2.35rem minmax(0, 1fr);
+        gap: 0.65rem;
+        padding-block: 1.05rem;
+    }
+
+    .concert-programme__number {
+        font-size: 0.96rem;
+    }
+
+    .concert-programme__content {
+        display: block;
+    }
+
+    .concert-programme__title-line {
+        display: block;
+    }
+
+    .concert-programme__title-line h4 {
+        font-size: 1.08rem;
+        line-height: 1.55;
+    }
+
+    .concert-programme__format {
+        display: inline-block;
+        margin-top: 0.35rem;
+        font-size: 0.76rem;
+    }
+
+    .concert-programme__meta {
+        margin-top: 0.35rem;
+    }
+
+    .concert-programme__performer {
+        font-size: 0.9rem;
+    }
+
+    .concert-programme__details p {
+        font-size: 0.82rem;
+    }
+
+    .concert-programme__entry--feature {
+        margin-inline: -0.6rem;
+        padding-inline: 0.6rem;
+    }
+
+    .concert-gratitude__art img {
+        object-position: 54% top;
+    }
+
+    .concert-gratitude__veil {
+        background:
+            linear-gradient(180deg, rgba(36, 25, 22, 0.36) 0%, rgba(36, 25, 22, 0.84) 18rem, rgba(36, 25, 22, 0.98) 38rem, rgba(36, 25, 22, 0.99));
+    }
+
+    .concert-gratitude__inner {
+        padding-block: 17rem 4.5rem;
+    }
+
+    .concert-gratitude h2 {
+        font-size: 2.65rem;
+    }
+
+    .concert-gratitude__message {
+        grid-template-columns: 1fr;
+        gap: 2rem;
+        margin-top: 2.25rem;
+    }
+
+    .concert-gratitude blockquote p {
+        font-size: 1.25rem;
+    }
+
+    .concert-gratitude__thanks {
+        padding-top: 1.75rem;
+        border-top: 1px solid rgba(201, 165, 116, 0.35);
+    }
+
+    .concert-gratitude__thanks > p:last-child {
+        font-size: 0.96rem;
+    }
+
+    .concert-gratitude__registry {
+        margin-top: 3.25rem;
+        padding: 2rem 1.35rem;
+    }
+
+    .concert-gratitude__registry .concert-sponsors li {
+        font-size: 1.12rem;
+    }
+
+    .concert-credits__roles {
+        grid-template-columns: 1fr;
+    }
+
+    .concert-gratitude__registry .concert-choirs details ul {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .concert-gratitude__closing {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+}
+
+@media (max-width: 350px) {
+    .concert-programme__layout {
+        width: calc(100% - 1rem);
+    }
+
+    .concert-programme__half {
+        padding-inline: 1rem;
+    }
+
+    .concert-programme__entry {
+        grid-template-columns: 2.15rem minmax(0, 1fr);
+        gap: 0.5rem;
+    }
+
+    .concert-gratitude__registry {
+        padding-inline: 1rem;
+    }
+}
+
+/* Programme switcher + a continuous visual bridge from the hero. */
+.concert-hero::after {
+    height: clamp(6.5rem, 10vw, 9rem);
+    background: linear-gradient(
+        180deg,
+        rgba(234, 217, 213, 0) 0%,
+        rgba(234, 217, 213, 0.24) 32%,
+        rgba(234, 217, 213, 0.78) 72%,
+        #ead9d5 100%
+    );
+}
+
+.concert-programme {
+    margin-top: -1px;
+    background:
+        linear-gradient(180deg, #ead9d5 0, rgba(234, 217, 213, 0) 9rem),
+        radial-gradient(circle at 95% 14%, rgba(255, 250, 242, 0.42), transparent 25rem),
+        linear-gradient(135deg, rgba(234, 215, 213, 0.9), rgba(248, 238, 229, 0.97) 46%, rgba(228, 218, 199, 0.82));
+}
+
+.concert-programme__jump {
+    width: min(31rem, 100%);
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.35rem;
+    margin-inline: auto;
+    padding: 0.35rem;
+    border: 1px solid rgba(142, 101, 54, 0.24);
+    border-radius: 999px;
+    background: rgba(255, 250, 242, 0.62);
+    box-shadow: 0 12px 34px rgba(82, 60, 48, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.72);
+    backdrop-filter: blur(12px);
+}
+
+.concert-programme__jump .concert-programme__tab {
+    min-height: 3.35rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+    padding: 0.65rem 1rem;
+    color: var(--concert-muted);
+    border-radius: 999px;
+    transition: color 180ms ease, background-color 180ms ease, box-shadow 180ms ease, transform 180ms ease;
+}
+
+.concert-programme__jump .concert-programme__tab span {
+    color: var(--concert-gold);
+    font-family: 'Cormorant', serif;
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.16em;
+}
+
+.concert-programme__jump .concert-programme__tab strong {
+    font-family: 'Noto Serif TC', serif;
+    font-size: 0.98rem;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+}
+
+.concert-programme__jump .concert-programme__tab:hover {
+    color: var(--concert-ink);
+    background: rgba(255, 252, 247, 0.78);
+}
+
+.concert-programme__jump .concert-programme__tab.is-active {
+    color: var(--concert-ivory);
+    background: linear-gradient(135deg, #4c3831, #31231f);
+    box-shadow: 0 9px 24px rgba(67, 51, 46, 0.2);
+}
+
+.concert-programme__jump .concert-programme__tab.is-active span {
+    color: var(--concert-gold-light);
+}
+
+.concert-programme__jump .concert-programme__tab:active {
+    transform: scale(0.985);
+}
+
+[data-programme-switcher][data-enhanced='true'] .concert-programme__paper {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    align-items: start;
+}
+
+[data-programme-switcher][data-enhanced='true'] .concert-programme__half {
+    grid-area: 1 / 1;
+    visibility: hidden;
+    pointer-events: none;
+}
+
+[data-programme-switcher][data-enhanced='true'] .concert-programme__half + .concert-programme__half {
+    border-top: 0;
+}
+
+[data-programme-switcher][data-enhanced='true'] .concert-programme__half[data-programme-active='true'] {
+    visibility: visible;
+    pointer-events: auto;
+}
+
+[data-programme-switcher][data-transitioning='true'] .concert-programme__half {
+    will-change: transform, opacity;
+}
+
+.concert-programme__half {
+    scroll-margin-top: 1.5rem;
+}
+
+.concert-programme__intermission {
+    flex-direction: column;
+    gap: 1.15rem;
+    margin-top: 2rem;
+}
+
+.concert-programme__intermission-label {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+}
+
+.concert-programme__intermission-label span {
+    height: 1px;
+    flex: 1;
+    background: linear-gradient(90deg, transparent, rgba(142, 101, 54, 0.55));
+}
+
+.concert-programme__intermission-label span:last-child {
+    transform: rotate(180deg);
+}
+
+.concert-programme__intermission-label p {
+    margin: 0;
+    font-family: 'Noto Serif TC', serif;
+    font-size: 0.92rem;
+    font-weight: 600;
+    letter-spacing: 0.22em;
+}
+
+.concert-programme__continue {
+    width: min(27rem, 100%);
+    min-height: 4.4rem;
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    align-items: center;
+    gap: 0.9rem;
+    padding: 0.8rem 0.9rem 0.8rem 1.15rem;
+    border: 1px solid rgba(142, 101, 54, 0.34);
+    border-radius: 999px;
+    color: var(--concert-ink);
+    background: linear-gradient(135deg, rgba(255, 252, 247, 0.92), rgba(234, 215, 213, 0.46));
+    box-shadow: 0 13px 30px rgba(82, 60, 48, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.78);
+    text-decoration: none;
+    transition: border-color 180ms ease, box-shadow 180ms ease, transform 180ms ease;
+}
+
+.concert-programme__continue small {
+    color: var(--concert-gold);
+    font-family: 'Cormorant', serif;
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+}
+
+.concert-programme__continue strong {
+    font-family: 'Noto Serif TC', serif;
+    font-size: 0.98rem;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-align: center;
+}
+
+.concert-programme__intermission .concert-programme__continue > span {
+    width: 2.45rem;
+    height: 2.45rem;
+    display: grid;
+    flex: 0 0 auto;
+    place-items: center;
+    border-radius: 50%;
+    color: var(--concert-ivory);
+    background: linear-gradient(135deg, #4c3831, #31231f);
+    transform: none;
+    transition: transform 180ms ease;
+}
+
+.concert-programme__continue:hover {
+    border-color: rgba(142, 101, 54, 0.62);
+    box-shadow: 0 16px 34px rgba(82, 60, 48, 0.14), inset 0 1px 0 rgba(255, 255, 255, 0.82);
+    transform: translateY(-2px);
+}
+
+.concert-programme__continue:hover > span {
+    transform: translateY(2px);
+}
+
+.concert-programme__continue:focus-visible {
+    outline: 3px solid rgba(142, 101, 54, 0.28);
+    outline-offset: 4px;
+}
+
+@media (max-width: 760px) {
+    .concert-hero::after {
+        height: 6rem;
+    }
+
+    .concert-programme {
+        padding-top: 4.5rem;
+    }
+
+    .concert-programme__jump {
+        width: 100%;
+        gap: 0.25rem;
+        padding: 0.28rem;
+    }
+
+    .concert-programme__jump .concert-programme__tab {
+        min-height: 3.15rem;
+        gap: 0.45rem;
+        padding-inline: 0.55rem;
+    }
+
+    .concert-programme__jump .concert-programme__tab strong {
+        font-size: 0.9rem;
+    }
+
+    .concert-programme__jump .concert-programme__tab span {
+        font-size: 0.7rem;
+    }
+
+    .concert-programme__continue {
+        min-height: 4.15rem;
+        gap: 0.55rem;
+        padding-left: 0.9rem;
+    }
+
+    .concert-programme__continue small {
+        font-size: 0.68rem;
+    }
+
+    .concert-programme__continue strong {
+        font-size: 0.9rem;
+    }
+
+    .concert-programme__intermission .concert-programme__continue > span {
+        width: 2.25rem;
+        height: 2.25rem;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .concert-programme__jump .concert-programme__tab,
+    .concert-programme__continue,
+    .concert-programme__continue > span {
+        transition: none;
+    }
+}
+
+@media print {
+    .concert-programme__jump {
+        display: none;
+    }
+
+    .concert-programme__continue {
+        display: none;
+    }
+
+    [data-programme-switcher][data-enhanced='true'] .concert-programme__paper {
+        display: block;
+    }
+
+    [data-programme-switcher][data-enhanced='true'] .concert-programme__half {
+        display: block;
+        visibility: visible !important;
+        opacity: 1 !important;
+        transform: none !important;
+    }
+
+    [data-programme-switcher][data-enhanced='true'] .concert-programme__half + .concert-programme__half {
+        border-top: 1px solid rgba(142, 101, 54, 0.34);
+    }
+}

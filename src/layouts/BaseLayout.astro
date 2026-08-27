@@ -3,6 +3,10 @@ export interface Props {
   title: string;
   description?: string;
   ogImage?: string;
+  ogImageAlt?: string;
+  ogType?: 'website' | 'article';
+  includeReviewSchema?: boolean;
+  structuredData?: Record<string, unknown>[];
 }
 
 import '../styles/global.css';
@@ -32,10 +36,16 @@ import '@fontsource/noto-serif-tc/500.css';
 import '@fontsource/noto-serif-tc/600.css';
 import '@fontsource/noto-serif-tc/700.css';
 
+const siteDescription = '林美杏老師 — 鋼琴家、音樂教育家。四十年音樂教育深耕，YAMAHA 資深講師，合唱團指揮與伴奏，樂齡音樂推廣者。';
+
 const {
   title,
-  description = '林美杏老師 — 鋼琴家、音樂教育家。四十年音樂教育深耕，YAMAHA 資深講師，合唱團指揮與伴奏，樂齡音樂推廣者。',
+  description = siteDescription,
   ogImage = '/logo.webp',
+  ogImageAlt = '林美杏音樂教室',
+  ogType = 'website',
+  includeReviewSchema = true,
+  structuredData = [],
 } = Astro.props;
 
 const siteUrl = 'https://ms.linho.me';
@@ -49,7 +59,7 @@ const personSchema = {
   "name": "林美杏",
   "alternateName": "Mei-Hsing Lin",
   "jobTitle": "鋼琴家、音樂教育家",
-  "description": description,
+  "description": siteDescription,
   "url": siteUrl,
   "image": `${siteUrl}/head.webp`,
   "sameAs": [
@@ -82,7 +92,7 @@ const websiteSchema = {
   "@id": `${siteUrl}/#website`,
   "url": siteUrl,
   "name": "林美杏老師 | 鋼琴家 · 音樂教育家",
-  "description": description,
+  "description": siteDescription,
   "publisher": { "@id": `${siteUrl}/#person` },
   "inLanguage": "zh-Hant",
 };
@@ -156,9 +166,10 @@ const reviewSchema = {
     <!-- Open Graph -->
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
-    <meta property="og:type" content="website" />
+    <meta property="og:type" content={ogType} />
     <meta property="og:url" content={canonicalUrl} />
     <meta property="og:image" content={`${siteUrl}${ogImage}`} />
+    <meta property="og:image:alt" content={ogImageAlt} />
     <meta property="og:locale" content="zh_TW" />
     <meta property="og:site_name" content="林美杏老師 | 鋼琴家 · 音樂教育家" />
 
@@ -166,6 +177,8 @@ const reviewSchema = {
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content={title} />
     <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={`${siteUrl}${ogImage}`} />
+    <meta name="twitter:image:alt" content={ogImageAlt} />
 
     <!-- Preconnect (removed Google Fonts, now using self-hosted Fontsource) -->
     <link rel="preconnect" href="https://www.youtube.com" />
@@ -185,7 +198,11 @@ const reviewSchema = {
     <script type="application/ld+json" set:html={JSON.stringify(orgSchema)} />
 
     <!-- JSON-LD Structured Data: Reviews -->
-    <script type="application/ld+json" set:html={JSON.stringify(reviewSchema)} />
+    {includeReviewSchema && <script type="application/ld+json" set:html={JSON.stringify(reviewSchema)} />}
+
+    {structuredData.map((schema) => (
+      <script type="application/ld+json" set:html={JSON.stringify(schema)} />
+    ))}
   </head>
   <body class="bg-paper text-warm-700 font-sans">
     <a href="#main-content" class="skip-to-content">跳至主要內容</a>

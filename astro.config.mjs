@@ -7,4 +7,7 @@ export default defineConfig({
     site: 'https://ms.linho.me',
     integrations: [react(), tailwind(), sitemap()],
     output: 'static',
+    redirects: {
+        '/2026-concert': '/concert/2026/',
+    },
 });

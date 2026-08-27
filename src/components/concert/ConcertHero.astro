@@ -1,0 +1,50 @@
+---
+import { concert2026 } from '../../data/concert-2026';
+---
+
+<section class="concert-hero" aria-labelledby="concert-title">
+    <picture class="concert-hero__art" aria-hidden="true">
+        <source media="(max-width: 720px)" srcset="/concert/2026/poster-sakura.webp" />
+        <img
+            src="/concert/2026/stage-sakura.webp"
+            alt=""
+            width="1672"
+            height="941"
+            fetchpriority="high"
+        />
+    </picture>
+    <div class="concert-hero__veil" aria-hidden="true"></div>
+
+    <div class="concert-shell concert-hero__inner">
+        <div class="concert-hero__copy">
+            <p class="concert-eyebrow">Hand in hand · music brings us together</p>
+            <p class="concert-hero__kicker">{concert2026.title}</p>
+            <div class="concert-rule" aria-hidden="true"></div>
+            <h1 id="concert-title">{concert2026.theme}</h1>
+            <p class="concert-hero__theme-line">{concert2026.themeLine}</p>
+
+            <dl class="concert-hero__facts" aria-label="音樂會資訊">
+                <div>
+                    <dt>Date · Time</dt>
+                    <dd>
+                        <time datetime={concert2026.dateTime}>{concert2026.dateLabel}　{concert2026.time}</time>
+                    </dd>
+                </div>
+                <div>
+                    <dt>Venue</dt>
+                    <dd>{concert2026.venue}</dd>
+                </div>
+            </dl>
+
+            <div class="concert-hero__actions">
+                <a class="concert-button concert-button--primary" href="#programme">查看完整節目表</a>
+                <a class="concert-button concert-button--ghost" href="#gratitude">閱讀老師的話</a>
+            </div>
+        </div>
+    </div>
+
+    <a class="concert-hero__scroll" href="#programme" aria-label="前往完整節目表">
+        <span>Scroll to programme</span>
+        <span class="concert-hero__scroll-line" aria-hidden="true"></span>
+    </a>
+</section>

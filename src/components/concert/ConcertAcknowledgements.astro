@@ -1,0 +1,78 @@
+---
+import { concert2026 } from '../../data/concert-2026';
+
+const choirMemberCount = concert2026.choirs.reduce((total, choir) => total + choir.members.length, 0);
+---
+
+<section id="gratitude" class="concert-gratitude" aria-labelledby="gratitude-heading">
+    <div class="concert-gratitude__art" aria-hidden="true">
+        <img src="/concert/2026/hands-melody.webp" alt="" width="1024" height="1536" loading="lazy" />
+    </div>
+    <div class="concert-gratitude__veil" aria-hidden="true"></div>
+
+    <div class="concert-programme__layout concert-gratitude__inner">
+        <header class="concert-gratitude__heading">
+            <p class="concert-eyebrow">With gratitude</p>
+            <h2 id="gratitude-heading">讓愛，繼續成為樂章</h2>
+        </header>
+
+        <div class="concert-gratitude__message">
+            <blockquote>
+                <p>{concert2026.teacherQuote}</p>
+                <footer>— 林美杏老師</footer>
+            </blockquote>
+
+            <div class="concert-gratitude__thanks">
+                <p class="concert-credits__label">To parents & students</p>
+                <p>{concert2026.thanks}</p>
+            </div>
+        </div>
+
+        <div class="concert-gratitude__registry">
+            <section class="concert-sponsors" aria-labelledby="sponsors-heading">
+                <p class="concert-credits__label">Special thanks</p>
+                <h3 id="sponsors-heading">感謝贊助</h3>
+                <ul>
+                    {concert2026.sponsors.map((sponsor) => <li>{sponsor}</li>)}
+                </ul>
+
+                <dl class="concert-credits__roles">
+                    <div>
+                        <dt>攝影</dt>
+                        <dd>{concert2026.photographyCredit}</dd>
+                    </div>
+                    <div>
+                        <dt>節目海報設計</dt>
+                        <dd>{concert2026.designCredit}</dd>
+                    </div>
+                </dl>
+            </section>
+
+            <section class="concert-choirs" aria-labelledby="choirs-heading">
+                <p class="concert-credits__label">Choral ensemble · {choirMemberCount} voices</p>
+                <h3 id="choirs-heading">興毅合唱團</h3>
+                <div class="concert-choirs__groups">
+                    {concert2026.choirs.map((choir) => (
+                        <details>
+                            <summary>
+                                <span>{choir.name}</span>
+                                <span>{choir.members.length} 位團員</span>
+                            </summary>
+                            <ul>
+                                {choir.members.map((member) => <li>{member}</li>)}
+                            </ul>
+                        </details>
+                    ))}
+                </div>
+            </section>
+        </div>
+
+        <div class="concert-gratitude__closing">
+            <p class="concert-gratitude__signoff">全體師生　敬謝</p>
+            <div class="concert-gratitude__actions">
+                <a href="/">認識林美杏老師</a>
+                <a href="#programme">再次查看節目表</a>
+            </div>
+        </div>
+    </div>
+</section>

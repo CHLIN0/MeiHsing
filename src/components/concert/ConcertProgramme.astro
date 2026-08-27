@@ -1,0 +1,320 @@
+---
+import programmeCsv from '../../data/concert-2026-programme.csv?raw';
+import { concert2026 } from '../../data/concert-2026';
+import { parseConcertProgramme } from '../../utils/concertProgramme';
+
+const programme = parseConcertProgramme(programmeCsv);
+const halves = [
+    {
+        id: 'first-half',
+        title: '上半場',
+        english: 'First half',
+        entries: programme.filter((entry) => entry.half === '上半場'),
+        meta: `主持人｜${concert2026.hosts.join('、')}`,
+    },
+    {
+        id: 'second-half',
+        title: '下半場',
+        english: 'Second half',
+        entries: programme.filter((entry) => entry.half === '下半場'),
+        meta: '',
+    },
+] as const;
+---
+
+<section id="programme" class="concert-programme" aria-labelledby="programme-heading" data-programme-switcher>
+    <div class="concert-programme__layout">
+        <header class="concert-programme__masthead">
+            <div>
+                <p class="concert-eyebrow">Programme · 2026</p>
+                <h2 id="programme-heading">節目表</h2>
+            </div>
+            <p>三十個節目，上、下半場各十五場演出。從獨奏、四手聯彈到合唱，讓一整年的練習在今天被聽見。</p>
+        </header>
+
+        <nav class="concert-programme__jump" aria-label="選擇節目半場" data-programme-tabs>
+            {halves.map((half, halfIndex) => (
+                <a
+                    id={`programme-tab-${half.id}`}
+                    class="concert-programme__tab"
+                    href={`#${half.id}`}
+                    aria-controls={half.id}
+                    data-programme-tab
+                >
+                    <span>{halfIndex === 0 ? '01–15' : '16–30'}</span>
+                    <strong>{half.title}</strong>
+                </a>
+            ))}
+        </nav>
+
+        <p class="sr-only" aria-live="polite" data-programme-status>目前顯示上半場，第 1 至 15 個節目。</p>
+
+        <div class="concert-programme__paper" data-programme-paper>
+            {halves.map((half, halfIndex) => (
+                <section
+                    id={half.id}
+                    class="concert-programme__half"
+                    data-programme-panel
+                    data-programme-active={halfIndex === 0 ? 'true' : 'false'}
+                >
+                    <header class="concert-programme__half-heading">
+                        <div>
+                            <p>{half.english}</p>
+                            <h3 id={`${half.id}-heading`} tabindex="-1">{half.title}</h3>
+                        </div>
+                        {half.meta && <p class="concert-programme__host">{half.meta}</p>}
+                    </header>
+
+                    <ol class="concert-programme__list" start={half.entries[0]?.number}>
+                        {half.entries.map((entry) => (
+                            <li class:list={[
+                                'concert-programme__entry',
+                                entry.details && 'concert-programme__entry--detailed',
+                                entry.isMasked && 'concert-programme__entry--masked',
+                                [16, 17, 30].includes(entry.number) && 'concert-programme__entry--feature',
+                            ]}>
+                                <span class="concert-programme__number" aria-hidden="true">
+                                    {String(entry.number).padStart(2, '0')}
+                                </span>
+
+                                <div class="concert-programme__content">
+                                    <div class="concert-programme__title-line">
+                                        {entry.isMasked ? (
+                                            <div class="concert-programme__masked-title" role="heading" aria-level="4" aria-label="曲目遮蔽">
+                                                <span aria-hidden="true"></span>
+                                            </div>
+                                        ) : (
+                                            <h4>{entry.work}</h4>
+                                        )}
+                                        {entry.format && <span class="concert-programme__format">{entry.format}</span>}
+                                    </div>
+
+                                    {(entry.performer || entry.details) && (
+                                        <div class="concert-programme__meta">
+                                            {entry.performer && <p class="concert-programme__performer">{entry.performer}</p>}
+
+                                            {entry.details && (
+                                                <div class="concert-programme__details">
+                                                    {entry.details.split('\n').map((line) => <p>{line}</p>)}
+                                                </div>
+                                            )}
+                                        </div>
+                                    )}
+                                </div>
+                            </li>
+                        ))}
+                    </ol>
+
+                    {halfIndex === 0 && (
+                        <div class="concert-programme__intermission" aria-label="中場休息">
+                            <div class="concert-programme__intermission-label">
+                                <span aria-hidden="true"></span>
+                                <p>中場休息</p>
+                                <span aria-hidden="true"></span>
+                            </div>
+                            <a
+                                class="concert-programme__continue"
+                                href="#second-half"
+                                data-programme-next
+                                aria-label="繼續閱讀下半場，第 16 至 30 個節目"
+                            >
+                                <small>Next · 16–30</small>
+                                <strong>繼續下半場</strong>
+                                <span aria-hidden="true">↓</span>
+                            </a>
+                        </div>
+                    )}
+                </section>
+            ))}
+        </div>
+    </div>
+</section>
+
+<script>
+    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+
+    document.querySelectorAll<HTMLElement>('[data-programme-switcher]').forEach((switcher) => {
+        if (switcher.dataset.enhanced === 'true') return;
+
+        const tabs = Array.from(switcher.querySelectorAll<HTMLAnchorElement>('[data-programme-tab]'));
+        const panels = Array.from(switcher.querySelectorAll<HTMLElement>('[data-programme-panel]'));
+        const tablist = switcher.querySelector<HTMLElement>('[data-programme-tabs]');
+        const nextLinks = Array.from(switcher.querySelectorAll<HTMLAnchorElement>('[data-programme-next]'));
+        const status = switcher.querySelector<HTMLElement>('[data-programme-status]');
+        if (tabs.length !== panels.length || tabs.length === 0) return;
+
+        const hashIndex = panels.findIndex((panel) => `#${panel.id}` === window.location.hash);
+        let activeIndex = hashIndex >= 0 ? hashIndex : 0;
+        let transitionInProgress = false;
+        let queuedIndex: number | null = null;
+        let queuedFocus = false;
+
+        tablist?.setAttribute('role', 'tablist');
+        tabs.forEach((tab, tabIndex) => {
+            tab.setAttribute('role', 'tab');
+            tab.setAttribute('aria-selected', tabIndex === activeIndex ? 'true' : 'false');
+            tab.tabIndex = tabIndex === activeIndex ? 0 : -1;
+        });
+        panels.forEach((panel, panelIndex) => {
+            panel.setAttribute('role', 'tabpanel');
+            panel.setAttribute('aria-labelledby', tabs[panelIndex]?.id ?? '');
+        });
+
+        const syncState = (index: number) => {
+            tabs.forEach((tab, tabIndex) => {
+                const selected = tabIndex === index;
+                tab.classList.toggle('is-active', selected);
+                tab.setAttribute('aria-selected', selected ? 'true' : 'false');
+                tab.tabIndex = selected ? 0 : -1;
+            });
+
+            panels.forEach((panel, panelIndex) => {
+                const selected = panelIndex === index;
+                panel.classList.toggle('is-active', selected);
+                panel.dataset.programmeActive = selected ? 'true' : 'false';
+                panel.setAttribute('aria-hidden', selected ? 'false' : 'true');
+                panel.inert = !selected;
+            });
+
+            if (status) {
+                status.textContent = index === 0
+                    ? '目前顯示上半場，第 1 至 15 個節目。'
+                    : '目前顯示下半場，第 16 至 30 個節目。';
+            }
+        };
+
+        const replaceHash = (panel: HTMLElement) => {
+            const nextUrl = new URL(window.location.href);
+            nextUrl.hash = panel.id;
+            window.history.replaceState(null, '', nextUrl);
+        };
+
+        const switchTo = async (nextIndex: number, focusTab = false, updateHash = true) => {
+            if (nextIndex === activeIndex && !transitionInProgress) {
+                if (focusTab) tabs[nextIndex]?.focus();
+                if (updateHash) replaceHash(panels[nextIndex]);
+                return;
+            }
+
+            if (transitionInProgress) {
+                queuedIndex = nextIndex;
+                queuedFocus = focusTab;
+                return;
+            }
+
+            transitionInProgress = true;
+            switcher.dataset.transitioning = 'true';
+
+            const previousIndex = activeIndex;
+            const outgoing = panels[previousIndex];
+            const incoming = panels[nextIndex];
+            const direction = nextIndex > previousIndex ? 1 : -1;
+
+            incoming.style.visibility = 'visible';
+            incoming.inert = true;
+            tabs.forEach((tab, tabIndex) => {
+                const selected = tabIndex === nextIndex;
+                tab.classList.toggle('is-active', selected);
+                tab.setAttribute('aria-selected', selected ? 'true' : 'false');
+                tab.tabIndex = selected ? 0 : -1;
+            });
+
+            if (!reduceMotion.matches && typeof outgoing.animate === 'function') {
+                const timing: KeyframeAnimationOptions = {
+                    duration: 430,
+                    easing: 'cubic-bezier(0.22, 1, 0.36, 1)',
+                    fill: 'both',
+                };
+                const outgoingAnimation = outgoing.animate([
+                    { opacity: 1, transform: 'translateY(0)' },
+                    { opacity: 0, transform: `translateY(${direction * -34}px)` },
+                ], timing);
+                const incomingAnimation = incoming.animate([
+                    { opacity: 0, transform: `translateY(${direction * 52}px)` },
+                    { opacity: 1, transform: 'translateY(0)' },
+                ], timing);
+
+                await Promise.allSettled([outgoingAnimation.finished, incomingAnimation.finished]);
+            }
+
+            outgoing.getAnimations().forEach((animation) => animation.cancel());
+            incoming.getAnimations().forEach((animation) => animation.cancel());
+            outgoing.removeAttribute('style');
+            incoming.removeAttribute('style');
+
+            activeIndex = nextIndex;
+            syncState(activeIndex);
+            if (focusTab) tabs[activeIndex]?.focus();
+            if (updateHash) replaceHash(incoming);
+
+            transitionInProgress = false;
+            delete switcher.dataset.transitioning;
+
+            if (queuedIndex !== null && queuedIndex !== activeIndex) {
+                const nextQueuedIndex = queuedIndex;
+                const shouldFocus = queuedFocus;
+                queuedIndex = null;
+                queuedFocus = false;
+                void switchTo(nextQueuedIndex, shouldFocus, true);
+            } else {
+                queuedIndex = null;
+                queuedFocus = false;
+            }
+        };
+
+        switcher.dataset.enhanced = 'true';
+        syncState(activeIndex);
+
+        tabs.forEach((tab, tabIndex) => {
+            tab.addEventListener('click', (event) => {
+                event.preventDefault();
+                void switchTo(tabIndex, false, true);
+            });
+
+            tab.addEventListener('keydown', (event) => {
+                let nextIndex: number | null = null;
+                if (event.key === 'ArrowRight' || event.key === 'ArrowDown') nextIndex = (tabIndex + 1) % tabs.length;
+                if (event.key === 'ArrowLeft' || event.key === 'ArrowUp') nextIndex = (tabIndex - 1 + tabs.length) % tabs.length;
+                if (event.key === 'Home') nextIndex = 0;
+                if (event.key === 'End') nextIndex = tabs.length - 1;
+                if (nextIndex === null) return;
+
+                event.preventDefault();
+                void switchTo(nextIndex, true, true);
+            });
+        });
+
+        nextLinks.forEach((link) => {
+            link.addEventListener('click', async (event) => {
+                const targetId = link.hash.slice(1);
+                const nextIndex = panels.findIndex((panel) => panel.id === targetId);
+                if (nextIndex < 0) return;
+
+                event.preventDefault();
+                await switchTo(nextIndex, false, true);
+
+                const heading = panels[nextIndex]?.querySelector<HTMLElement>('h3');
+                requestAnimationFrame(() => {
+                    window.setTimeout(() => {
+                        panels[nextIndex]?.scrollIntoView({
+                            behavior: reduceMotion.matches ? 'auto' : 'smooth',
+                            block: 'start',
+                        });
+                        heading?.focus({ preventScroll: true });
+
+                        window.setTimeout(() => {
+                            if (heading && document.activeElement !== heading) {
+                                heading.focus({ preventScroll: true });
+                            }
+                        }, 60);
+                    }, 0);
+                });
+            });
+        });
+
+        window.addEventListener('hashchange', () => {
+            const nextIndex = panels.findIndex((panel) => `#${panel.id}` === window.location.hash);
+            if (nextIndex >= 0) void switchTo(nextIndex, false, false);
+        });
+    });
+</script>

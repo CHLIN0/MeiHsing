@@ -1,8 +1,188 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
-import SharePage from '../components/SharePage';
+import StyledQrCode from '../components/StyledQrCode.astro';
+import '../styles/links.css';
+
+const shareUrl = 'https://ms.linho.me/links';
+
+const destinations = [
+  { key: 'website', href: '/', label: '官方網站', description: '認識林美杏老師的教學、演出與音樂旅程', domain: 'ms.linho.me', color: '#7a7457', external: false },
+  { key: 'facebook', href: 'https://www.facebook.com/piano.lin.3', label: 'Facebook', description: '追蹤近期演出、活動與教學花絮', domain: 'facebook.com', color: '#4267b2', external: true },
+  { key: 'instagram', href: 'https://www.instagram.com/meishing888/', label: 'Instagram', description: '看見課堂日常與練琴片刻', domain: '@meishing888', color: '#b85f78', external: true },
+  { key: 'youtube', href: 'https://www.youtube.com/@%E6%9E%97%E7%BE%8E%E6%9D%8F-w2d', label: 'YouTube', description: '收藏演奏紀錄與音樂分享', domain: '林美杏老師', color: '#b4473f', external: true },
+] as const;
 ---
 
-<BaseLayout title="聯繫我 | 林美杏老師 — Lin Mei-Hsing" description="林美杏老師的社群連結、聯絡方式與教學理念。">
-  <SharePage client:load />
+<BaseLayout
+  title="所有連結｜林美杏老師 — Lin Mei-Hsing"
+  description="林美杏老師的官方網站、2026 師生音樂會與社群平台入口。"
+  ogImage="/concert/2026/og-2026-concert.jpg"
+  ogImageAlt="林美杏老師與 2026 師生音樂會的官方連結"
+  includeReviewSchema={false}
+>
+  <main id="main-content" class="links-page" data-links-page data-share-url={shareUrl}>
+    <div class="links-page__ambient" aria-hidden="true"><span></span><span></span><span></span></div>
+
+    <article class="links-portal" aria-labelledby="links-title">
+      <aside class="links-profile">
+        <a class="links-profile__brand" href="/" aria-label="回到林美杏老師官方網站">
+          <img src="/logo.webp" alt="" width="42" height="42" />
+          <span>林美杏音樂教室</span>
+        </a>
+
+        <div class="links-profile__identity">
+          <div class="links-profile__portrait">
+            <img src="/head1.webp" alt="林美杏老師" width="172" height="172" />
+            <span aria-hidden="true">𝄞</span>
+          </div>
+          <p class="links-eyebrow">Piano artist · Mentor</p>
+          <h1 id="links-title">林美杏<span>老師</span></h1>
+          <p class="links-profile__role">鋼琴家 · 音樂教育家</p>
+        </div>
+
+        <blockquote><p>「音樂是我們成長中，<br />不可多得的陪伴。」</p></blockquote>
+
+        <div class="links-profile__contact">
+          <p>Teaching · Performance · Collaboration</p>
+          <a href="mailto:ms@linho.me">ms@linho.me</a>
+        </div>
+
+      </aside>
+
+      <div class="links-directory">
+        <header class="links-directory__header">
+          <div>
+            <p class="links-eyebrow">Listen · Learn · Connect</p>
+            <h2>從這裡，走進音樂。</h2>
+          </div>
+          <p>音樂會、教學近況與演奏紀錄，都整理在同一個地方。</p>
+        </header>
+
+        <a class="links-feature" href="/concert/2026/" aria-label="前往 2026 林美杏老師師生音樂會完整網站">
+          <img src="/concert/2026/stage-sakura.webp" alt="櫻花公園裡，大手牽著小手走向鋼琴" width="1672" height="941" />
+          <span class="links-feature__veil" aria-hidden="true"></span>
+          <span class="links-feature__content">
+            <span class="links-feature__topline"><span>Featured · 2026</span><span>08.29</span></span>
+            <strong>大手牽小手</strong>
+            <span class="links-feature__subtitle">音為愛聚一堂 · 林美杏老師師生音樂會</span>
+            <span class="links-feature__action">
+              完整節目與演出名單
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h13M13 7l5 5-5 5" /></svg>
+            </span>
+          </span>
+        </a>
+
+        <section class="links-destinations" aria-labelledby="destinations-heading">
+          <div class="links-destinations__heading">
+            <h2 id="destinations-heading">所有連結</h2>
+            <span>Official channels</span>
+          </div>
+
+          <div class="links-destinations__list">
+            {destinations.map((link) => (
+              <a
+                class="links-destination"
+                href={link.href}
+                target={link.external ? '_blank' : undefined}
+                rel={link.external ? 'noopener noreferrer' : undefined}
+                style={`--link-accent: ${link.color}`}
+              >
+                <span class="links-destination__icon" aria-hidden="true">
+                  {link.key === 'website' && (
+                    <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" /><path d="M3 12h18M12 3c2.3 2.5 3.5 5.5 3.5 9S14.3 18.5 12 21c-2.3-2.5-3.5-5.5-3.5-9S9.7 5.5 12 3Z" /></svg>
+                  )}
+                  {link.key === 'facebook' && (
+                    <svg viewBox="0 0 24 24"><path d="M14.2 8.6V7.1c0-.7.2-1.2 1.3-1.2h1.3V3.6c-.6-.1-1.3-.2-1.9-.2-2.2 0-3.7 1.3-3.7 3.8v1.4H9v2.7h2.2v8.1h3v-8.1h2.4l.4-2.7h-2.8Z" /></svg>
+                  )}
+                  {link.key === 'instagram' && (
+                    <svg viewBox="0 0 24 24"><rect x="3.5" y="3.5" width="17" height="17" rx="5" /><circle cx="12" cy="12" r="4" /><circle cx="17.5" cy="6.7" r="1" class="links-destination__dot" /></svg>
+                  )}
+                  {link.key === 'youtube' && (
+                    <svg viewBox="0 0 24 24"><path d="M21 8.2a3 3 0 0 0-2.1-2.1C17.1 5.6 12 5.6 12 5.6s-5.1 0-6.9.5A3 3 0 0 0 3 8.2a15.6 15.6 0 0 0-.5 3.8 15.6 15.6 0 0 0 .5 3.8 3 3 0 0 0 2.1 2.1c1.8.5 6.9.5 6.9.5s5.1 0 6.9-.5a3 3 0 0 0 2.1-2.1 15.6 15.6 0 0 0 .5-3.8 15.6 15.6 0 0 0-.5-3.8Z" /><path d="m10 9 5 3-5 3V9Z" class="links-destination__play" /></svg>
+                  )}
+                </span>
+
+                <span class="links-destination__copy"><strong>{link.label}</strong><span>{link.description}</span></span>
+                <span class="links-destination__domain">{link.domain}</span>
+                <svg class="links-destination__arrow" viewBox="0 0 24 24" aria-hidden="true">
+                  <path d={link.external ? 'M8 16 16 8M10 8h6v6' : 'M5 12h13M13 7l5 5-5 5'} />
+                </svg>
+                {link.external && <span class="sr-only">（另開新視窗）</span>}
+              </a>
+            ))}
+          </div>
+        </section>
+
+        <footer class="links-directory__footer">
+          <div><span>不方便掃描？也可以直接複製</span><strong data-current-links-url>ms.linho.me/links</strong></div>
+          <button type="button" data-copy-link aria-label="複製林美杏老師所有連結頁網址">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="8" y="8" width="11" height="11" rx="2" /><path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2" /></svg>
+            <span data-copy-label aria-live="polite">複製網址</span>
+          </button>
+        </footer>
+      </div>
+
+      <section class="links-scan-card" aria-label="林美杏老師官方連結 QR Code">
+        <div class="links-scan-card__code">
+          <StyledQrCode value={shareUrl} label="林美杏老師官方連結 QR Code" />
+          <span class="links-scan-card__corner links-scan-card__corner--top" aria-hidden="true"></span>
+          <span class="links-scan-card__corner links-scan-card__corner--bottom" aria-hidden="true"></span>
+        </div>
+        <div class="links-scan-card__copy">
+          <p>Official links</p>
+          <strong>網站・社群・音樂會</strong>
+          <small data-current-links-url>ms.linho.me/links</small>
+        </div>
+      </section>
+    </article>
+
+    <p class="links-page__signature">© 2026 林美杏音樂教室 · Made with care for every note.</p>
+  </main>
+
+  <script>
+    const copyButton = document.querySelector<HTMLButtonElement>('[data-copy-link]');
+    const copyLabel = copyButton?.querySelector<HTMLElement>('[data-copy-label]');
+    let resetTimer: number | undefined;
+
+    const copyText = async (value: string) => {
+      if (navigator.clipboard?.writeText) {
+        try {
+          await navigator.clipboard.writeText(value);
+          return;
+        } catch {
+          // Continue to the DOM fallback for browsers that block clipboard permission.
+        }
+      }
+
+      const temporaryInput = document.createElement('textarea');
+      temporaryInput.value = value;
+      temporaryInput.setAttribute('readonly', '');
+      temporaryInput.style.position = 'fixed';
+      temporaryInput.style.opacity = '0';
+      document.body.append(temporaryInput);
+      temporaryInput.select();
+      const copied = document.execCommand('copy');
+      temporaryInput.remove();
+      if (!copied) throw new Error('Clipboard copy was blocked.');
+    };
+
+    copyButton?.addEventListener('click', async () => {
+      window.clearTimeout(resetTimer);
+      try {
+        const linksPage = document.querySelector<HTMLElement>('[data-links-page]');
+        const currentShareUrl = linksPage?.dataset.shareUrl ?? 'https://ms.linho.me/links';
+        await copyText(currentShareUrl);
+        copyButton.dataset.copied = 'true';
+        if (copyLabel) copyLabel.textContent = '已複製';
+      } catch {
+        if (copyLabel) copyLabel.textContent = '請手動複製網址';
+      }
+
+      resetTimer = window.setTimeout(() => {
+        delete copyButton.dataset.copied;
+        if (copyLabel) copyLabel.textContent = '複製網址';
+      }, 2200);
+    });
+
+  </script>
 </BaseLayout>

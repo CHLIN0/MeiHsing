@@ -1,0 +1,52 @@
+---
+import { createPianoQrModel, renderPianoQrContent } from '../utils/pianoQr';
+
+interface Props {
+  value: string;
+  label: string;
+}
+
+const { value, label } = Astro.props;
+const model = createPianoQrModel(value);
+const markup = renderPianoQrContent(model, label, value);
+---
+
+<svg
+  class="styled-qr-code"
+  viewBox={`0 0 ${model.viewBoxSize} ${model.viewBoxSize}`}
+  role="img"
+  aria-labelledby="links-qr-title links-qr-description"
+  data-qr-current-page
+  data-qr-label={label}
+  data-qr-value={value}
+  xmlns="http://www.w3.org/2000/svg"
+  set:html={markup}
+/>
+
+<script>
+  import {
+    createPianoQrModel,
+    getDisplayUrl,
+    getRuntimePageUrl,
+    renderPianoQrContent,
+  } from '../utils/pianoQr';
+
+  const runtimeValue = getRuntimePageUrl(window.location.href);
+  if (runtimeValue) {
+    document.querySelectorAll<SVGSVGElement>('[data-qr-current-page]').forEach((svg) => {
+      const label = svg.dataset.qrLabel ?? '官方連結 QR Code';
+      if (svg.dataset.qrValue !== runtimeValue) {
+        const model = createPianoQrModel(runtimeValue);
+        svg.setAttribute('viewBox', `0 0 ${model.viewBoxSize} ${model.viewBoxSize}`);
+        svg.dataset.qrValue = runtimeValue;
+        svg.innerHTML = renderPianoQrContent(model, label, runtimeValue);
+      }
+    });
+
+    const displayValue = getDisplayUrl(runtimeValue);
+    document.querySelectorAll<HTMLElement>('[data-current-links-url]').forEach((element) => {
+      element.textContent = displayValue;
+    });
+    document.querySelector<HTMLElement>('[data-links-page]')?.setAttribute('data-share-url', runtimeValue);
+  }
+</script>

@@ -1,0 +1,91 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Footer from '../../components/Footer';
+import ConcertHero from '../../components/concert/ConcertHero.astro';
+import ConcertProgramme from '../../components/concert/ConcertProgramme.astro';
+import ConcertAcknowledgements from '../../components/concert/ConcertAcknowledgements.astro';
+import { concert2026 } from '../../data/concert-2026';
+import '../../styles/concert-2026.css';
+
+const title = `2026 ${concert2026.title}｜${concert2026.theme}，${concert2026.themeLine}`;
+const description = `${concert2026.theme}，${concert2026.themeLine}。2026 年 8 月 29 日，林美杏老師與全體師生在禾森音樂藝文空間，以三十個節目分享一年的努力與陪伴。`;
+
+const eventSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'MusicEvent',
+    name: `${concert2026.theme}，${concert2026.themeLine}－${concert2026.title}`,
+    description,
+    startDate: concert2026.dateTime,
+    eventStatus: 'https://schema.org/EventScheduled',
+    eventAttendanceMode: 'https://schema.org/OfflineEventAttendanceMode',
+    location: {
+        '@type': 'Place',
+        name: concert2026.venue,
+    },
+    organizer: {
+        '@type': 'EducationalOrganization',
+        name: '林美杏音樂教室',
+        url: 'https://ms.linho.me',
+    },
+    image: ['https://ms.linho.me/concert/2026/og-2026-concert.jpg'],
+    url: 'https://ms.linho.me/concert/2026/',
+    inLanguage: 'zh-Hant',
+};
+
+const breadcrumbSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+        {
+            '@type': 'ListItem',
+            position: 1,
+            name: '林美杏老師官方網站',
+            item: 'https://ms.linho.me/',
+        },
+        {
+            '@type': 'ListItem',
+            position: 2,
+            name: '2026 師生音樂會',
+            item: 'https://ms.linho.me/concert/2026/',
+        },
+    ],
+};
+---
+
+<BaseLayout
+    title={title}
+    description={description}
+    ogImage="/concert/2026/og-2026-concert.jpg"
+    ogImageAlt="櫻花樹下，大手牽著小手走向鋼琴的 2026 師生音樂會主視覺"
+    includeReviewSchema={false}
+    structuredData={[eventSchema, breadcrumbSchema]}
+>
+    <div class="concert-page">
+        <header class="concert-nav">
+            <nav class="concert-shell concert-nav__inner" aria-label="2026 音樂會導覽">
+                <a class="concert-nav__brand" href="/" aria-label="回到林美杏老師官方網站首頁">
+                    <img src="/logo.webp" alt="" width="38" height="38" />
+                    <span>
+                        <strong>林美杏音樂教室</strong>
+                        <small>2026 Teacher–Student Concert</small>
+                    </span>
+                </a>
+
+                <div class="concert-nav__links">
+                    <a href="#programme">節目表</a>
+                    <a href="#gratitude">致謝</a>
+                    <a class="concert-nav__home" href="/">老師網站</a>
+                </div>
+            </nav>
+        </header>
+
+        <main id="main-content">
+            <ConcertHero />
+
+            <ConcertProgramme />
+            <ConcertAcknowledgements />
+        </main>
+
+        <Footer />
+    </div>
+</BaseLayout>
