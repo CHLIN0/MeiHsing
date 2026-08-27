@@ -9,7 +9,7 @@ const runtimeModules = process.env.MS_QA_NODE_MODULES
 const { chromium } = require(path.join(runtimeModules, 'playwright'));
 
 const root = process.cwd();
-const evidenceDir = path.join(root, 'qa', 'experience-redesign-final-v10-2026-08-28');
+const evidenceDir = path.join(root, 'qa', 'experience-redesign-final-v11-2026-08-28');
 const videoDir = path.join(evidenceDir, 'video');
 const origin = process.env.MS_QA_URL ?? 'http://127.0.0.1:4322';
 const expectedRuntimeUrl = new URL('/links', origin).href;
@@ -38,7 +38,8 @@ const decisionReceipt = `# 2026 concert + links redesign decision receipt
 - Close the long-reading loop with an in-paper “continue to 16–30” action after intermission; it shares the same state machine and deep link.
 - Blend hero and programme through a shared sakura-blush wash instead of a geometric wedge.
 - Preserve https://ms.linho.me/links as the static fallback, then regenerate the SVG QR from the current page URL at runtime. Integrate the piano feature into the code itself: dark modules resemble compact black keys and a protected central plaque contains one minimal upright-piano keyboard mark.
-- Keep the QR card subordinate to the profile: label the destination category and retain the readable short URL, but remove repeated scan mechanics and "take all links" promotional copy.
+- Keep the QR card subordinate to the profile: the QR itself is the sole copy button, its hierarchy reads "MEI-HSING LIN / 官方連結 / URL", and the redundant directory copy footer is removed.
+- On mobile, keep the QR card horizontal and continuous with the ivory directory surface so it does not become a detached oversized panel.
 - Preserve H error correction, finder patterns, a four-module quiet zone, and dark module centers; desktop uses the profile column's intentional negative space, while tablet/mobile place it after the destination directory.
 - Keep the portrait as one intentional dimensional frame, and separate the staff/note artwork from the contact divider so decorative lines never read as layout errors.
 
@@ -215,6 +216,8 @@ for (const viewport of viewports) {
             },
             displayedUrls: [...document.querySelectorAll('[data-current-links-url]')].map((element) => element.textContent?.trim()),
             shareUrl: document.querySelector('[data-links-page]')?.getAttribute('data-share-url'),
+            directoryCopyCount: document.querySelectorAll('.links-directory [data-copy-link]').length,
+            qrCopyButton: Boolean(document.querySelector('.links-scan-card__code[data-copy-link]')),
             portraitFrame: {
                 pseudoContent: getComputedStyle(document.querySelector('.links-profile__portrait'), '::before').content,
                 boxShadow: getComputedStyle(document.querySelector('.links-profile__portrait')).boxShadow,
@@ -226,7 +229,7 @@ for (const viewport of viewports) {
         };
     });
 
-    await page.getByRole('button', { name: '複製林美杏老師所有連結頁網址' }).click();
+    await page.getByRole('button', { name: '複製林美杏老師官方連結網址' }).click();
     await page.waitForTimeout(650);
     const copyLabel = await page.locator('[data-copy-label]').innerText();
 
@@ -381,12 +384,13 @@ for (const result of results) {
     if (!result.linksInitial.main || result.linksInitial.missingImageAlt || result.linksInitial.emptyLinks) failures.push(`${prefix}: links semantics failed`);
     if (result.linksInitial.qr.value !== expectedRuntimeUrl || result.linksInitial.qr.role !== 'img' || !result.linksInitial.qr.title || result.linksInitial.qr.dotCount < 100 || result.linksInitial.qr.finderCount !== 3) failures.push(`${prefix}: styled QR semantics, runtime payload, dots, or finder eyes failed`);
     if (result.linksInitial.displayedUrls.some((value) => value !== expectedDisplayUrl) || result.linksInitial.shareUrl !== expectedRuntimeUrl) failures.push(`${prefix}: displayed or copied URL did not follow the current page`);
-    const minimumQrWidth = prefix === 'desktop' ? 120 : prefix === 'mobile' ? 170 : 160;
+    if (result.linksInitial.directoryCopyCount || !result.linksInitial.qrCopyButton) failures.push(`${prefix}: copy interaction is duplicated or not attached to the QR`);
+    const minimumQrWidth = prefix === 'desktop' ? 120 : prefix === 'mobile' ? 120 : 115;
     if (result.linksInitial.qr.width < minimumQrWidth || Math.abs(result.linksInitial.qr.width - result.linksInitial.qr.height) > 1) failures.push(`${prefix}: QR render size is too small or not square`);
     if (prefix === 'desktop' ? !result.linksInitial.qr.desktopPlacement : !result.linksInitial.qr.stackedPlacement) failures.push(`${prefix}: QR responsive placement failed`);
     if (result.linksInitial.portraitFrame.pseudoContent !== 'none' || result.linksInitial.portraitFrame.boxShadow === 'none') failures.push(`${prefix}: portrait still has an accidental duplicate ring or lacks dimensional treatment`);
     if (result.linksInitial.musicalBackdrop.contactBorderTopWidth !== '0px' || result.linksInitial.musicalBackdrop.shortDividerWidth < 30 || result.linksInitial.musicalBackdrop.shortDividerWidth > 60) failures.push(`${prefix}: musical backdrop still collides with a full-width contact divider`);
-    if (result.copyLabel !== '已複製') failures.push(`${prefix}: copy action failed`);
+    if (result.copyLabel !== '網址已複製') failures.push(`${prefix}: QR copy action failed`);
 }
 if (!reducedMotion.tabSwitch.prefersReducedMotion || reducedMotion.tabSwitch.transitioning || reducedMotion.tabSwitch.visiblePanels.join() !== 'second-half') failures.push('reduced-motion tab switch failed');
 if (reducedMotion.continue.transitioning || reducedMotion.continue.hash !== '#second-half' || reducedMotion.continue.visiblePanels.join() !== 'second-half' || reducedMotion.continue.focusedId !== 'second-half-heading' || reducedMotion.continue.headingTop === null || reducedMotion.continue.headingTop < 0 || reducedMotion.continue.headingTop > reducedMotion.continue.viewportHeight * 0.45) failures.push('reduced-motion keyboard continue handoff failed');

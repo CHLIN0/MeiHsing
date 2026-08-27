@@ -9,7 +9,7 @@ const runtimeModules = process.env.MS_QA_NODE_MODULES
 const { chromium } = require(path.join(runtimeModules, 'playwright'));
 
 const root = process.cwd();
-const evidenceDir = path.join(root, 'qa', 'piano-qr-runtime-domain-v10-2026-08-28');
+const evidenceDir = path.join(root, 'qa', 'piano-qr-copy-button-v11-2026-08-28');
 const origin = process.env.MS_QA_URL ?? 'http://127.0.0.1:4322';
 const expectedRuntimeUrl = new URL('/links', origin).href;
 const expectedDisplayUrl = `${new URL(expectedRuntimeUrl).host}/links`;
@@ -23,7 +23,7 @@ The integrated piano mark is successful, but the surrounding card still treats o
 
 ## Selected concept
 
-The visual QR language remains unchanged. The static HTML keeps https://ms.linho.me/links as a no-JavaScript fallback, then the browser regenerates the same piano-styled QR from the actual current page URL. The readable URL and copy action use the identical runtime value.
+The visual QR language remains unchanged. The static HTML keeps https://ms.linho.me/links as a no-JavaScript fallback, then the browser regenerates the same piano-styled QR from the actual current page URL. The QR itself is the only copy button; the redundant directory footer is removed. Mobile uses a compact horizontal identity card rather than an oversized detached QR panel.
 
 ## Hard gates
 
@@ -33,6 +33,7 @@ The visual QR language remains unchanged. The static HTML keeps https://ms.linho
 - No redundant "scan", "take away", or camera-instruction copy in the visible card.
 - No external piano scene, QR toggle, perspective state, or Astro island.
 - The runtime QR payload, readable URL, and copy source all match the current page origin and pathname.
+- The QR button is keyboard reachable, has a visible focus state, and exposes copy success through an aria-live label.
 `);
 
 const browser = await chromium.launch({
@@ -77,6 +78,8 @@ for (const viewport of viewports) {
       overflow: document.documentElement.scrollWidth - innerWidth,
       toggleCount: document.querySelectorAll('[data-piano-qr-toggle]').length,
       scanCardButtonCount: document.querySelectorAll('.links-scan-card button').length,
+      directoryCopyCount: document.querySelectorAll('.links-directory [data-copy-link]').length,
+      qrCopyButton: Boolean(document.querySelector('.links-scan-card__code[data-copy-link]')),
       visibleCopy: document.querySelector('.links-scan-card__copy')?.textContent?.replace(/\s+/g, ' ').trim(),
       displayedUrls: [...document.querySelectorAll('[data-current-links-url]')].map((element) => element.textContent?.trim()),
       shareUrl: document.querySelector('[data-links-page]')?.getAttribute('data-share-url'),
@@ -98,7 +101,21 @@ for (const viewport of viewports) {
     };
   });
 
-  results.push({ viewport, status: response?.status() ?? null, runtime, state, fullPath, cardPath, qrPath });
+  const copyButton = page.locator('.links-scan-card__code[data-copy-link]');
+  await copyButton.focus();
+  const focusPath = path.join(evidenceDir, `${viewport.name}-qr-focus.png`);
+  await card.screenshot({ path: focusPath });
+  await copyButton.press('Enter');
+  await page.waitForTimeout(180);
+  const copiedPath = path.join(evidenceDir, `${viewport.name}-qr-copied.png`);
+  await card.screenshot({ path: copiedPath });
+  const interaction = await page.evaluate(() => ({
+    copied: document.querySelector('.links-scan-card__code')?.getAttribute('data-copied'),
+    label: document.querySelector('[data-copy-label]')?.textContent?.trim(),
+    focused: document.activeElement?.classList.contains('links-scan-card__code') ?? false,
+  }));
+
+  results.push({ viewport, status: response?.status() ?? null, runtime, state, interaction, fullPath, cardPath, qrPath, focusPath, copiedPath });
   await context.close();
 }
 
@@ -132,13 +149,14 @@ for (const result of results) {
   if (result.status !== 200) failures.push(`${prefix}: HTTP ${result.status}`);
   if (result.runtime.consoleErrors.length || result.runtime.pageErrors.length || result.runtime.requestFailures.length) failures.push(`${prefix}: runtime errors`);
   if (result.state.overflow > 0) failures.push(`${prefix}: horizontal overflow`);
-  if (result.state.toggleCount || result.state.scanCardButtonCount) failures.push(`${prefix}: QR still requires interaction`);
-  if (!result.state.visibleCopy?.includes('Official links') || !result.state.visibleCopy?.includes('網站・社群・音樂會') || !result.state.visibleCopy?.includes(expectedDisplayUrl) || /掃碼|帶走|開啟手機相機/.test(result.state.visibleCopy)) failures.push(`${prefix}: QR copy hierarchy is redundant or destination is unclear`);
+  if (result.state.toggleCount || result.state.scanCardButtonCount !== 1 || result.state.directoryCopyCount || !result.state.qrCopyButton) failures.push(`${prefix}: QR copy interaction is duplicated or attached to the wrong element`);
+  if (!result.state.visibleCopy?.includes('Mei-Hsing Lin') || !result.state.visibleCopy?.includes('官方連結') || !result.state.visibleCopy?.includes(expectedDisplayUrl) || /掃碼|帶走|開啟手機相機|網站・社群・音樂會/.test(result.state.visibleCopy)) failures.push(`${prefix}: QR copy hierarchy is redundant or destination is unclear`);
   if (result.state.displayedUrls.some((value) => value !== expectedDisplayUrl) || result.state.shareUrl !== expectedRuntimeUrl) failures.push(`${prefix}: readable or copied URL did not follow the current page`);
+  if (result.interaction.copied !== 'true' || result.interaction.label !== '網址已複製' || !result.interaction.focused) failures.push(`${prefix}: keyboard copy feedback failed`);
   if (!result.state.visual.pianoMark || result.state.visual.externalPianoSceneCount) failures.push(`${prefix}: piano feature is not integrated cleanly into the QR`);
   if (result.state.qr.value !== expectedRuntimeUrl || result.state.qr.role !== 'img' || !result.state.qr.title) failures.push(`${prefix}: QR semantics or runtime payload failed`);
   if (result.state.qr.moduleCount < 100 || result.state.qr.depthCount !== result.state.qr.moduleCount || result.state.qr.finderCount !== 3 || !result.state.qr.hasIvoryField) failures.push(`${prefix}: piano QR structure failed`);
-  const minimumQrWidth = prefix === 'desktop' ? 125 : prefix === 'mobile' ? 170 : 160;
+  const minimumQrWidth = prefix === 'desktop' ? 125 : prefix === 'mobile' ? 120 : 115;
   if (Math.abs(result.state.qr.width - result.state.qr.height) > 1 || result.state.qr.width < minimumQrWidth) failures.push(`${prefix}: QR size or aspect ratio failed`);
 }
 if (!staticChecks.serverRenderedQr || !staticChecks.integratedPianoMark || !staticChecks.noExternalPianoScene || !staticChecks.noQrToggle || !staticChecks.noAstroIsland || !staticChecks.fallbackPayload) failures.push('static fallback rendering contract failed');

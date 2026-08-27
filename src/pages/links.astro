@@ -113,25 +113,18 @@ const destinations = [
           </div>
         </section>
 
-        <footer class="links-directory__footer">
-          <div><span>不方便掃描？也可以直接複製</span><strong data-current-links-url>ms.linho.me/links</strong></div>
-          <button type="button" data-copy-link aria-label="複製林美杏老師所有連結頁網址">
-            <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="8" y="8" width="11" height="11" rx="2" /><path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2" /></svg>
-            <span data-copy-label aria-live="polite">複製網址</span>
-          </button>
-        </footer>
       </div>
 
-      <section class="links-scan-card" aria-label="林美杏老師官方連結 QR Code">
-        <div class="links-scan-card__code">
+      <section class="links-scan-card" aria-labelledby="links-scan-title">
+        <button class="links-scan-card__code" type="button" data-copy-link aria-label="複製林美杏老師官方連結網址">
           <StyledQrCode value={shareUrl} label="林美杏老師官方連結 QR Code" />
           <span class="links-scan-card__corner links-scan-card__corner--top" aria-hidden="true"></span>
           <span class="links-scan-card__corner links-scan-card__corner--bottom" aria-hidden="true"></span>
-        </div>
+        </button>
         <div class="links-scan-card__copy">
-          <p>Official links</p>
-          <strong>網站・社群・音樂會</strong>
-          <small data-current-links-url>ms.linho.me/links</small>
+          <p>Mei-Hsing Lin</p>
+          <strong id="links-scan-title">官方連結</strong>
+          <small data-current-links-url data-copy-label aria-live="polite">ms.linho.me/links</small>
         </div>
       </section>
     </article>
@@ -141,7 +134,7 @@ const destinations = [
 
   <script>
     const copyButton = document.querySelector<HTMLButtonElement>('[data-copy-link]');
-    const copyLabel = copyButton?.querySelector<HTMLElement>('[data-copy-label]');
+    const copyLabel = document.querySelector<HTMLElement>('[data-copy-label]');
     let resetTimer: number | undefined;
 
     const copyText = async (value: string) => {
@@ -168,19 +161,20 @@ const destinations = [
 
     copyButton?.addEventListener('click', async () => {
       window.clearTimeout(resetTimer);
+      const defaultLabel = document.querySelector<HTMLElement>('[data-current-links-url]')?.textContent ?? 'ms.linho.me/links';
       try {
         const linksPage = document.querySelector<HTMLElement>('[data-links-page]');
         const currentShareUrl = linksPage?.dataset.shareUrl ?? 'https://ms.linho.me/links';
         await copyText(currentShareUrl);
         copyButton.dataset.copied = 'true';
-        if (copyLabel) copyLabel.textContent = '已複製';
+        if (copyLabel) copyLabel.textContent = '網址已複製';
       } catch {
-        if (copyLabel) copyLabel.textContent = '請手動複製網址';
+        if (copyLabel) copyLabel.textContent = '無法複製，請使用網址列';
       }
 
       resetTimer = window.setTimeout(() => {
         delete copyButton.dataset.copied;
-        if (copyLabel) copyLabel.textContent = '複製網址';
+        if (copyLabel) copyLabel.textContent = defaultLabel;
       }, 2200);
     });
 
