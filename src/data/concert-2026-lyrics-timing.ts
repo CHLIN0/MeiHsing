@@ -49,12 +49,14 @@ export const concert2026LyricStartTimes = [
 ] as const;
 
 export const concert2026Instrumental = {
-    src: '/audio/concert-2026/mingtian-hui-geng-hao-instrumental.m4a',
-    duration: 154.965,
+    src: '/audio/concert-2026/mingtian-hui-geng-hao-instrumental-v3.mp4',
+    duration: 154.97,
     lyricsEnd: 139.5,
+    bytes: 4970100,
 } as const;
 
 export const concert2026GuideVocal = {
-    src: '/audio/separation-review/04-mdx23c-vocals.m4a',
+    src: '/audio/concert-2026/mingtian-hui-geng-hao-guide-vocal-v3.mp4',
     defaultVolume: 0.18,
+    bytes: 4953269,
 } as const;

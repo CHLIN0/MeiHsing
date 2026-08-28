@@ -52,15 +52,27 @@ const ruleFor = (pattern) => rules.find((rule) => rule.pattern === pattern);
 const cacheControlFor = (pattern) => ruleFor(pattern)?.headers.get('cache-control') ?? '';
 
 const immutableRules = rules.filter((rule) => /\bimmutable\b/i.test(rule.headers.get('cache-control') ?? ''));
+const concertAudioPatterns = [
+  '/audio/concert-2026/mingtian-hui-geng-hao-instrumental-v3.mp4',
+  '/audio/concert-2026/mingtian-hui-geng-hao-guide-vocal-v3.mp4',
+];
+const allowedImmutablePatterns = new Set(['/_astro/*', ...concertAudioPatterns]);
 for (const rule of immutableRules) {
-  if (rule.pattern !== '/_astro/*') {
-    fail(`Only fingerprinted /_astro/* files may be immutable; found ${rule.pattern}.`);
+  if (!allowedImmutablePatterns.has(rule.pattern)) {
+    fail(`Only fingerprinted build assets and versioned concert audio may be immutable; found ${rule.pattern}.`);
   }
 }
 
 const astroCache = cacheControlFor('/_astro/*');
 if (!/\bpublic\b/i.test(astroCache) || !/\bmax-age=31556952\b/i.test(astroCache) || !/\bimmutable\b/i.test(astroCache)) {
   fail('/_astro/* must use public, max-age=31556952, immutable.');
+}
+
+for (const pattern of concertAudioPatterns) {
+  const concertAudioCache = cacheControlFor(pattern);
+  if (!/\bpublic\b/i.test(concertAudioCache) || !/\bmax-age=31556952\b/i.test(concertAudioCache) || !/\bimmutable\b/i.test(concertAudioCache)) {
+    fail(`${pattern} must use public, max-age=31556952, immutable.`);
+  }
 }
 
 for (const pattern of ['/*.html', '/']) {
@@ -146,7 +158,7 @@ if (failures.length) {
   console.log('Cloudflare static asset QA passed.');
   console.log(`- ${htmlCount} generated HTML pages`);
   console.log(`- ${files.length} total deployment files`);
-  console.log('- immutable caching is limited to Astro fingerprinted assets');
+  console.log('- immutable caching is limited to fingerprinted assets and versioned concert audio');
   console.log(`- deployment metadata commit: ${metadata.commit.slice(0, 12)}`);
 }
 

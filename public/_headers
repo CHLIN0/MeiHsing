@@ -2,6 +2,14 @@
 /_astro/*
   Cache-Control: public, max-age=31556952, immutable
 
+# Concert audio filenames carry an explicit version, so browser and edge caches
+# can retain the complete files without serving stale revisions.
+/audio/concert-2026/mingtian-hui-geng-hao-instrumental-v3.mp4
+  Cache-Control: public, max-age=31556952, immutable
+
+/audio/concert-2026/mingtian-hui-geng-hao-guide-vocal-v3.mp4
+  Cache-Control: public, max-age=31556952, immutable
+
 # HTML and every same-name file in public/ must be revalidated. Workers Static
 # Assets already uses this policy by default; these two rules document the HTML
 # contract without overlapping /_astro/*.
