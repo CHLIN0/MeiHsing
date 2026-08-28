@@ -33,7 +33,7 @@ export const concert2026ProgrammeMedia: ConcertProgrammeMedia[] = [
         kind: 'audio',
         aspectRatio: 'audio',
         credit: '舞蹈音樂 · 連續播放兩次',
-        note: '音樂將連續播放兩次，請留意舞步與節拍的巧妙呼應，別錯過每一次精彩的卡點瞬間。',
+        note: '本節目將連續播放兩次，因曲目較短，敬請把握精彩的拍攝時機。',
     },
     {
         number: 20,

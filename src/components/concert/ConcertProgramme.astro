@@ -175,6 +175,7 @@ const halves = [
             <header class="concert-programme-media__header">
                 <div>
                     <p data-programme-media-kicker>Programme media</p>
+                    <p class="concert-programme-media__notice" data-programme-media-notice hidden></p>
                     <h2 id="concert-programme-media-title" data-programme-media-title>影片播放</h2>
                     <p data-programme-media-credit></p>
                 </div>
@@ -190,7 +191,6 @@ const halves = [
                     </span>
                     <h3 data-programme-media-audio-title></h3>
                     <p data-programme-media-audio-performer></p>
-                    <p class="concert-programme-media__audio-note" data-programme-media-audio-note hidden></p>
                     <audio preload="none" data-programme-media-player="audio"></audio>
                 </div>
 
@@ -211,6 +211,24 @@ const halves = [
                             <svg class="is-muted" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 10v4h4l5 4V6L9 10H5zM18 10l4 4m0-4-4 4"></path></svg>
                         </button>
                         <input type="range" min="0" max="1" step="0.01" value="1" data-programme-media-volume aria-label="音量" />
+                    </div>
+
+                    <div class="concert-programme-media__settings" data-programme-media-settings hidden>
+                        <button type="button" data-programme-media-settings-toggle aria-label="播放器設定" aria-expanded="false">
+                            <svg viewBox="0 0 24 24" aria-hidden="true">
+                                <path d="M12 15.2a3.2 3.2 0 1 0 0-6.4 3.2 3.2 0 0 0 0 6.4Z"></path>
+                                <path d="M19.4 15a1.7 1.7 0 0 0 .34 1.88l.06.06-2.86 2.86-.06-.06A1.7 1.7 0 0 0 15 19.4a1.7 1.7 0 0 0-1 .6 1.7 1.7 0 0 0-.4 1.1V21H9.6v-.1A1.7 1.7 0 0 0 8.5 19.4a1.7 1.7 0 0 0-1.88.34l-.06.06-2.86-2.86.06-.06A1.7 1.7 0 0 0 4.1 15a1.7 1.7 0 0 0-.6-1A1.7 1.7 0 0 0 2.4 13.6H2V9.6h.4A1.7 1.7 0 0 0 4.1 8.5a1.7 1.7 0 0 0-.34-1.88l-.06-.06L6.56 3.7l.06.06A1.7 1.7 0 0 0 8.5 4.1a1.7 1.7 0 0 0 1-.6 1.7 1.7 0 0 0 .4-1.1V2h4v.4A1.7 1.7 0 0 0 15 4.1a1.7 1.7 0 0 0 1.88-.34l.06-.06 2.86 2.86-.06.06A1.7 1.7 0 0 0 19.4 8.5a1.7 1.7 0 0 0 .6 1 1.7 1.7 0 0 0 1.1.4h.4v4h-.4A1.7 1.7 0 0 0 19.4 15Z"></path>
+                            </svg>
+                        </button>
+                        <div class="concert-programme-media__settings-popover" data-programme-media-settings-popover hidden>
+                            <button type="button" role="switch" aria-checked="true" data-programme-media-fade-toggle>
+                                <span>
+                                    <strong>循環淡出</strong>
+                                    <small>第一次結尾漸弱後，再接第二次</small>
+                                </span>
+                                <i aria-hidden="true"></i>
+                            </button>
+                        </div>
                     </div>
 
                     <div class="concert-programme-media__cache">
@@ -462,10 +480,10 @@ const halves = [
     const mediaAudioCard = mediaDialog?.querySelector<HTMLElement>('[data-programme-media-audio-card]');
     const mediaAudioTitle = mediaDialog?.querySelector<HTMLElement>('[data-programme-media-audio-title]');
     const mediaAudioPerformer = mediaDialog?.querySelector<HTMLElement>('[data-programme-media-audio-performer]');
-    const mediaAudioNote = mediaDialog?.querySelector<HTMLElement>('[data-programme-media-audio-note]');
     const mediaStage = mediaDialog?.querySelector<HTMLElement>('[data-programme-media-stage]');
     const mediaTitle = mediaDialog?.querySelector<HTMLElement>('[data-programme-media-title]');
     const mediaKicker = mediaDialog?.querySelector<HTMLElement>('[data-programme-media-kicker]');
+    const mediaNotice = mediaDialog?.querySelector<HTMLElement>('[data-programme-media-notice]');
     const mediaCredit = mediaDialog?.querySelector<HTMLElement>('[data-programme-media-credit]');
     const mediaStatus = mediaDialog?.querySelector<HTMLElement>('[data-programme-media-status]');
     const mediaClose = mediaDialog?.querySelector<HTMLButtonElement>('[data-programme-media-close]');
@@ -476,6 +494,10 @@ const halves = [
     const mediaDuration = mediaDialog?.querySelector<HTMLElement>('[data-programme-media-duration]');
     const mediaMute = mediaDialog?.querySelector<HTMLButtonElement>('[data-programme-media-mute]');
     const mediaVolume = mediaDialog?.querySelector<HTMLInputElement>('[data-programme-media-volume]');
+    const mediaSettings = mediaDialog?.querySelector<HTMLElement>('[data-programme-media-settings]');
+    const mediaSettingsToggle = mediaDialog?.querySelector<HTMLButtonElement>('[data-programme-media-settings-toggle]');
+    const mediaSettingsPopover = mediaDialog?.querySelector<HTMLElement>('[data-programme-media-settings-popover]');
+    const mediaFadeToggle = mediaDialog?.querySelector<HTMLButtonElement>('[data-programme-media-fade-toggle]');
     const mediaCacheToggle = mediaDialog?.querySelector<HTMLButtonElement>('[data-programme-media-cache-toggle]');
     const mediaCachePercent = mediaDialog?.querySelector<HTMLElement>('[data-programme-media-cache-percent]');
     const mediaCacheDetail = mediaDialog?.querySelector<HTMLElement>('[data-programme-media-cache-detail]');
@@ -503,10 +525,11 @@ const halves = [
     }));
 
     if (
-        mediaDialog && mediaVideoPlayer && mediaAudioPlayer && mediaAudioCard && mediaAudioTitle && mediaAudioPerformer && mediaAudioNote
-        && mediaStage && mediaTitle && mediaKicker && mediaCredit
+        mediaDialog && mediaVideoPlayer && mediaAudioPlayer && mediaAudioCard && mediaAudioTitle && mediaAudioPerformer
+        && mediaStage && mediaTitle && mediaKicker && mediaNotice && mediaCredit
         && mediaStatus && mediaClose && mediaControls && mediaPlay && mediaSeek && mediaCurrent && mediaDuration
-        && mediaMute && mediaVolume && mediaCacheToggle && mediaCachePercent && mediaCacheDetail
+        && mediaMute && mediaVolume && mediaSettings && mediaSettingsToggle && mediaSettingsPopover && mediaFadeToggle
+        && mediaCacheToggle && mediaCachePercent && mediaCacheDetail
         && mediaCachePopover && mediaReload && mediaFullscreen && mediaEntries.length
     ) {
         let mediaCache: ConcertAudioStore | null = null;
@@ -514,6 +537,13 @@ const halves = [
         let activePlayer: HTMLMediaElement | null = null;
         let completedLoops = 0;
         let isSeeking = false;
+        let loopFadeEnabled = true;
+        let repeatTimer: number | null = null;
+        let fadeStateTimer: number | null = null;
+        let audioContext: AudioContext | null = null;
+        let audioSource: MediaElementAudioSourceNode | null = null;
+        let audioGain: GainNode | null = null;
+        const loopFadeSeconds = 1.4;
 
         const formatTime = (value: number) => {
             if (!Number.isFinite(value) || value < 0) return '0:00';
@@ -526,6 +556,77 @@ const halves = [
         const updateRangeFill = (range: HTMLInputElement, value: number, max: number) => {
             const percent = max > 0 ? Math.min(100, Math.max(0, (value / max) * 100)) : 0;
             range.style.setProperty('--range-progress', `${percent}%`);
+        };
+
+        const renderPerformerNames = (value: string) => {
+            const names = value.split('、').map((name) => name.trim()).filter(Boolean);
+            mediaAudioPerformer.replaceChildren(...names.map((name, index) => {
+                const token = document.createElement('span');
+                token.textContent = index < names.length - 1 ? `${name}、` : name;
+                return token;
+            }));
+        };
+
+        const fadeApplies = () => Boolean(
+            loopFadeEnabled
+            && activeEntry?.kind === 'audio'
+            && activeEntry.repeat > 1
+            && completedLoops < activeEntry.repeat - 1
+            && activePlayer === mediaAudioPlayer
+        );
+
+        const syncFadeSetting = () => {
+            mediaFadeToggle.setAttribute('aria-checked', loopFadeEnabled ? 'true' : 'false');
+            mediaControls.dataset.loopFade = loopFadeEnabled ? 'true' : 'false';
+        };
+
+        const ensureAudioGraph = async () => {
+            if (!audioContext) {
+                audioContext = new AudioContext();
+                audioSource = audioContext.createMediaElementSource(mediaAudioPlayer);
+                audioGain = audioContext.createGain();
+                audioSource.connect(audioGain).connect(audioContext.destination);
+            }
+            if (audioContext.state === 'suspended') await audioContext.resume();
+        };
+
+        const resetLoopGain = () => {
+            if (fadeStateTimer !== null) window.clearTimeout(fadeStateTimer);
+            fadeStateTimer = null;
+            mediaControls.dataset.fadeState = 'idle';
+            if (!audioContext || !audioGain) return;
+            const now = audioContext.currentTime;
+            audioGain.gain.cancelScheduledValues(now);
+            audioGain.gain.setValueAtTime(1, now);
+        };
+
+        const scheduleLoopFade = async () => {
+            resetLoopGain();
+            if (!fadeApplies() || !activePlayer || activePlayer.paused) return;
+
+            try {
+                await ensureAudioGraph();
+            } catch {
+                loopFadeEnabled = false;
+                syncFadeSetting();
+                mediaStatus.textContent = '此瀏覽器無法啟用循環淡出，將以一般方式播放';
+                return;
+            }
+
+            if (!audioContext || !audioGain || !Number.isFinite(activePlayer.duration)) return;
+            const remaining = Math.max(0, activePlayer.duration - activePlayer.currentTime);
+            if (remaining <= 0) return;
+            const duration = Math.min(loopFadeSeconds, remaining);
+            const now = audioContext.currentTime;
+            const fadeStartsIn = Math.max(0, remaining - duration);
+            audioGain.gain.cancelScheduledValues(now);
+            audioGain.gain.setValueAtTime(1, now);
+            audioGain.gain.setValueAtTime(1, now + fadeStartsIn);
+            audioGain.gain.linearRampToValueAtTime(0.0001, now + remaining);
+            mediaControls.dataset.fadeState = 'scheduled';
+            fadeStateTimer = window.setTimeout(() => {
+                if (fadeApplies() && activePlayer && !activePlayer.paused) mediaControls.dataset.fadeState = 'fading';
+            }, fadeStartsIn * 1000);
         };
 
         const updateCacheDisplay = (entry: ProgrammeMediaEntry, percent: number, state: ProgrammeMediaEntry['state']) => {
@@ -575,8 +676,22 @@ const halves = [
         const togglePlayback = async () => {
             if (!activePlayer || activeEntry?.state !== 'ready') return;
             try {
-                if (activePlayer.paused) await activePlayer.play();
-                else activePlayer.pause();
+                if (activePlayer.paused) {
+                    if (fadeApplies()) {
+                        try {
+                            await ensureAudioGraph();
+                        } catch {
+                            loopFadeEnabled = false;
+                            syncFadeSetting();
+                            mediaStatus.textContent = '此瀏覽器無法啟用循環淡出，將以一般方式播放';
+                        }
+                    }
+                    await activePlayer.play();
+                    await scheduleLoopFade();
+                } else {
+                    activePlayer.pause();
+                    resetLoopGain();
+                }
             } catch {
                 mediaStatus.textContent = '無法開始播放，請再試一次';
             }
@@ -649,6 +764,11 @@ const halves = [
             activePlayer = null;
             activeEntry = null;
             completedLoops = 0;
+            if (repeatTimer !== null) window.clearTimeout(repeatTimer);
+            repeatTimer = null;
+            resetLoopGain();
+            mediaSettingsPopover.hidden = true;
+            mediaSettingsToggle.setAttribute('aria-expanded', 'false');
             mediaCachePopover.hidden = true;
             mediaCacheToggle.setAttribute('aria-expanded', 'false');
             document.body.classList.remove('is-concert-media-open');
@@ -667,14 +787,14 @@ const halves = [
             completedLoops = 0;
             mediaTitle.textContent = entry.title;
             mediaKicker.textContent = `Programme ${String(entry.number).padStart(2, '0')}`;
+            mediaNotice.textContent = entry.note;
+            mediaNotice.hidden = !entry.note;
             mediaCredit.textContent = entry.credit;
             mediaDialog.dataset.kind = entry.kind;
             mediaStage.dataset.aspect = entry.aspect;
             mediaStage.dataset.kind = entry.kind;
             mediaAudioTitle.textContent = entry.title;
-            mediaAudioPerformer.textContent = entry.performer;
-            mediaAudioNote.textContent = entry.note;
-            mediaAudioNote.hidden = !entry.note;
+            renderPerformerNames(entry.performer);
             mediaAudioCard.hidden = entry.kind !== 'audio';
             mediaVideoPlayer.hidden = entry.kind !== 'video';
             mediaAudioPlayer.hidden = entry.kind !== 'audio';
@@ -689,6 +809,12 @@ const halves = [
             activePlayer.load();
             activePlayer.currentTime = 0;
             mediaSeek.value = '0';
+            const hasSettings = entry.kind === 'audio' && entry.repeat > 1;
+            mediaSettings.hidden = !hasSettings;
+            mediaControls.dataset.hasSettings = hasSettings ? 'true' : 'false';
+            mediaSettingsPopover.hidden = true;
+            mediaSettingsToggle.setAttribute('aria-expanded', 'false');
+            syncFadeSetting();
             mediaCachePopover.hidden = true;
             mediaCacheToggle.setAttribute('aria-expanded', 'false');
             updateCacheDisplay(entry, 100, 'ready');
@@ -756,10 +882,12 @@ const halves = [
         mediaSeek.addEventListener('change', () => {
             isSeeking = false;
             syncPlayerControls();
+            void scheduleLoopFade();
         });
         mediaSeek.addEventListener('pointerup', () => {
             isSeeking = false;
             syncPlayerControls();
+            void scheduleLoopFade();
         });
         mediaMute.addEventListener('click', () => {
             if (!activePlayer) return;
@@ -770,10 +898,25 @@ const halves = [
             activePlayer.volume = Number(mediaVolume.value);
             activePlayer.muted = activePlayer.volume === 0;
         });
+        mediaSettingsToggle.addEventListener('click', () => {
+            const expanded = mediaSettingsToggle.getAttribute('aria-expanded') === 'true';
+            mediaSettingsToggle.setAttribute('aria-expanded', expanded ? 'false' : 'true');
+            mediaSettingsPopover.hidden = expanded;
+            mediaCachePopover.hidden = true;
+            mediaCacheToggle.setAttribute('aria-expanded', 'false');
+        });
+        mediaFadeToggle.addEventListener('click', () => {
+            loopFadeEnabled = !loopFadeEnabled;
+            syncFadeSetting();
+            if (loopFadeEnabled) void scheduleLoopFade();
+            else resetLoopGain();
+        });
         mediaCacheToggle.addEventListener('click', () => {
             const expanded = mediaCacheToggle.getAttribute('aria-expanded') === 'true';
             mediaCacheToggle.setAttribute('aria-expanded', expanded ? 'false' : 'true');
             mediaCachePopover.hidden = expanded;
+            mediaSettingsPopover.hidden = true;
+            mediaSettingsToggle.setAttribute('aria-expanded', 'false');
         });
         mediaReload.addEventListener('click', () => void reloadActiveMedia());
         mediaFullscreen.addEventListener('click', () => void toggleFullscreen());
@@ -798,12 +941,21 @@ const halves = [
 
         const handleMediaEnded = () => {
             if (!activeEntry) return;
+            resetLoopGain();
             completedLoops += 1;
             if (completedLoops < activeEntry.repeat) {
                 mediaStatus.textContent = `自動播放 ${activeEntry.repeat} 次 · 第 ${completedLoops + 1} 次`;
                 if (activePlayer) {
-                    activePlayer.currentTime = 0;
-                    void activePlayer.play();
+                    const loopEntry = activeEntry;
+                    const loopPlayer = activePlayer;
+                    loopPlayer.currentTime = 0;
+                    repeatTimer = window.setTimeout(() => {
+                        repeatTimer = null;
+                        if (activeEntry !== loopEntry || activePlayer !== loopPlayer) return;
+                        void loopPlayer.play().then(() => scheduleLoopFade()).catch(() => {
+                            mediaStatus.textContent = '第二次播放無法開始，請按播放鍵再試一次';
+                        });
+                    }, loopFadeEnabled ? 140 : 0);
                 }
                 return;
             }
@@ -821,6 +973,10 @@ const halves = [
         });
         mediaDialog.addEventListener('click', (event) => {
             if (event.target === mediaDialog) closeMedia();
+            if (!mediaSettingsToggle.contains(event.target as Node) && !mediaSettingsPopover.contains(event.target as Node)) {
+                mediaSettingsPopover.hidden = true;
+                mediaSettingsToggle.setAttribute('aria-expanded', 'false');
+            }
             if (!mediaCacheToggle.contains(event.target as Node) && !mediaCachePopover.contains(event.target as Node)) {
                 mediaCachePopover.hidden = true;
                 mediaCacheToggle.setAttribute('aria-expanded', 'false');

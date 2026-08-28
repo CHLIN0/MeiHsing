@@ -127,7 +127,9 @@ const modalState = await coldPage.evaluate(() => {
     title: dialog.querySelector('[data-programme-media-title]')?.textContent?.trim(),
     audioTitle: dialog.querySelector('[data-programme-media-audio-title]')?.textContent?.trim(),
     audioPerformer: dialog.querySelector('[data-programme-media-audio-performer]')?.textContent?.trim(),
-    audioNote: dialog.querySelector('[data-programme-media-audio-note]')?.textContent?.trim(),
+    notice: dialog.querySelector('[data-programme-media-notice]')?.textContent?.trim(),
+    settingsHidden: dialog.querySelector('[data-programme-media-settings]')?.hidden,
+    fadeEnabled: dialog.querySelector('[data-programme-media-fade-toggle]')?.getAttribute('aria-checked'),
     audioVisible: !dialog.querySelector('[data-programme-media-audio-card]')?.hidden,
     videoHidden: dialog.querySelector('[data-programme-media-player="video"]')?.hidden,
     nativeControls: activePlayer?.controls,
@@ -141,12 +143,49 @@ const modalState = await coldPage.evaluate(() => {
 if (modalState.sheet.left < 0 || modalState.sheet.top < 0 || modalState.sheet.right > 390 || modalState.sheet.bottom > 844) {
   failures.push(`mobile modal exceeds viewport: ${JSON.stringify(modalState.sheet)}`);
 }
-if (!modalState.audioVisible || !modalState.videoHidden || modalState.audioTitle !== 'Opalite｜Taylor Swift TikTok Dance' || !modalState.audioPerformer || !modalState.audioNote?.includes('連續播放兩次')) {
+if (!modalState.audioVisible
+  || !modalState.videoHidden
+  || modalState.audioTitle !== 'Opalite｜Taylor Swift TikTok Dance'
+  || !modalState.audioPerformer
+  || modalState.notice !== '本節目將連續播放兩次，因曲目較短，敬請把握精彩的拍攝時機。'
+  || modalState.settingsHidden
+  || modalState.fadeEnabled !== 'true') {
   failures.push(`audio modal identity failed: ${JSON.stringify(modalState)}`);
 }
 if (modalState.nativeControls || modalState.cacheState !== 'ready' || modalState.controlsRect.left < 0 || modalState.controlsRect.right > 390 || modalState.controlsRect.bottom > 844) {
   failures.push(`custom controls failed: ${JSON.stringify(modalState)}`);
 }
+
+await coldPage.locator('[data-programme-media-settings-toggle]').click();
+await coldPage.waitForFunction(() => document.querySelector('[data-programme-media-settings-popover]')?.hidden === false);
+const settingsLayout = await coldPage.evaluate(() => {
+  const popover = document.querySelector('[data-programme-media-settings-popover]')?.getBoundingClientRect();
+  const timeline = document.querySelector('.concert-programme-media__timeline')?.getBoundingClientRect();
+  if (!popover || !timeline) return null;
+  const overlapsTimeline = popover.left < timeline.right
+    && popover.right > timeline.left
+    && popover.top < timeline.bottom
+    && popover.bottom > timeline.top;
+  return {
+    popover: { top: popover.top, right: popover.right, bottom: popover.bottom, left: popover.left },
+    timeline: { top: timeline.top, right: timeline.right, bottom: timeline.bottom, left: timeline.left },
+    overlapsTimeline,
+  };
+});
+if (!settingsLayout
+  || settingsLayout.overlapsTimeline
+  || settingsLayout.popover.left < 0
+  || settingsLayout.popover.right > 390
+  || settingsLayout.popover.top < 0
+  || settingsLayout.popover.bottom > 844) {
+  failures.push(`settings popover obstructs mobile controls: ${JSON.stringify(settingsLayout)}`);
+}
+await coldPage.screenshot({ path: path.join(evidenceDir, 'mobile-audio-settings.png') });
+await coldPage.locator('[data-programme-media-fade-toggle]').click();
+await coldPage.waitForFunction(() => document.querySelector('[data-programme-media-fade-toggle]')?.getAttribute('aria-checked') === 'false');
+await coldPage.locator('[data-programme-media-fade-toggle]').click();
+await coldPage.waitForFunction(() => document.querySelector('[data-programme-media-fade-toggle]')?.getAttribute('aria-checked') === 'true');
+await coldPage.locator('[data-programme-media-settings-toggle]').click();
 
 await coldPage.locator('[data-programme-media-play]').click();
 await coldPage.waitForFunction(() => document.querySelector('[data-programme-media-player][data-active="true"]')?.paused === false);
@@ -184,13 +223,14 @@ const sourceAfterReload = await coldPage.locator('[data-programme-media-player][
 if (sourceAfterReload === sourceBeforeReload) failures.push('cache reload did not replace the Blob source');
 
 await coldPage.locator('[data-programme-media-player][data-active="true"]').evaluate((player) => {
-  player.currentTime = Math.max(0, player.duration - 0.12);
-  void player.play();
+  player.currentTime = Math.max(0, player.duration - 0.8);
 });
+await coldPage.locator('[data-programme-media-play]').click();
+await coldPage.waitForFunction(() => document.querySelector('[data-programme-media-controls]')?.dataset.fadeState === 'fading', null, { timeout: 3000 });
+const fadeStateBeforeLoop = await coldPage.locator('[data-programme-media-controls]').getAttribute('data-fade-state');
 await coldPage.waitForFunction(() => /第 2 次/.test(document.querySelector('[data-programme-media-status]')?.textContent ?? ''), null, { timeout: 5000 });
 await coldPage.locator('[data-programme-media-player][data-active="true"]').evaluate((player) => {
   player.currentTime = Math.max(0, player.duration - 0.12);
-  void player.play();
 });
 await coldPage.waitForFunction(() => /已完成 2 次播放/.test(document.querySelector('[data-programme-media-status]')?.textContent ?? ''), null, { timeout: 5000 });
 await coldPage.locator('[data-programme-media-close]').click();
@@ -272,6 +312,8 @@ const result = {
   customControls: {
     seekTime,
     volume,
+    fadeStateBeforeLoop,
+    settingsLayout,
     sourceReplacedOnReload: sourceAfterReload !== sourceBeforeReload,
   },
   warmReadyMs,
