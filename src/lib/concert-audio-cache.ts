@@ -2,6 +2,8 @@ export type ConcertAudioAssetOrigin = 'cache' | 'network';
 
 export const concertAudioCacheName = 'concert-2026-audio-v3';
 export const concertAudioCachePrefix = 'concert-2026-audio-';
+export const concertProgrammeMediaCacheName = 'concert-2026-programme-media-v2';
+export const concertProgrammeMediaCachePrefix = 'concert-2026-programme-media-';
 
 type LoadConcertAudioAssetOptions = {
     source: string;
@@ -25,13 +27,13 @@ export type ConcertAudioStore = {
 
 const wait = (duration: number) => new Promise((resolve) => window.setTimeout(resolve, duration));
 
-const openIndexedDbStore = () => new Promise<ConcertAudioStore | null>((resolve) => {
+const openIndexedDbStore = (cacheName: string, defaultContentType: string) => new Promise<ConcertAudioStore | null>((resolve) => {
     if (!('indexedDB' in window)) {
         resolve(null);
         return;
     }
 
-    const request = window.indexedDB.open(concertAudioCacheName, 1);
+    const request = window.indexedDB.open(cacheName, 1);
     request.onupgradeneeded = () => {
         const database = request.result;
         if (!database.objectStoreNames.contains('assets')) database.createObjectStore('assets');
@@ -54,7 +56,7 @@ const openIndexedDbStore = () => new Promise<ConcertAudioStore | null>((resolve)
             },
             get: async (source) => {
                 const blob = await transact<Blob | undefined>('readonly', (store) => store.get(source));
-                return blob instanceof Blob ? new Response(blob, { headers: { 'content-type': blob.type || 'audio/mp4' } }) : undefined;
+                return blob instanceof Blob ? new Response(blob, { headers: { 'content-type': blob.type || defaultContentType } }) : undefined;
             },
             put: async (source, response) => {
                 const blob = await response.blob();
@@ -64,15 +66,15 @@ const openIndexedDbStore = () => new Promise<ConcertAudioStore | null>((resolve)
     };
 });
 
-export const openConcertAudioCache = async (): Promise<ConcertAudioStore | null> => {
-    if (!window.isSecureContext || !('caches' in window)) return openIndexedDbStore();
+const openAssetCache = async (cacheName: string, cachePrefix: string, defaultContentType: string): Promise<ConcertAudioStore | null> => {
+    if (!window.isSecureContext || !('caches' in window)) return openIndexedDbStore(cacheName, defaultContentType);
 
     try {
         const cacheNames = await window.caches.keys();
         await Promise.all(cacheNames
-            .filter((name) => name.startsWith(concertAudioCachePrefix) && name !== concertAudioCacheName)
+            .filter((name) => name.startsWith(cachePrefix) && name !== cacheName)
             .map((name) => window.caches.delete(name)));
-        const cache = await window.caches.open(concertAudioCacheName);
+        const cache = await window.caches.open(cacheName);
         return {
             kind: 'cache-storage',
             delete: (source) => cache.delete(source),
@@ -80,14 +82,22 @@ export const openConcertAudioCache = async (): Promise<ConcertAudioStore | null>
             put: (source, response) => cache.put(source, response),
         };
     } catch {
-        return openIndexedDbStore();
+        return openIndexedDbStore(cacheName, defaultContentType);
     }
 };
+
+export const openConcertAudioCache = () => openAssetCache(concertAudioCacheName, concertAudioCachePrefix, 'audio/mp4');
+export const openConcertProgrammeMediaCache = () => openAssetCache(
+    concertProgrammeMediaCacheName,
+    concertProgrammeMediaCachePrefix,
+    'video/mp4',
+);
 
 const readResponse = async (
     response: Response,
     expectedBytes: number,
     onProgress: (loadedBytes: number) => void,
+    defaultContentType: string,
 ) => {
     if (!response.body) {
         const blob = await response.blob();
@@ -110,18 +120,18 @@ const readResponse = async (
     }
 
     return new Blob(chunks, {
-        type: response.headers.get('content-type') || 'audio/mp4',
+        type: response.headers.get('content-type') || defaultContentType,
     });
 };
 
-export const loadConcertAudioAsset = async ({
+const loadAsset = async ({
     source,
     expectedBytes,
     cache,
     forceNetwork = false,
     onProgress,
-}: LoadConcertAudioAssetOptions): Promise<ConcertAudioAssetResult> => {
-    let lastError: unknown = new Error('Audio download failed');
+}: LoadConcertAudioAssetOptions, defaultContentType: string, assetLabel: string): Promise<ConcertAudioAssetResult> => {
+    let lastError: unknown = new Error(`${assetLabel} download failed`);
 
     for (let attempt = 0; attempt < 2; attempt += 1) {
         try {
@@ -131,12 +141,12 @@ export const loadConcertAudioAsset = async ({
             const response = cachedResponse ?? await fetch(source, {
                 cache: forceNetwork || attempt > 0 ? 'reload' : 'force-cache',
             });
-            if (!response.ok) throw new Error(`Audio request failed with ${response.status}`);
+            if (!response.ok) throw new Error(`${assetLabel} request failed with ${response.status}`);
 
             const cacheWrite = !cachedResponse && cache
                 ? cache.put(source, response.clone()).catch(() => undefined)
                 : Promise.resolve();
-            const blob = await readResponse(response, expectedBytes, onProgress);
+            const blob = await readResponse(response, expectedBytes, onProgress, defaultContentType);
             await cacheWrite;
             return { blob, origin: cachedResponse ? 'cache' : 'network' };
         } catch (error) {
@@ -148,3 +158,6 @@ export const loadConcertAudioAsset = async ({
 
     throw lastError;
 };
+
+export const loadConcertAudioAsset = (options: LoadConcertAudioAssetOptions) => loadAsset(options, 'audio/mp4', 'Audio');
+export const loadConcertProgrammeMediaAsset = (options: LoadConcertAudioAssetOptions) => loadAsset(options, 'video/mp4', 'Media');

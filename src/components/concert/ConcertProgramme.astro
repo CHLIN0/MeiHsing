@@ -1,6 +1,7 @@
 ---
 import programmeCsv from '../../data/concert-2026-programme.csv?raw';
 import { concert2026 } from '../../data/concert-2026';
+import { concert2026ProgrammeMediaByNumber } from '../../data/concert-2026-media';
 import { parseConcertProgramme } from '../../utils/concertProgramme';
 
 const programme = parseConcertProgramme(programmeCsv);
@@ -66,27 +67,65 @@ const halves = [
                     </header>
 
                     <ol class="concert-programme__list" start={half.entries[0]?.number}>
-                        {half.entries.map((entry) => (
+                        {half.entries.map((entry) => {
+                            const media = concert2026ProgrammeMediaByNumber.get(entry.number as 11 | 17 | 20);
+                            const mediaLabel = media?.kind === 'audio' ? '音訊' : '影片';
+                            return (
                             <li class:list={[
                                 'concert-programme__entry',
                                 entry.details && 'concert-programme__entry--detailed',
                                 entry.isMasked && 'concert-programme__entry--masked',
                                 [16, 17, 30].includes(entry.number) && 'concert-programme__entry--feature',
-                            ]}>
+                                media && 'concert-programme__entry--media',
+                            ]} data-programme-number={entry.number}>
                                 <span class="concert-programme__number" aria-hidden="true">
                                     {String(entry.number).padStart(2, '0')}
                                 </span>
 
                                 <div class="concert-programme__content">
                                     <div class="concert-programme__title-line">
-                                        {entry.isMasked ? (
-                                            <div class="concert-programme__masked-title" role="heading" aria-level="4" aria-label="曲目遮蔽">
-                                                <span aria-hidden="true"></span>
-                                            </div>
-                                        ) : (
-                                            <h4>{entry.work}</h4>
+                                        <div class="concert-programme__title-main">
+                                            {entry.isMasked ? (
+                                                <div class="concert-programme__masked-title" role="heading" aria-level="4" aria-label="曲目遮蔽">
+                                                    <span aria-hidden="true"></span>
+                                                </div>
+                                            ) : (
+                                                <h4>{entry.work}</h4>
+                                            )}
+                                            {entry.format && <span class="concert-programme__format">{entry.format}</span>}
+                                        </div>
+                                        {media && (
+                                            <button
+                                                class="concert-programme__media-button"
+                                                type="button"
+                                                data-programme-media-button
+                                                data-media-number={media.number}
+                                                data-media-title={media.title}
+                                                data-media-performer={entry.performer}
+                                                data-media-kind={media.kind}
+                                                data-media-source={media.source}
+                                                data-media-bytes={media.bytes}
+                                                data-media-duration={media.duration}
+                                                data-media-repeat={media.repeat}
+                                                data-media-aspect={media.aspectRatio}
+                                                data-media-credit={media.credit}
+                                                data-state="loading"
+                                                aria-label={`${media.title}${mediaLabel}載入中 0%`}
+                                                disabled
+                                            >
+                                                <svg class="concert-programme__media-ring" viewBox="0 0 44 44" aria-hidden="true">
+                                                    <circle class="is-track" cx="22" cy="22" r="18" pathLength="100"></circle>
+                                                    <circle class="is-progress" cx="22" cy="22" r="18" pathLength="100"></circle>
+                                                </svg>
+                                                <svg class="concert-programme__media-play" viewBox="0 0 24 24" aria-hidden="true">
+                                                    <path d="m9 7 8 5-8 5z"></path>
+                                                </svg>
+                                                <svg class="concert-programme__media-retry" viewBox="0 0 24 24" aria-hidden="true">
+                                                    <path d="M19 8a7 7 0 1 0 1 6"></path><path d="M19 3v5h-5"></path>
+                                                </svg>
+                                                <span data-programme-media-percent>0</span>
+                                            </button>
                                         )}
-                                        {entry.format && <span class="concert-programme__format">{entry.format}</span>}
                                     </div>
 
                                     {(entry.performer || entry.details) && (
@@ -102,7 +141,8 @@ const halves = [
                                     )}
                                 </div>
                             </li>
-                        ))}
+                            );
+                        })}
                     </ol>
 
                     {halfIndex === 0 && (
@@ -128,9 +168,49 @@ const halves = [
             ))}
         </div>
     </div>
+
+    <dialog class="concert-programme-media" data-programme-media-dialog aria-labelledby="concert-programme-media-title">
+        <div class="concert-programme-media__sheet">
+            <header class="concert-programme-media__header">
+                <div>
+                    <p data-programme-media-kicker>Programme media</p>
+                    <h2 id="concert-programme-media-title" data-programme-media-title>影片播放</h2>
+                    <p data-programme-media-credit></p>
+                </div>
+                <button type="button" data-programme-media-close aria-label="關閉影片">
+                    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m7 7 10 10M17 7 7 17"></path></svg>
+                </button>
+            </header>
+            <div class="concert-programme-media__stage" data-programme-media-stage data-aspect="landscape" data-kind="video">
+                <video controls playsinline preload="none" data-programme-media-player="video"></video>
+                <div class="concert-programme-media__audio-card" data-programme-media-audio-card hidden>
+                    <span class="concert-programme-media__audio-mark" aria-hidden="true">
+                        <i></i><i></i><i></i><i></i><i></i>
+                    </span>
+                    <h3 data-programme-media-audio-title></h3>
+                    <p data-programme-media-audio-performer></p>
+                    <audio controls preload="none" data-programme-media-player="audio"></audio>
+                </div>
+            </div>
+            <footer class="concert-programme-media__footer">
+                <p data-programme-media-status aria-live="polite">影片已完整載入</p>
+                <button type="button" data-programme-media-fullscreen>
+                    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 3H3v5M16 3h5v5M8 21H3v-5M16 21h5v-5"></path></svg>
+                    <span>全螢幕播放</span>
+                </button>
+            </footer>
+        </div>
+    </dialog>
 </section>
 
 <script>
+    import {
+        loadConcertProgrammeMediaAsset,
+        openConcertProgrammeMediaCache,
+        type ConcertAudioAssetOrigin,
+        type ConcertAudioStore,
+    } from '../../lib/concert-audio-cache';
+
     const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
 
     document.querySelectorAll<HTMLElement>('[data-programme-switcher]').forEach((switcher) => {
@@ -317,4 +397,209 @@ const halves = [
             if (nextIndex >= 0) void switchTo(nextIndex, false, false);
         });
     });
+
+    type ProgrammeMediaEntry = {
+        button: HTMLButtonElement;
+        number: number;
+        title: string;
+        source: string;
+        expectedBytes: number;
+        duration: number;
+        repeat: number;
+        kind: 'audio' | 'video';
+        aspect: 'landscape' | 'portrait' | 'audio';
+        performer: string;
+        credit: string;
+        blob: Blob | null;
+        objectUrl: string | null;
+        origin: ConcertAudioAssetOrigin | null;
+        state: 'loading' | 'ready' | 'failed';
+    };
+
+    const mediaDialog = document.querySelector<HTMLDialogElement>('[data-programme-media-dialog]');
+    const mediaVideoPlayer = mediaDialog?.querySelector<HTMLVideoElement>('[data-programme-media-player="video"]');
+    const mediaAudioPlayer = mediaDialog?.querySelector<HTMLAudioElement>('[data-programme-media-player="audio"]');
+    const mediaAudioCard = mediaDialog?.querySelector<HTMLElement>('[data-programme-media-audio-card]');
+    const mediaAudioTitle = mediaDialog?.querySelector<HTMLElement>('[data-programme-media-audio-title]');
+    const mediaAudioPerformer = mediaDialog?.querySelector<HTMLElement>('[data-programme-media-audio-performer]');
+    const mediaStage = mediaDialog?.querySelector<HTMLElement>('[data-programme-media-stage]');
+    const mediaTitle = mediaDialog?.querySelector<HTMLElement>('[data-programme-media-title]');
+    const mediaKicker = mediaDialog?.querySelector<HTMLElement>('[data-programme-media-kicker]');
+    const mediaCredit = mediaDialog?.querySelector<HTMLElement>('[data-programme-media-credit]');
+    const mediaStatus = mediaDialog?.querySelector<HTMLElement>('[data-programme-media-status]');
+    const mediaClose = mediaDialog?.querySelector<HTMLButtonElement>('[data-programme-media-close]');
+    const mediaFullscreen = mediaDialog?.querySelector<HTMLButtonElement>('[data-programme-media-fullscreen]');
+
+    const mediaEntries: ProgrammeMediaEntry[] = Array.from(document.querySelectorAll<HTMLButtonElement>('[data-programme-media-button]')).map((button) => ({
+        button,
+        number: Number(button.dataset.mediaNumber),
+        title: button.dataset.mediaTitle || '節目影片',
+        source: button.dataset.mediaSource || '',
+        expectedBytes: Number(button.dataset.mediaBytes || 0),
+        duration: Number(button.dataset.mediaDuration || 0),
+        repeat: Math.max(1, Number(button.dataset.mediaRepeat || 1)),
+        kind: button.dataset.mediaKind === 'audio' ? 'audio' : 'video',
+        aspect: button.dataset.mediaAspect === 'portrait' ? 'portrait' : button.dataset.mediaAspect === 'audio' ? 'audio' : 'landscape',
+        performer: button.dataset.mediaPerformer || '',
+        credit: button.dataset.mediaCredit || '',
+        blob: null,
+        objectUrl: null,
+        origin: null,
+        state: 'loading',
+    }));
+
+    if (
+        mediaDialog && mediaVideoPlayer && mediaAudioPlayer && mediaAudioCard && mediaAudioTitle && mediaAudioPerformer
+        && mediaStage && mediaTitle && mediaKicker && mediaCredit
+        && mediaStatus && mediaClose && mediaFullscreen && mediaEntries.length
+    ) {
+        let mediaCache: ConcertAudioStore | null = null;
+        let activeEntry: ProgrammeMediaEntry | null = null;
+        let activePlayer: HTMLMediaElement | null = null;
+        let completedLoops = 0;
+
+        const updateMediaButton = (entry: ProgrammeMediaEntry, loadedBytes: number, state: ProgrammeMediaEntry['state']) => {
+            const percent = entry.expectedBytes > 0
+                ? Math.min(100, Math.round((Math.max(0, loadedBytes) / entry.expectedBytes) * 100))
+                : 0;
+            entry.state = state;
+            entry.button.dataset.state = state;
+            entry.button.style.setProperty('--programme-media-progress', String(percent));
+            const percentLabel = entry.button.querySelector<HTMLElement>('[data-programme-media-percent]');
+            if (percentLabel) percentLabel.textContent = state === 'failed' ? '!' : String(percent);
+            entry.button.disabled = state === 'loading';
+            const kindLabel = entry.kind === 'audio' ? '音訊' : '影片';
+            entry.button.setAttribute('aria-label', state === 'ready'
+                ? `播放第 ${entry.number} 節目 ${entry.title} ${kindLabel}，已完整載入`
+                : state === 'failed'
+                    ? `第 ${entry.number} 節目 ${entry.title} ${kindLabel}載入失敗，按下重新載入`
+                    : `第 ${entry.number} 節目 ${entry.title} ${kindLabel}載入中 ${percent}%`);
+        };
+
+        const loadMediaEntry = async (entry: ProgrammeMediaEntry, forceNetwork = false) => {
+            updateMediaButton(entry, 0, 'loading');
+            try {
+                const result = await loadConcertProgrammeMediaAsset({
+                    source: entry.source,
+                    expectedBytes: entry.expectedBytes,
+                    cache: mediaCache,
+                    forceNetwork,
+                    onProgress: (loadedBytes) => updateMediaButton(entry, loadedBytes, 'loading'),
+                });
+                entry.blob = result.blob;
+                entry.origin = result.origin;
+                updateMediaButton(entry, entry.expectedBytes, 'ready');
+            } catch {
+                entry.blob = null;
+                entry.origin = null;
+                updateMediaButton(entry, 0, 'failed');
+            }
+        };
+
+        const prepareProgrammeMedia = async () => {
+            if ('storage' in navigator && typeof navigator.storage.persist === 'function') {
+                void navigator.storage.persist().catch(() => false);
+            }
+            mediaCache = await openConcertProgrammeMediaCache();
+            for (const entry of mediaEntries) await loadMediaEntry(entry);
+        };
+
+        const closeMedia = () => {
+            [mediaVideoPlayer, mediaAudioPlayer].forEach((player) => {
+                player.pause();
+                player.removeAttribute('src');
+                player.load();
+                delete player.dataset.active;
+            });
+            activePlayer = null;
+            activeEntry = null;
+            completedLoops = 0;
+            document.body.classList.remove('is-concert-media-open');
+            if (mediaDialog.open) mediaDialog.close();
+        };
+
+        const openMedia = async (entry: ProgrammeMediaEntry) => {
+            if (entry.state === 'failed') {
+                await loadMediaEntry(entry, true);
+                if (entry.state !== 'ready') return;
+            }
+            if (!entry.blob || entry.state !== 'ready') return;
+
+            if (!entry.objectUrl) entry.objectUrl = URL.createObjectURL(entry.blob);
+            activeEntry = entry;
+            completedLoops = 0;
+            mediaTitle.textContent = entry.title;
+            mediaKicker.textContent = `Programme ${String(entry.number).padStart(2, '0')} · 已完整載入`;
+            mediaCredit.textContent = entry.credit;
+            mediaDialog.dataset.kind = entry.kind;
+            mediaStage.dataset.aspect = entry.aspect;
+            mediaStage.dataset.kind = entry.kind;
+            mediaAudioTitle.textContent = entry.title;
+            mediaAudioPerformer.textContent = entry.performer;
+            mediaAudioCard.hidden = entry.kind !== 'audio';
+            mediaVideoPlayer.hidden = entry.kind !== 'video';
+            mediaAudioPlayer.hidden = entry.kind !== 'audio';
+            mediaStatus.textContent = entry.repeat > 1
+                ? `將自動播放 ${entry.repeat} 次 · 第 1 次`
+                : entry.origin === 'cache' ? '本機快取已就緒' : '影片已完整載入';
+            activePlayer = entry.kind === 'audio' ? mediaAudioPlayer : mediaVideoPlayer;
+            activePlayer.dataset.active = 'true';
+            activePlayer.src = entry.objectUrl;
+            activePlayer.currentTime = 0;
+            document.body.classList.add('is-concert-media-open');
+            mediaDialog.showModal();
+            try {
+                await activePlayer.play();
+            } catch {
+                mediaStatus.textContent = `${entry.kind === 'audio' ? '音訊' : '影片'}已就緒，請按播放鍵開始`;
+            }
+        };
+
+        mediaEntries.forEach((entry) => {
+            updateMediaButton(entry, 0, 'loading');
+            entry.button.addEventListener('click', () => void openMedia(entry));
+        });
+
+        const handleMediaEnded = () => {
+            if (!activeEntry) return;
+            completedLoops += 1;
+            if (completedLoops < activeEntry.repeat) {
+                mediaStatus.textContent = `自動播放 ${activeEntry.repeat} 次 · 第 ${completedLoops + 1} 次`;
+                if (activePlayer) {
+                    activePlayer.currentTime = 0;
+                    void activePlayer.play();
+                }
+                return;
+            }
+            mediaStatus.textContent = activeEntry.repeat > 1
+                ? `已完成 ${activeEntry.repeat} 次播放`
+                : '影片播放完畢';
+        };
+        mediaVideoPlayer.addEventListener('ended', handleMediaEnded);
+        mediaAudioPlayer.addEventListener('ended', handleMediaEnded);
+
+        mediaClose.addEventListener('click', closeMedia);
+        mediaDialog.addEventListener('cancel', (event) => {
+            event.preventDefault();
+            closeMedia();
+        });
+        mediaDialog.addEventListener('click', (event) => {
+            if (event.target === mediaDialog) closeMedia();
+        });
+        mediaFullscreen.addEventListener('click', async () => {
+            try {
+                if (document.fullscreenElement) await document.exitFullscreen();
+                else await mediaStage.requestFullscreen();
+            } catch {
+                mediaStatus.textContent = '此瀏覽器無法進入全螢幕';
+            }
+        });
+        window.addEventListener('beforeunload', () => {
+            mediaEntries.forEach((entry) => {
+                if (entry.objectUrl) URL.revokeObjectURL(entry.objectUrl);
+            });
+        });
+
+        void prepareProgrammeMedia();
+    }
 </script>

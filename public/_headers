@@ -10,6 +10,17 @@
 /audio/concert-2026/mingtian-hui-geng-hao-guide-vocal-v3.mp4
   Cache-Control: public, max-age=31556952, immutable
 
+# Programme video filenames are versioned and are fully cached by the page
+# before playback, so the edge may retain them for one year as well.
+/concert/2026/media/programme-11-sasameyuki-v1.mp4
+  Cache-Control: public, max-age=31556952, immutable
+
+/concert/2026/media/programme-17-opalite-audio-v1.m4a
+  Cache-Control: public, max-age=31556952, immutable
+
+/concert/2026/media/programme-20-yours-always-v1.mp4
+  Cache-Control: public, max-age=31556952, immutable
+
 # HTML and every same-name file in public/ must be revalidated. Workers Static
 # Assets already uses this policy by default; these two rules document the HTML
 # contract without overlapping /_astro/*.

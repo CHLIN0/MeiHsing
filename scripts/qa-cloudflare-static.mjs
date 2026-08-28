@@ -56,7 +56,12 @@ const concertAudioPatterns = [
   '/audio/concert-2026/mingtian-hui-geng-hao-instrumental-v3.mp4',
   '/audio/concert-2026/mingtian-hui-geng-hao-guide-vocal-v3.mp4',
 ];
-const allowedImmutablePatterns = new Set(['/_astro/*', ...concertAudioPatterns]);
+const concertProgrammeMediaPatterns = [
+  '/concert/2026/media/programme-11-sasameyuki-v1.mp4',
+  '/concert/2026/media/programme-17-opalite-audio-v1.m4a',
+  '/concert/2026/media/programme-20-yours-always-v1.mp4',
+];
+const allowedImmutablePatterns = new Set(['/_astro/*', ...concertAudioPatterns, ...concertProgrammeMediaPatterns]);
 for (const rule of immutableRules) {
   if (!allowedImmutablePatterns.has(rule.pattern)) {
     fail(`Only fingerprinted build assets and versioned concert audio may be immutable; found ${rule.pattern}.`);
@@ -71,6 +76,13 @@ if (!/\bpublic\b/i.test(astroCache) || !/\bmax-age=31556952\b/i.test(astroCache)
 for (const pattern of concertAudioPatterns) {
   const concertAudioCache = cacheControlFor(pattern);
   if (!/\bpublic\b/i.test(concertAudioCache) || !/\bmax-age=31556952\b/i.test(concertAudioCache) || !/\bimmutable\b/i.test(concertAudioCache)) {
+    fail(`${pattern} must use public, max-age=31556952, immutable.`);
+  }
+}
+
+for (const pattern of concertProgrammeMediaPatterns) {
+  const concertMediaCache = cacheControlFor(pattern);
+  if (!/\bpublic\b/i.test(concertMediaCache) || !/\bmax-age=31556952\b/i.test(concertMediaCache) || !/\bimmutable\b/i.test(concertMediaCache)) {
     fail(`${pattern} must use public, max-age=31556952, immutable.`);
   }
 }
@@ -149,6 +161,11 @@ for (const asset of oversized) {
   warnings.push(`${path.relative(dist, asset.file)} is ${(asset.size / 1024 / 1024).toFixed(1)} MiB; verify that it is intentional.`);
 }
 
+const cloudflareAssetLimit = 25 * 1024 * 1024;
+for (const asset of files.map((file) => ({ file, size: fs.statSync(file).size })).filter(({ size }) => size > cloudflareAssetLimit)) {
+  fail(`${path.relative(dist, asset.file)} exceeds Cloudflare's 25 MiB individual static asset limit.`);
+}
+
 if (failures.length) {
   console.error('Cloudflare static asset QA failed:');
   for (const message of failures) console.error(`- ${message}`);
@@ -158,7 +175,7 @@ if (failures.length) {
   console.log('Cloudflare static asset QA passed.');
   console.log(`- ${htmlCount} generated HTML pages`);
   console.log(`- ${files.length} total deployment files`);
-  console.log('- immutable caching is limited to fingerprinted assets and versioned concert audio');
+  console.log('- immutable caching is limited to fingerprinted assets and versioned concert audio/video');
   console.log(`- deployment metadata commit: ${metadata.commit.slice(0, 12)}`);
 }
 

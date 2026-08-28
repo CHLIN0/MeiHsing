@@ -1589,6 +1589,351 @@
     padding: 1.25rem 0;
 }
 
+.concert-programme__entry--media {
+    grid-template-columns: 3.5rem minmax(0, 1fr);
+}
+
+.concert-programme__entry--media .concert-programme__title-line {
+    display: flex;
+    align-items: center;
+    gap: 0.65rem;
+}
+
+.concert-programme__title-main {
+    min-width: 0;
+}
+
+.concert-programme__media-button {
+    --programme-media-progress: 0;
+    position: relative;
+    width: 2.75rem;
+    height: 2.75rem;
+    display: grid;
+    place-items: center;
+    flex: 0 0 auto;
+    padding: 0;
+    border: 0;
+    border-radius: 50%;
+    color: var(--concert-ink);
+    background: rgba(255, 252, 247, 0.84);
+    box-shadow: 0 0 0 1px rgba(142, 101, 54, 0.16), 0 8px 22px rgba(72, 47, 35, 0.08);
+    cursor: pointer;
+    transition: transform 180ms ease, background-color 180ms ease, box-shadow 180ms ease;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.concert-programme__media-button:disabled {
+    color: var(--concert-muted);
+    cursor: wait;
+}
+
+.concert-programme__media-button:not(:disabled):hover,
+.concert-programme__media-button:not(:disabled):focus-visible {
+    transform: translateY(-2px) scale(1.04);
+    background: #fffdf9;
+    box-shadow: 0 0 0 1px rgba(142, 101, 54, 0.24), 0 12px 30px rgba(72, 47, 35, 0.14);
+}
+
+.concert-programme__media-button:active {
+    transform: scale(0.96);
+}
+
+.concert-programme__media-ring {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    overflow: visible;
+    transform: rotate(-90deg);
+}
+
+.concert-programme__media-ring circle {
+    fill: none;
+    stroke-width: 2.2;
+}
+
+.concert-programme__media-ring .is-track {
+    stroke: rgba(142, 101, 54, 0.16);
+}
+
+.concert-programme__media-ring .is-progress {
+    stroke: var(--concert-gold);
+    stroke-linecap: round;
+    stroke-dasharray: var(--programme-media-progress) 100;
+    transition: stroke-dasharray 160ms ease;
+}
+
+.concert-programme__media-button > span {
+    font-family: ui-sans-serif, system-ui, sans-serif;
+    font-size: 0.62rem;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: -0.02em;
+}
+
+.concert-programme__media-play,
+.concert-programme__media-retry {
+    display: none;
+    width: 1.2rem;
+    height: 1.2rem;
+    fill: currentColor;
+}
+
+.concert-programme__media-retry {
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.7;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+.concert-programme__media-button[data-state='ready'] {
+    color: #fffaf3;
+    background: var(--concert-ink);
+}
+
+.concert-programme__media-button[data-state='ready'] .concert-programme__media-ring .is-track,
+.concert-programme__media-button[data-state='ready'] .concert-programme__media-ring .is-progress {
+    stroke: rgba(255, 250, 243, 0.58);
+}
+
+.concert-programme__media-button[data-state='ready'] .concert-programme__media-play {
+    display: block;
+}
+
+.concert-programme__media-button[data-state='ready'] > span,
+.concert-programme__media-button[data-state='failed'] > span {
+    display: none;
+}
+
+.concert-programme__media-button[data-state='failed'] .concert-programme__media-retry {
+    display: block;
+}
+
+body.is-concert-media-open {
+    overflow: hidden;
+}
+
+.concert-programme-media {
+    width: 100vw;
+    max-width: none;
+    height: 100dvh;
+    max-height: none;
+    margin: 0;
+    padding: clamp(1rem, 3vw, 2.5rem);
+    border: 0;
+    color: #fffaf3;
+    background: rgba(19, 14, 13, 0.94);
+    opacity: 0;
+    transition: opacity 220ms ease, display 220ms allow-discrete, overlay 220ms allow-discrete;
+}
+
+.concert-programme-media[open] {
+    display: grid;
+    place-items: center;
+    opacity: 1;
+}
+
+@starting-style {
+    .concert-programme-media[open] {
+        opacity: 0;
+    }
+}
+
+.concert-programme-media::backdrop {
+    background: rgba(19, 14, 13, 0.7);
+    backdrop-filter: blur(14px);
+}
+
+.concert-programme-media__sheet {
+    width: min(92rem, 100%);
+    height: min(54rem, 100%);
+    display: grid;
+    grid-template-rows: auto minmax(0, 1fr) auto;
+    gap: 1rem;
+}
+
+.concert-programme-media__header,
+.concert-programme-media__footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1.25rem;
+}
+
+.concert-programme-media__header p,
+.concert-programme-media__header h2,
+.concert-programme-media__footer p {
+    margin: 0;
+}
+
+.concert-programme-media__header [data-programme-media-kicker] {
+    color: var(--concert-gold-light);
+    font-family: ui-sans-serif, system-ui, sans-serif;
+    font-size: 0.72rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+}
+
+.concert-programme-media__header h2 {
+    margin-top: 0.25rem;
+    color: #fffaf3;
+    font-family: 'Noto Serif TC Variable', serif;
+    font-size: clamp(1.35rem, 2.6vw, 2rem);
+    font-weight: 500;
+    letter-spacing: 0.08em;
+}
+
+.concert-programme-media__header [data-programme-media-credit] {
+    margin-top: 0.2rem;
+    color: rgba(255, 250, 243, 0.62);
+    font-size: 0.78rem;
+}
+
+.concert-programme-media[data-kind='audio'] .concert-programme-media__header h2,
+.concert-programme-media[data-kind='audio'] .concert-programme-media__header [data-programme-media-credit] {
+    display: none;
+}
+
+.concert-programme-media__header button,
+.concert-programme-media__footer button {
+    min-width: 3rem;
+    min-height: 3rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.55rem;
+    border: 1px solid rgba(255, 250, 243, 0.28);
+    border-radius: 999px;
+    color: #fffaf3;
+    background: rgba(255, 250, 243, 0.08);
+    cursor: pointer;
+}
+
+.concert-programme-media__header button svg,
+.concert-programme-media__footer button svg {
+    width: 1.25rem;
+    height: 1.25rem;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.7;
+    stroke-linecap: round;
+}
+
+.concert-programme-media__header button:hover,
+.concert-programme-media__header button:focus-visible,
+.concert-programme-media__footer button:hover,
+.concert-programme-media__footer button:focus-visible {
+    background: rgba(255, 250, 243, 0.16);
+}
+
+.concert-programme-media__stage {
+    min-height: 0;
+    display: grid;
+    place-items: center;
+    overflow: hidden;
+    border-radius: clamp(0.75rem, 2vw, 1.5rem);
+    background: #070605;
+    box-shadow: 0 28px 80px rgba(0, 0, 0, 0.35);
+}
+
+.concert-programme-media__stage video {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    background: #070605;
+}
+
+.concert-programme-media__stage [hidden] {
+    display: none;
+}
+
+.concert-programme-media__audio-card {
+    width: min(52rem, 100%);
+    min-height: min(34rem, 100%);
+    display: grid;
+    grid-template-rows: 1fr auto auto 1fr auto;
+    align-items: center;
+    justify-items: center;
+    padding: clamp(2rem, 6vw, 5rem);
+    text-align: center;
+    background:
+        linear-gradient(90deg, transparent 49.8%, rgba(255, 250, 243, 0.06) 50%, transparent 50.2%),
+        radial-gradient(circle at 50% 35%, rgba(201, 165, 116, 0.18), transparent 42%);
+}
+
+.concert-programme-media__audio-mark {
+    display: flex;
+    align-items: end;
+    gap: 0.32rem;
+    align-self: end;
+    margin-bottom: 2rem;
+    color: var(--concert-gold-light);
+}
+
+.concert-programme-media__audio-mark i {
+    width: 0.18rem;
+    height: 1.1rem;
+    border-radius: 999px;
+    background: currentColor;
+}
+
+.concert-programme-media__audio-mark i:nth-child(2),
+.concert-programme-media__audio-mark i:nth-child(4) {
+    height: 1.8rem;
+}
+
+.concert-programme-media__audio-mark i:nth-child(3) {
+    height: 2.5rem;
+}
+
+.concert-programme-media__audio-card h3 {
+    margin: 0;
+    color: #fffaf3;
+    font-family: 'Noto Serif TC Variable', serif;
+    font-size: clamp(2rem, 5vw, 4.4rem);
+    font-weight: 500;
+    line-height: 1.28;
+    letter-spacing: 0.035em;
+}
+
+.concert-programme-media__audio-card > p {
+    max-width: 44rem;
+    margin: 1.1rem 0 0;
+    color: rgba(255, 250, 243, 0.72);
+    font-size: clamp(0.9rem, 1.5vw, 1.08rem);
+    line-height: 1.8;
+    letter-spacing: 0.06em;
+}
+
+.concert-programme-media__audio-card audio {
+    width: min(38rem, 100%);
+    align-self: end;
+    margin-top: 2rem;
+}
+
+.concert-programme-media__stage[data-kind='audio'] {
+    background: linear-gradient(145deg, #1a1210, #090706 72%);
+}
+
+.concert-programme-media__stage[data-aspect='portrait'] video {
+    width: auto;
+    max-width: 100%;
+}
+
+.concert-programme-media__stage:fullscreen {
+    border-radius: 0;
+    background: #000;
+}
+
+.concert-programme-media__footer p {
+    color: rgba(255, 250, 243, 0.72);
+    font-size: 0.82rem;
+}
+
+.concert-programme-media__footer button {
+    padding-inline: 1rem;
+}
+
 .concert-programme__number {
     padding-top: 0.14rem;
     font-size: 1.05rem;
@@ -1944,6 +2289,16 @@
         padding-block: 1.05rem;
     }
 
+    .concert-programme__entry--media {
+        grid-template-columns: 2.35rem minmax(0, 1fr);
+        gap: 0.65rem;
+    }
+
+    .concert-programme__media-button {
+        width: 2.75rem;
+        height: 2.75rem;
+    }
+
     .concert-programme__number {
         font-size: 0.96rem;
     }
@@ -1954,6 +2309,16 @@
 
     .concert-programme__title-line {
         display: block;
+    }
+
+    .concert-programme__entry--media .concert-programme__title-line {
+        display: flex;
+        align-items: center;
+        gap: 0.55rem;
+    }
+
+    .concert-programme__entry--media .concert-programme__title-main {
+        flex: 0 1 auto;
     }
 
     .concert-programme__title-line h4 {
@@ -1982,6 +2347,53 @@
     .concert-programme__entry--feature {
         margin-inline: -0.6rem;
         padding-inline: 0.6rem;
+    }
+
+    .concert-programme-media {
+        padding: max(0.75rem, env(safe-area-inset-top)) max(0.75rem, env(safe-area-inset-right)) max(0.75rem, env(safe-area-inset-bottom)) max(0.75rem, env(safe-area-inset-left));
+    }
+
+    .concert-programme-media__sheet {
+        height: 100%;
+        gap: 0.75rem;
+    }
+
+    .concert-programme-media__header {
+        align-items: flex-start;
+    }
+
+    .concert-programme-media__header h2 {
+        font-size: 1.2rem;
+    }
+
+    .concert-programme-media__header [data-programme-media-credit] {
+        max-width: 16rem;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    .concert-programme-media__footer button span {
+        display: none;
+    }
+
+    .concert-programme-media__footer button {
+        width: 3rem;
+        padding: 0;
+    }
+
+    .concert-programme-media__audio-card {
+        width: 100%;
+        min-height: 100%;
+        padding: 2rem 1rem 1.25rem;
+    }
+
+    .concert-programme-media__audio-card h3 {
+        font-size: clamp(1.8rem, 8vw, 2.6rem);
+    }
+
+    .concert-programme-media__audio-card > p {
+        font-size: 0.86rem;
     }
 
     .concert-gratitude__art img {
@@ -2059,6 +2471,16 @@
     .concert-programme__entry {
         grid-template-columns: 2.15rem minmax(0, 1fr);
         gap: 0.5rem;
+    }
+
+    .concert-programme__entry--media {
+        grid-template-columns: 2.15rem minmax(0, 1fr);
+        gap: 0.5rem;
+    }
+
+    .concert-programme__media-button {
+        width: 2.75rem;
+        height: 2.75rem;
     }
 
     .concert-gratitude__registry {
