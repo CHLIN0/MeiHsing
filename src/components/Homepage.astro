@@ -1,0 +1,437 @@
+---
+import '../styles/homepage.css';
+
+const courses = [
+  {
+    number: '01',
+    title: '鋼琴與樂理',
+    description: '古典鋼琴、爵士鋼琴與樂理教學；依學員程度建立穩定的音樂基礎。',
+  },
+  {
+    number: '02',
+    title: '歌唱、合唱與自彈自唱',
+    description: '練習音準、節奏、伴奏與舞台表達，讓歌唱與自彈自唱更自然。',
+  },
+  {
+    number: '03',
+    title: '跨世代音樂活動',
+    description: '結合歌唱、節奏、肢體律動與空靈鼓，陪伴樂齡學員在互動中享受音樂。',
+  },
+];
+
+const roles = [
+  { title: '林美杏音樂教室', role: '鋼琴・樂理・自彈自唱', primary: true },
+  { title: '岡山長青學苑合唱團', role: '指導老師兼鋼琴伴奏' },
+  { title: '岡山長青民謠班', role: '民謠歌唱班教師' },
+  { title: '純陽南忠區合唱團', role: '指導老師' },
+  { title: '興毅信三區合唱團', role: '指導老師' },
+  { title: '岡山樂齡中心', role: '音樂輔療講師' },
+  { title: '義大醫院', role: '音樂志工' },
+];
+
+const galleryCategories = [
+  {
+    id: 'concert',
+    label: '音樂會',
+    description: '師生從獨奏、四手聯彈到歌唱與跨樂器合作，把平日的學習帶上舞台。',
+    images: Array.from({ length: 16 }, (_, index) => `/gallery/concert/concert-${String(index + 1).padStart(2, '0')}.webp`),
+  },
+  {
+    id: 'choir',
+    label: '合唱團',
+    description: '記錄岡山圖書館、路竹時代與現任社區合唱團的排練、指揮、伴奏與演出。',
+    images: Array.from({ length: 13 }, (_, index) => `/gallery/choir/choir-${String(index + 1).padStart(2, '0')}.webp`),
+  },
+  {
+    id: 'ensemble',
+    label: '合奏',
+    description: '在四手聯彈與跨樂器合作中，練習聆聽、配合與共同完成作品。',
+    images: Array.from({ length: 7 }, (_, index) => `/gallery/ensemble/ensemble-${String(index + 1).padStart(2, '0')}.webp`),
+  },
+  {
+    id: 'music',
+    label: '音樂教學',
+    description: '從兒童鋼琴教室到樂齡團體課程，依學員年齡與目標調整教學方式。',
+    images: [
+      '/gallery/music-class/music-class-01.webp',
+      '/gallery/music-class/music-class-02.webp',
+      '/gallery/music-class/okayama-senior-music-therapy-2026-08-a.webp',
+      '/gallery/music-class/okayama-senior-music-therapy-2026-08-b.webp',
+    ],
+  },
+  {
+    id: 'volunteer',
+    label: '志工服務',
+    description: '以鋼琴、空靈鼓與合奏參與義大醫院志工服務，為病友與家屬帶來音樂陪伴。',
+    images: [
+      '/gallery/volunteer/hospital-music-volunteer-2026-08.webp',
+      '/gallery/volunteer/volunteer-01.webp',
+      '/gallery/volunteer/volunteer-02.webp',
+    ],
+  },
+];
+
+const themes = [
+  {
+    id: 'concert',
+    meta: 'Concert · 16 photos',
+    title: '音樂會',
+    image: '/gallery/concert/concert-12.webp',
+    alt: '林美杏老師與不同年齡的師生在音樂會後大合照',
+    description: '每年師生音樂會從獨奏、四手聯彈延伸到歌唱與跨樂器合作，讓一整年的練習成為真正的舞台經驗。',
+  },
+  {
+    id: 'choir',
+    meta: 'Choir · Since 2001',
+    title: '合唱團',
+    image: '/gallery/choir/choir-01.webp',
+    alt: '林美杏老師帶領合唱團演出',
+    description: '從岡山圖書館與路竹時代合唱團，到現在持續投入的社區合唱，累積超過二十年的指揮與伴奏經驗。',
+  },
+  {
+    id: 'ensemble',
+    meta: 'Ensemble · 7 photos',
+    title: '合奏',
+    image: '/gallery/ensemble/ensemble-01.webp',
+    alt: '學生參與合奏演出',
+    description: '透過四手聯彈與跨樂器合作，讓學生在排練與演出中練習聆聽與配合。',
+  },
+  {
+    id: 'music',
+    meta: 'Music Class · 4 photos',
+    title: '音樂教學',
+    image: '/gallery/music-class/music-class-01.webp',
+    alt: '林美杏老師與音樂教室學員合影，教室內有多台鋼琴',
+    description: '涵蓋鋼琴、樂理、自彈自唱與樂齡團體課程，依年齡與學習目標調整方法。',
+  },
+  {
+    id: 'volunteer',
+    meta: 'Volunteer · 3 photos',
+    title: '志工服務',
+    image: '/gallery/volunteer/hospital-music-volunteer-2026-08.webp',
+    alt: '林美杏老師與義大醫院音樂志工夥伴',
+    description: '以鋼琴、空靈鼓與合奏參與院內志工服務，為病友與家屬帶來溫柔的音樂陪伴。',
+  },
+];
+
+const milestones = [
+  {
+    year: '1985–1999',
+    title: '音樂教育與專業精進',
+    description: '以鋼琴、電子琴與樂理為核心，持續深化演奏、即興、視奏與教學指導能力，讓專業精進與教學實踐彼此相輔相成。',
+    details: ['1985｜KAWAI 鋼琴演奏五級', '1987｜YAMAHA 電子琴五級', '1988｜YAMAHA 鋼琴演奏五級', '1999｜YAMAHA 指導級四級'],
+  },
+  {
+    year: '1986–2017',
+    title: '功學社山葉樂器教學生涯',
+    description: '在 YAMAHA 教學體系擔任音樂講師與講師召集人 31 年，並兼任檢定監考官。',
+    details: ['指導學生參與 YAMAHA Music Festival，曾獲南區 YMF 合奏比賽第一名等佳績', '指導學生參與 Junior Original Concert', '多次獲頒「優秀講師表彰」', '2017 年榮獲「功在樂教」紀念獎'],
+  },
+  {
+    year: '1997–至今',
+    title: '岡山長青學苑',
+    description: '長期擔任民謠歌唱班教師、合唱指導與鋼琴伴奏，將音樂學習帶入樂齡生活。',
+  },
+  {
+    year: '2001 年起',
+    title: '社區合唱的長期耕耘',
+    description: '自 2001 年起，老師將長年的音樂教學經驗延伸至社區合唱，持續擔任合唱指導與鋼琴伴奏。',
+    details: ['2001–2022｜岡山圖書館合唱團指導老師', '2011–2014｜路竹時代合唱團指導', '2023–至今｜純陽南忠區合唱團指導'],
+  },
+  {
+    year: '2019 年起',
+    title: '樂齡課程與音樂志工服務',
+    description: '從岡山里關懷據點、岡山樂齡中心到義大醫院音樂志工，持續把音樂帶進社區與日常生活。',
+  },
+];
+
+const qualifications = [
+  { meta: '1999 · YAMAHA', title: '指導級四級', description: 'Fundamentals Grade 4' },
+  { meta: '1988 · YAMAHA', title: '鋼琴演奏五級', description: '獨奏、即興與視奏能力認證' },
+  { meta: '1987 · YAMAHA', title: '電子琴五級', description: 'Electone Grade 5' },
+  { meta: '1985 · KAWAI', title: '鋼琴演奏五級', description: 'Performance Grade 5' },
+  { meta: '高雄市政府教育局', title: '樂齡學習專業人員', description: '一般課程講師培訓證明' },
+  { meta: '2017 · YAMAHA 功學社', title: '功在樂教紀念獎', description: '31 年教學貢獻紀念' },
+];
+
+const faqs = [
+  { question: '完全沒有音樂基礎，也可以開始嗎？', answer: '可以。課程會依目前程度與學習目標安排，不需要先具備演奏經驗。' },
+  { question: '成人或樂齡學員適合學琴嗎？', answer: '適合。音樂學習沒有年齡限制，也可以從熟悉的歌曲、節奏與生活經驗開始。' },
+  { question: '可以先了解課程再決定嗎？', answer: '可以先留下想學的內容、目前程度與方便時段，再由老師回覆適合的安排。' },
+];
+
+const faqSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'FAQPage',
+  mainEntity: faqs.map((faq) => ({
+    '@type': 'Question',
+    name: faq.question,
+    acceptedAnswer: { '@type': 'Answer', text: faq.answer },
+  })),
+};
+---
+
+<section class="home-hero" aria-labelledby="home-hero-title">
+  <div class="home-shell home-hero__inner">
+    <div class="home-hero__copy">
+      <p class="home-eyebrow">Piano Teacher · Music Educator</p>
+      <h1 id="home-hero-title">讓每個人都能找到<br />自己的音樂</h1>
+      <p class="home-hero__lead">林美杏老師以逾四十年的教學經驗，陪伴孩子、成人與樂齡學員，從基礎開始，找到適合自己的學習方式。</p>
+      <ul class="home-hero__pillars">
+        <li>鋼琴與樂理教學</li>
+        <li>合唱、歌唱與伴奏</li>
+        <li>樂齡音樂與志工服務</li>
+      </ul>
+      <div class="home-actions">
+        <a class="home-button home-button--primary" href="#contact">預約試聽</a>
+        <a class="home-button home-button--ghost" href="#field">看看教學現場</a>
+      </div>
+    </div>
+    <figure class="home-hero__portrait">
+      <img src="/head.webp" alt="林美杏老師" width="760" height="950" fetchpriority="high" />
+      <span aria-hidden="true">𝄞</span>
+    </figure>
+  </div>
+</section>
+
+<section class="home-about" id="about" aria-labelledby="home-about-title">
+  <div class="home-shell home-about__grid">
+    <figure class="home-about__image">
+      <img src="/head1.webp" alt="林美杏老師在音樂會上手捧花束" width="640" height="800" loading="lazy" />
+      <figcaption>四十年・陪伴</figcaption>
+    </figure>
+    <div class="home-about__copy">
+      <p class="home-eyebrow">About the Teacher</p>
+      <h2 id="home-about-title">不只教會一首曲子，<br />而是陪伴一個人成長</h2>
+      <p>美杏老師擁有逾四十年的鋼琴教學經驗，曾於 YAMAHA 音樂教室擔任資深講師 31 年，並累積 30 年合唱團指揮與鋼琴伴奏經驗。</p>
+      <p>她會依每位學員的年齡、程度與學習節奏調整方法，透過聲音想像與肢體律動，幫助學員理解音樂、表達情感。</p>
+      <p class="home-philosophy"><span>音樂與成長</span>音樂，是成長路上不可多得的陪伴；在一次次聆聽與練習裡，它讓心更細膩，也讓每一步成長都有了聲音。</p>
+    </div>
+  </div>
+</section>
+
+<section class="home-stats" aria-labelledby="home-stats-title">
+  <div class="home-shell">
+    <div class="home-stats__heading">
+      <p class="home-eyebrow">A Lifetime of Music</p>
+      <h2 id="home-stats-title">四十多年的音樂教育</h2>
+    </div>
+    <div class="home-stats__grid">
+      <div><strong>40+</strong><span>年教學經歷</span></div>
+      <div><strong>31</strong><span>年 YAMAHA 講師</span></div>
+      <div><strong>30</strong><span>年合唱指揮及伴奏</span></div>
+      <div><strong>1000+</strong><span>位學生培育</span></div>
+    </div>
+  </div>
+</section>
+
+<section class="home-practice" id="practice" aria-labelledby="home-practice-title">
+  <div class="home-shell">
+    <div class="home-section-head">
+      <div>
+        <p class="home-eyebrow">Teaching Today</p>
+        <h2 id="home-practice-title">教學與服務</h2>
+      </div>
+      <p>從鋼琴、樂理到合唱與樂齡音樂，依年齡、程度與學習目標安排合適的內容。</p>
+    </div>
+    <div class="home-practice__columns">
+      <article class="home-panel">
+        <h3>可以學什麼</h3>
+        <div class="home-course-list">
+          {courses.map((course) => (
+            <div class="home-course">
+              <span>{course.number}</span>
+              <div><h4>{course.title}</h4><p>{course.description}</p></div>
+            </div>
+          ))}
+        </div>
+      </article>
+      <article class="home-panel">
+        <h3>目前投入的場域</h3>
+        <div class="home-role-list">
+          {roles.map((item) => (
+            <div class:list={['home-role', item.primary && 'home-role--primary']}>
+              <strong>{item.title}</strong><span>{item.role}</span>
+            </div>
+          ))}
+        </div>
+      </article>
+    </div>
+
+    <div class="home-field" id="field">
+      <div class="home-field__head">
+        <div><p class="home-eyebrow">Teaching & Community</p><h2>教學與陪伴的現場</h2></div>
+        <p>從琴房裡的一對一教學，到音樂會、合唱與社區服務，這些照片記錄了學習、排練與演出的每一段過程。</p>
+      </div>
+      <div class="home-gallery-tabs" role="tablist" aria-label="教學與活動照片分類">
+        <button id="home-gallery-tab-all" role="tab" type="button" aria-controls="home-gallery-panel-all" aria-selected="true" data-gallery-tab="all">全部 <small>5 個主題</small></button>
+        {galleryCategories.map((category) => (
+          <button id={`home-gallery-tab-${category.id}`} role="tab" type="button" aria-controls={`home-gallery-panel-${category.id}`} aria-selected="false" tabindex="-1" data-gallery-tab={category.id}>{category.label} <small>{category.images.length}</small></button>
+        ))}
+      </div>
+      <p class="home-gallery-status" aria-live="polite">目前顯示五個主要面向；選擇分類可查看該主題照片。</p>
+
+      <div class="home-theme-grid" id="home-gallery-panel-all" role="tabpanel" aria-labelledby="home-gallery-tab-all">
+        {themes.map((theme) => (
+          <article class="home-theme-card">
+            <img src={theme.image} alt={theme.alt} loading="lazy" />
+            <div><span>{theme.meta}</span><h3>{theme.title}</h3><p>{theme.description}</p></div>
+          </article>
+        ))}
+      </div>
+
+      {galleryCategories.map((category) => (
+        <section class="home-gallery-panel" id={`home-gallery-panel-${category.id}`} role="tabpanel" aria-labelledby={`home-gallery-tab-${category.id}`} hidden>
+          <header><h3>{category.label}</h3><p>{category.description}</p></header>
+          <div class="home-photo-grid">
+            {category.images.map((src, index) => (
+              <button class:list={['home-photo', index >= 6 && 'home-photo--extra']} type="button" data-lightbox-src={src} aria-label={`放大查看${category.label}照片 ${index + 1}`}>
+                <img src={src} alt={`${category.label}照片 ${index + 1}`} loading="lazy" />
+              </button>
+            ))}
+          </div>
+          {category.images.length > 6 && <button class="home-gallery-more" type="button">更多照片</button>}
+        </section>
+      ))}
+      <dialog class="home-lightbox" aria-label="照片預覽">
+        <button type="button" class="home-lightbox__close" aria-label="關閉照片預覽">×</button>
+        <img src="/gallery/concert/concert-12.webp" alt="照片預覽" />
+      </dialog>
+    </div>
+  </div>
+</section>
+
+<section class="home-journey" id="journey" aria-labelledby="home-journey-title">
+  <div class="home-shell">
+    <p class="home-eyebrow">Teaching Journey</p>
+    <h2 id="home-journey-title">音樂教育歷程</h2>
+    <div class="home-journey__grid">
+      <p class="home-journey__intro">從音樂教育與專業精進，到音樂教室、合唱團、樂齡課程與志工服務，四十多年的教育歷程一路延伸至今。</p>
+      <div class="home-milestones">
+        {milestones.map((item) => (
+          <article class="home-milestone">
+            <time>{item.year}</time><h3>{item.title}</h3><p>{item.description}</p>
+            {item.details && <ul>{item.details.map((detail) => <li>{detail}</li>)}</ul>}
+          </article>
+        ))}
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="home-qualifications" aria-labelledby="home-qualifications-title">
+  <div class="home-shell">
+    <p class="home-eyebrow">Qualifications</p>
+    <h2 id="home-qualifications-title">專業資格與榮譽</h2>
+    <div class="home-qualification-grid">
+      {qualifications.map((item) => (
+        <article><small>{item.meta}</small><h3>{item.title}</h3><p>{item.description}</p></article>
+      ))}
+    </div>
+  </div>
+</section>
+
+<section class="home-faq" id="faq" aria-labelledby="home-faq-title">
+  <div class="home-shell home-faq__grid">
+    <div><p class="home-eyebrow">FAQ</p><h2 id="home-faq-title">常見問題</h2><p>關於課程內容、學習方式與聯繫安排。</p></div>
+    <div>
+      {faqs.map((faq) => <details><summary>{faq.question}</summary><p>{faq.answer}</p></details>)}
+    </div>
+  </div>
+  <script type="application/ld+json" set:html={JSON.stringify(faqSchema)} />
+</section>
+
+<section class="home-contact" id="contact" aria-labelledby="home-contact-title">
+  <div class="home-shell">
+    <div class="home-contact__grid">
+      <div class="home-contact__copy">
+        <p class="home-eyebrow">Get in Touch</p>
+        <h2 id="home-contact-title">預約試聽與課程洽詢</h2>
+        <p>歡迎先聊聊想學的內容、目前程度與方便時段，再一起討論適合的課程方式。</p>
+        <div class="home-contact__facts"><span>古典鋼琴・爵士鋼琴・自彈自唱</span><span>樂理教學・合唱與歌唱・樂齡課程</span></div>
+        <div class="home-contact__links">
+          <a href="mailto:ms@linho.me">Email</a>
+          <a href="https://www.facebook.com/piano.lin.3" target="_blank" rel="noopener noreferrer">Facebook</a>
+          <a href="https://www.instagram.com/meishing888/" target="_blank" rel="noopener noreferrer">Instagram</a>
+          <a href="/links/">所有連結</a>
+        </div>
+      </div>
+      <form class="home-contact__form">
+        <label>如何稱呼您<input name="name" autocomplete="name" /></label>
+        <label>感興趣的內容<select name="course"><option>古典鋼琴</option><option>爵士鋼琴</option><option>自彈自唱</option><option>合唱與歌唱</option><option>樂齡課程</option></select></label>
+        <label class="home-contact__wide">目前程度、方便時段或想了解的事情<textarea name="message" rows="4"></textarea></label>
+        <div class="home-contact__actions"><button type="button" data-contact-copy>複製洽詢內容</button><button type="button" data-contact-email>Email 送出</button></div>
+        <p class="home-contact__status" aria-live="polite"></p>
+      </form>
+    </div>
+  </div>
+</section>
+
+<script>
+  const tabs = Array.from(document.querySelectorAll<HTMLButtonElement>('[data-gallery-tab]'));
+  const status = document.querySelector<HTMLElement>('.home-gallery-status');
+  const panels = Array.from(document.querySelectorAll<HTMLElement>('[role="tabpanel"][id^="home-gallery-panel-"]'));
+
+  const activateTab = (tab: HTMLButtonElement) => {
+    const id = tab.dataset.galleryTab ?? 'all';
+    tabs.forEach((item) => {
+      const active = item === tab;
+      item.setAttribute('aria-selected', String(active));
+      item.tabIndex = active ? 0 : -1;
+    });
+    panels.forEach((panel) => { panel.hidden = panel.id !== `home-gallery-panel-${id}`; });
+    const selectedPanel = document.getElementById(`home-gallery-panel-${id}`);
+    const heading = selectedPanel?.querySelector('h3')?.textContent;
+    status && (status.textContent = id === 'all' ? '目前顯示五個主要面向；選擇分類可查看該主題照片。' : `目前顯示「${heading}」照片。`);
+  };
+
+  tabs.forEach((tab, index) => {
+    tab.addEventListener('click', () => activateTab(tab));
+    tab.addEventListener('keydown', (event) => {
+      if (!['ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(event.key)) return;
+      event.preventDefault();
+      const targetIndex = event.key === 'Home' ? 0 : event.key === 'End' ? tabs.length - 1 : (index + (event.key === 'ArrowRight' ? 1 : -1) + tabs.length) % tabs.length;
+      tabs[targetIndex]?.focus();
+      tabs[targetIndex] && activateTab(tabs[targetIndex]);
+    });
+  });
+
+  document.querySelectorAll<HTMLButtonElement>('.home-gallery-more').forEach((button) => {
+    button.addEventListener('click', () => {
+      button.closest('.home-gallery-panel')?.querySelectorAll('.home-photo--extra').forEach((photo) => photo.classList.remove('home-photo--extra'));
+      button.remove();
+    });
+  });
+
+  const lightbox = document.querySelector<HTMLDialogElement>('.home-lightbox');
+  const lightboxImage = lightbox?.querySelector('img');
+  document.querySelectorAll<HTMLButtonElement>('[data-lightbox-src]').forEach((button) => {
+    button.addEventListener('click', () => {
+      if (!lightbox || !lightboxImage) return;
+      lightboxImage.src = button.dataset.lightboxSrc ?? '';
+      lightboxImage.alt = button.querySelector('img')?.alt ?? '照片預覽';
+      lightbox.showModal();
+    });
+  });
+  lightbox?.querySelector<HTMLButtonElement>('.home-lightbox__close')?.addEventListener('click', () => lightbox.close());
+  lightbox?.addEventListener('click', (event) => { if (event.target === lightbox) lightbox.close(); });
+
+  const form = document.querySelector<HTMLFormElement>('.home-contact__form');
+  const formStatus = form?.querySelector<HTMLElement>('.home-contact__status');
+  const buildMessage = () => {
+    if (!form) return '';
+    const data = new FormData(form);
+    return `您好，我想洽詢課程：\n姓名：${data.get('name') ?? ''}\n感興趣的內容：${data.get('course') ?? ''}\n目前程度、方便時段或想了解的事情：${data.get('message') ?? ''}`;
+  };
+  form?.querySelector<HTMLButtonElement>('[data-contact-copy]')?.addEventListener('click', async () => {
+    try {
+      await navigator.clipboard.writeText(buildMessage());
+      if (formStatus) formStatus.textContent = '洽詢內容已複製。';
+    } catch {
+      if (formStatus) formStatus.textContent = '瀏覽器無法複製，請改用 Email 送出。';
+    }
+  });
+  form?.querySelector<HTMLButtonElement>('[data-contact-email]')?.addEventListener('click', () => {
+    window.location.href = `mailto:ms@linho.me?subject=${encodeURIComponent('課程洽詢')}&body=${encodeURIComponent(buildMessage())}`;
+  });
+</script>

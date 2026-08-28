@@ -21,14 +21,14 @@ export default function Footer() {
                             />
                             <span className="font-serif text-2xl text-cream tracking-wide">林美杏音樂教室</span>
                         </div>
-                        <p className="text-warm-400/80 text-sm leading-relaxed">
-                            從兒童啟蒙、進階演奏到樂齡學習，依照每位學生的步調安排課程，陪伴他們聽見音樂，也更認識自己。
+                        <p className="text-warm-400/80 text-[0.9375rem] leading-relaxed">
+                            從兒童啟蒙、進階演奏到樂齡學習，依每位學員的步調安排課程，讓音樂成為能帶進生活的學習與陪伴。
                         </p>
                     </div>
 
                     {/* Connect Section */}
                     <div className="flex flex-col items-center md:items-start gap-5">
-                        <h3 className="font-serif text-cream/90 text-sm tracking-[0.2em] uppercase">Connect</h3>
+                        <h3 className="font-serif text-cream/90 text-[0.9375rem] tracking-[0.2em] uppercase">Connect</h3>
                         <div className="flex items-center gap-3">
                             {/* Facebook */}
                             <a
@@ -71,7 +71,7 @@ export default function Footer() {
                         </div>
                         <a
                             href="/links"
-                            className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/8 hover:bg-gold-light/10 hover:border-gold-light/30 text-warm-400 hover:text-gold-light text-xs tracking-wider font-medium transition-all duration-300 cursor-pointer group mt-1"
+                            className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/8 hover:bg-gold-light/10 hover:border-gold-light/30 text-warm-400 hover:text-gold-light text-sm tracking-wider font-medium transition-all duration-300 cursor-pointer group mt-1"
                         >
                             <svg viewBox="0 0 24 24" className="w-3.5 h-3.5" fill="none" stroke="currentColor" strokeWidth="2">
                                 <path strokeLinecap="round" strokeLinejoin="round" d="M7.217 10.907a2.25 2.25 0 100 2.186m0-2.186c.18.324.283.696.283 1.093s-.103.77-.283 1.093m0-2.186l9.566-5.314m-9.566 7.5l9.566 5.314m0-12.814a2.25 2.25 0 103.935 2.186 2.25 2.25 0 00-3.935-2.186zm0 12.814a2.25 2.25 0 103.933-2.185 2.25 2.25 0 00-3.933 2.185z" />
@@ -91,7 +91,7 @@ export default function Footer() {
                 <div className="flex flex-col md:flex-row items-center justify-between gap-6 font-sans">
 
                     {/* Copyright */}
-                    <p className="text-sm text-warm-500/80 tracking-wide order-2 md:order-1">
+                    <p className="text-[0.9375rem] text-warm-500/80 tracking-wide order-2 md:order-1">
                         &copy; {currentYear} 林美杏音樂教室. All rights reserved.
                     </p>
 
@@ -101,7 +101,7 @@ export default function Footer() {
                         className="flex items-center gap-2 group text-warm-500/80 hover:text-gold-light transition-colors duration-300 order-1 md:order-2"
                         aria-label="回到頁面頂部"
                     >
-                        <span className="text-xs uppercase tracking-[0.15em]">Back to top</span>
+                        <span className="text-sm uppercase tracking-[0.15em]">Back to top</span>
                         <div className="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center group-hover:bg-gold-light/10 transition-colors duration-300">
                             <svg className="w-3.5 h-3.5 group-hover:-translate-y-0.5 transition-transform duration-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
                                 <path d="M18 15l-6-6-6 6" />
@@ -110,7 +110,7 @@ export default function Footer() {
                     </a>
 
                     {/* Credits */}
-                    <p className="text-sm text-warm-500/80 tracking-wide flex items-center gap-1.5 order-3 md:order-3">
+                    <p className="text-[0.9375rem] text-warm-500/80 tracking-wide flex items-center gap-1.5 order-3 md:order-3">
                         Website by
                         <a
                             href="https://brlin.org"

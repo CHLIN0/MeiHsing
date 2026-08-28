@@ -4,9 +4,10 @@ import OfficialLinksPopover from './OfficialLinksPopover';
 
 const navLinks = [
     { href: '#about', label: '關於' },
-    { href: '#experience', label: '經歷' },
-    { href: '#gallery', label: '相簿' },
-    { href: '#contact', label: '聯繫' },
+    { href: '#practice', label: '教學與服務' },
+    { href: '#field', label: '現場' },
+    { href: '#journey', label: '歷程' },
+    { href: '#faq', label: '常見問題' },
 ];
 
 export default function Nav() {
@@ -56,12 +57,12 @@ export default function Nav() {
                 </a>
 
                 {/* Desktop Nav */}
-                <ul className="hidden md:flex items-center gap-8">
+                <ul className="hidden md:flex items-center gap-7">
                     {navLinks.map(({ href, label }) => (
                         <li key={href}>
                             <a
                                 href={href}
-                                className={`text-sm font-sans font-medium transition-colors duration-200 cursor-pointer ${scrolled ? 'text-warm-600 hover:text-gold' : 'text-warm-100 hover:text-gold-light'}`}
+                                className={`text-[0.9375rem] font-sans font-medium transition-colors duration-200 cursor-pointer ${scrolled ? 'text-warm-600 hover:text-gold' : 'text-warm-100 hover:text-gold-light'}`}
                             >
                                 {label}
                             </a>
