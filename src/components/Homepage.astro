@@ -171,6 +171,10 @@ const faqSchema = {
 };
 ---
 
+<script is:inline>
+  document.documentElement.dataset.homeMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'reduced' : 'enabled';
+</script>
+
 <section class="home-hero" aria-labelledby="home-hero-title">
   <div class="home-shell home-hero__inner">
     <div class="home-hero__copy">
@@ -200,7 +204,7 @@ const faqSchema = {
   </a>
 </section>
 
-<section class="home-about" id="about" aria-labelledby="home-about-title">
+<section class="home-about" id="about" aria-labelledby="home-about-title" data-home-reveal="pending">
   <div class="home-shell home-about__grid">
     <figure class="home-about__image">
       <img src="/head1.webp" alt="林美杏老師在音樂會上手捧花束" width="640" height="800" loading="lazy" />
@@ -374,6 +378,50 @@ const faqSchema = {
 </section>
 
 <script>
+  const homeMotionPreference = window.matchMedia('(prefers-reduced-motion: reduce)');
+  const homeAbout = document.querySelector<HTMLElement>('.home-about');
+  const homeScrollCue = document.querySelector<HTMLElement>('.home-scroll-cue');
+  let homeAboutObserver: IntersectionObserver | undefined;
+
+  const revealHomeAbout = () => {
+    if (!homeAbout) return;
+    homeAbout.dataset.homeReveal = 'visible';
+    homeAboutObserver?.disconnect();
+    homeAboutObserver = undefined;
+  };
+
+  if (homeMotionPreference.matches || !('IntersectionObserver' in window)) {
+    revealHomeAbout();
+  } else if (homeAbout) {
+    homeAboutObserver = new IntersectionObserver((entries) => {
+      if (entries.some((entry) => entry.isIntersecting)) revealHomeAbout();
+    }, { threshold: 0.18, rootMargin: '0px 0px -10% 0px' });
+    homeAboutObserver.observe(homeAbout);
+  }
+
+  const dismissHomeScrollCue = () => {
+    if (!homeScrollCue) return;
+    if (window.scrollY > 12) {
+      homeScrollCue.dataset.dismissed = 'true';
+    } else {
+      delete homeScrollCue.dataset.dismissed;
+    }
+  };
+  window.addEventListener('scroll', dismissHomeScrollCue, { passive: true });
+  dismissHomeScrollCue();
+
+  const handleHomeMotionPreference = (event: MediaQueryListEvent) => {
+    document.documentElement.dataset.homeMotion = event.matches ? 'reduced' : 'settled';
+    revealHomeAbout();
+  };
+  homeMotionPreference.addEventListener('change', handleHomeMotionPreference);
+
+  window.addEventListener('pagehide', () => {
+    window.removeEventListener('scroll', dismissHomeScrollCue);
+    homeMotionPreference.removeEventListener('change', handleHomeMotionPreference);
+    homeAboutObserver?.disconnect();
+  }, { once: true });
+
   const tabs = Array.from(document.querySelectorAll<HTMLButtonElement>('[data-gallery-tab]'));
   const status = document.querySelector<HTMLElement>('.home-gallery-status');
   const panels = Array.from(document.querySelectorAll<HTMLElement>('[role="tabpanel"][id^="home-gallery-panel-"]'));

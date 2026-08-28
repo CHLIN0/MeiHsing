@@ -8,6 +8,7 @@ export interface ConcertProgrammeMedia {
     kind: 'audio' | 'video';
     aspectRatio: 'landscape' | 'portrait' | 'audio';
     credit: string;
+    note?: string;
 }
 
 export const concert2026ProgrammeMedia: ConcertProgrammeMedia[] = [
@@ -20,7 +21,7 @@ export const concert2026ProgrammeMedia: ConcertProgrammeMedia[] = [
         repeat: 1,
         kind: 'video',
         aspectRatio: 'landscape',
-        credit: '現場播放音檔',
+        credit: '詞｜吉岡治　曲｜市川昭介　演唱｜林麗琴　舞蹈｜王姿云、洪碧玲',
     },
     {
         number: 17,
@@ -32,6 +33,7 @@ export const concert2026ProgrammeMedia: ConcertProgrammeMedia[] = [
         kind: 'audio',
         aspectRatio: 'audio',
         credit: '舞蹈音樂 · 連續播放兩次',
+        note: '音樂將連續播放兩次，請留意舞步與節拍的巧妙呼應，別錯過每一次精彩的卡點瞬間。',
     },
     {
         number: 20,

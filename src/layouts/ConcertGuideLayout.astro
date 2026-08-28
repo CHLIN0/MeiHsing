@@ -43,7 +43,7 @@ const halves = [
 >
     <div class="programme-page">
         <header class="programme-nav">
-            <nav class="programme-shell programme-nav__inner" aria-label="曲目解說頁導覽">
+            <nav class="programme-shell programme-nav__inner" aria-label="主持與曲目解說頁導覽">
                 <a class="programme-nav__brand" href="/concert/2026/" aria-label="回到 2026 師生音樂會">
                     <img src="/logo.webp" alt="" width="38" height="38" />
                     <span>
@@ -51,7 +51,10 @@ const halves = [
                         <small>2026 Teacher–Student Concert</small>
                     </span>
                 </a>
-                <a class="programme-nav__back" href="/concert/2026/"><span aria-hidden="true">←</span>音樂會首頁</a>
+                <div class="programme-nav__links">
+                    <a class="programme-nav__back" href="/concert/2026/production/">演出工作手冊</a>
+                    <a class="programme-nav__back" href="/concert/2026/"><span aria-hidden="true">←</span>音樂會首頁</a>
+                </div>
             </nav>
         </header>
 
@@ -59,7 +62,7 @@ const halves = [
             <header class="programme-masthead programme-shell">
                 <div class="programme-masthead__identity">
                     <p class="programme-kicker">2026 林美杏老師師生音樂會</p>
-                    <h1>曲目解說</h1>
+                    <h1>主持與曲目解說</h1>
                     <p>點選任一節目，即可查看作品背景、主持口白、上台提示與查證來源；關閉後會回到原來的位置。</p>
                 </div>
                 <dl class="programme-masthead__facts" aria-label="音樂會資訊">
@@ -105,7 +108,7 @@ const halves = [
                             <ol class="programme-list" start={half.entries[0]?.number}>
                                 {half.entries.map((entry) => {
                                     const number = String(entry.number).padStart(2, '0');
-                                    const displayTitle = entry.isMasked ? '彩蛋曲目' : entry.work;
+                                    const displayTitle = entry.isMasked ? `第 ${entry.number} 號節目` : entry.work;
                                     const performerText = [entry.performer, entry.details].filter(Boolean).join('\n');
 
                                     return (

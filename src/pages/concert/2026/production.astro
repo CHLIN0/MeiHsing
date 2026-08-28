@@ -1,0 +1,589 @@
+---
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+import programmeCsv from '../../../data/concert-2026-programme.csv?raw';
+import { concert2026 } from '../../../data/concert-2026';
+import {
+    productionChecklist,
+    rehearsalBlocks,
+    staffCalls,
+    technicalCues,
+    type RehearsalMode,
+} from '../../../data/concert-2026-production';
+import { parseConcertProgramme } from '../../../utils/concertProgramme';
+import '../../../styles/concert-production-guide.css';
+
+const programme = parseConcertProgramme(programmeCsv);
+const byNumber = new Map(programme.map((entry) => [entry.number, entry]));
+const scheduledNumbers = rehearsalBlocks.flatMap((block) => block.programmes.map((item) => item.number));
+const technicalNumbers = new Set(technicalCues.map((cue) => cue.number));
+
+if (scheduledNumbers.length !== programme.length || programme.some((entry) => !scheduledNumbers.includes(entry.number))) {
+    throw new Error('The production guide is out of sync with the concert programme CSV.');
+}
+
+const modeLabel = (mode: RehearsalMode | undefined, format: string) => {
+    if (mode === 'technical') return '影音確認';
+    if (mode === 'full' || format === '四手聯彈') return '完整彩排';
+    return '重點片段';
+};
+
+type ProgrammeTagTone = 'neutral' | 'ensemble' | 'technical';
+type ProgrammeTag = { id: string; label: string; tone: ProgrammeTagTone };
+
+const programmeTags = (number: number, format: string): ProgrammeTag[] => {
+    if (format === '四手聯彈') return [{ id: 'four-hand', label: '四手聯彈', tone: 'ensemble' }];
+    switch (number) {
+        case 1: return [
+            { id: 'ensemble', label: '合奏', tone: 'ensemble' },
+            { id: 'technical', label: '音響', tone: 'technical' },
+        ];
+        case 11: return [
+            { id: 'vocal', label: '演唱', tone: 'neutral' },
+            { id: 'dance', label: '舞蹈', tone: 'ensemble' },
+            { id: 'technical', label: '投影', tone: 'technical' },
+        ];
+        case 16: return [
+            { id: 'choir', label: '合唱', tone: 'ensemble' },
+            { id: 'group', label: '團體', tone: 'ensemble' },
+        ];
+        case 17: return [
+            { id: 'dance', label: '舞蹈', tone: 'ensemble' },
+            { id: 'group', label: '團體', tone: 'ensemble' },
+        ];
+        case 20: return [
+            { id: 'vocal', label: '演唱', tone: 'neutral' },
+            { id: 'technical', label: '投影', tone: 'technical' },
+        ];
+        case 29: return [{ id: 'solo', label: '獨奏', tone: 'neutral' }];
+        case 30: return [
+            { id: 'choir', label: '大合唱', tone: 'ensemble' },
+            { id: 'group', label: '全體', tone: 'ensemble' },
+            { id: 'technical', label: '音響', tone: 'technical' },
+        ];
+        default: return [{ id: 'solo', label: '獨奏', tone: 'neutral' }];
+    }
+};
+---
+
+<BaseLayout
+    title="2026 林美杏老師師生音樂會｜演出工作手冊"
+    description="2026 林美杏老師師生音樂會彩排次序、主持與場務工具、設備備忘及開演前確認。"
+    ogImage="/concert/2026/og-2026-concert.jpg?v=20260828d"
+    ogImageAlt="2026 林美杏老師師生音樂會演出工作手冊"
+    ogImageWidth={1200}
+    ogImageHeight={630}
+    ogImageType="image/jpeg"
+    includeReviewSchema={false}
+    robots="noindex, nofollow, noarchive"
+>
+    <div class="production-page">
+        <header class="production-topbar">
+            <nav class="production-shell production-topbar__inner" aria-label="演出工作手冊導覽">
+                <a class="production-brand" href="/concert/2026/">
+                    <img src="/logo.webp" alt="" width="40" height="40" />
+                    <span><strong>林美杏老師師生音樂會</strong><small>2026 · 演出工作手冊</small></span>
+                </a>
+                <div class="production-topbar__links">
+                    <a href="/concert/2026/guide/">曲目說明</a>
+                    <a href="/concert/2026/singalong/">合唱投影</a>
+                </div>
+            </nav>
+        </header>
+
+        <main id="main-content">
+            <section class="production-intro" aria-labelledby="production-title">
+                <div class="production-shell production-intro__inner">
+                    <div>
+                        <p class="production-kicker">2026 林美杏老師師生音樂會</p>
+                        <h1 id="production-title">演出工作手冊</h1>
+                        <p>大手牽小手，音為愛聚一堂</p>
+                    </div>
+                    <dl aria-label="演出資訊">
+                        <div><dt>彩排</dt><dd><time datetime="2026-08-29T12:30:00+08:00">12:30</time></dd></div>
+                        <div><dt>開演</dt><dd><time datetime={concert2026.dateTime}>{concert2026.time}</time></dd></div>
+                        <div><dt>地點</dt><dd>{concert2026.venue}</dd></div>
+                    </dl>
+                </div>
+            </section>
+
+            <nav class="production-workspaces" aria-label="工作區切換">
+                <div class="production-shell production-workspaces__inner" role="tablist" aria-label="演出工作區">
+                    <button type="button" role="tab" id="workspace-tab-rehearsal" aria-controls="rehearsal" aria-selected="true" data-workspace-tab="rehearsal"><span>01</span><strong>彩排控制</strong><small>次序、進度、備註</small></button>
+                    <button type="button" role="tab" id="workspace-tab-equipment" aria-controls="equipment" aria-selected="false" tabindex="-1" data-workspace-tab="equipment"><span>02</span><strong>設備與投影</strong><small>影音 Cue、設備 memo</small></button>
+                    <button type="button" role="tab" id="workspace-tab-preshow" aria-controls="preshow" aria-selected="false" tabindex="-1" data-workspace-tab="preshow"><span>03</span><strong>開演前</strong><small>到場、舞台確認</small></button>
+                </div>
+            </nav>
+
+            <div class="local-save-indicator" data-local-save-indicator data-state="idle" aria-live="polite">
+                <i aria-hidden="true"></i>
+                <span><strong data-local-save-status>本機自動保存已開啟</strong><small>重新整理仍會保留</small></span>
+            </div>
+
+            <section id="rehearsal" class="production-section production-shell production-workspace-panel" role="tabpanel" tabindex="0" aria-labelledby="workspace-tab-rehearsal" data-workspace-panel="rehearsal">
+                <header class="production-section__heading">
+                    <div><p>Rehearsal control</p><h2 id="rehearsal-title">彩排控制</h2></div>
+                    <div class="rehearsal-heading-meta">
+                        <p>依時間往下執行；同一時段先完成合奏、四手與影音，再讓獨奏者排重點片段。</p>
+                        <div class="rehearsal-progress" aria-live="polite">
+                            <span><strong data-rehearsal-complete-count>0</strong> / 30 已完成</span>
+                            <i><b data-rehearsal-progress-bar></b></i>
+                        </div>
+                    </div>
+                </header>
+
+                <div class="rehearsal-command-bar">
+                    <div class="rehearsal-roles" aria-label="現場分工">
+                        <label class="rehearsal-role rehearsal-role--controller">
+                            <span>彩排控時</span>
+                            <input type="text" maxlength="30" value="荊永謙" data-rehearsal-controller aria-label="彩排控時人員姓名" />
+                            <small>獨立角色 · 自動保存</small>
+                        </label>
+                        <div class="rehearsal-role"><span>主持人</span><strong>{concert2026.hosts.join('、')}</strong><small>報幕與現場銜接</small></div>
+                        <div class="rehearsal-role"><span>設備</span><strong>蔡宜澄</strong><small>影音與鋼琴伴奏</small></div>
+                    </div>
+
+                    <div class="rehearsal-filter-bar">
+                        <div role="group" aria-label="篩選彩排曲目">
+                            <button type="button" aria-pressed="true" data-rehearsal-filter="all">全部</button>
+                            <button type="button" aria-pressed="false" data-rehearsal-filter="priority">先合的</button>
+                            <button type="button" aria-pressed="false" data-rehearsal-filter="four-hand">四手聯彈</button>
+                            <button type="button" aria-pressed="false" data-rehearsal-filter="technical">影音音響</button>
+                            <button type="button" aria-pressed="false" data-rehearsal-filter="pending">未完成</button>
+                        </div>
+                        <p aria-live="polite">顯示 <strong data-filter-result-count>30</strong> 項</p>
+                    </div>
+                </div>
+
+                <div class="rehearsal-booklet">
+                    <header class="rehearsal-booklet__heading">
+                        <div><span>08.29</span><strong>彩排時間表</strong></div>
+                        <p>主持人｜{concert2026.hosts.join('、')}</p>
+                    </header>
+                    <div class="rehearsal-timeline">
+                        {rehearsalBlocks.map((block) => (
+                            <article class:list={['rehearsal-block', block.emphasis && `rehearsal-block--${block.emphasis}`]} data-rehearsal-time={block.time}>
+                                <header class="rehearsal-block__time">
+                                    <time datetime={`2026-08-29T${block.time}:00+08:00`}>{block.time}</time>
+                                    <span>{block.label}</span>
+                                </header>
+                                <div class="rehearsal-block__body">
+                                    {block.note && <p class="rehearsal-block__note">{block.note}</p>}
+                                    <ol class="rehearsal-calls">
+                                        {block.programmes.map((call) => {
+                                            const entry = byNumber.get(call.number)!;
+                                            const maskedTitle = entry.isMasked ? `第 ${entry.number} 號節目` : entry.work;
+                                            const label = modeLabel(call.mode, entry.format);
+                                            const tags = programmeTags(entry.number, entry.format);
+                                            return (
+                                            <li data-rehearsal-programme={entry.number} data-filter-tags={tags.map((tag) => tag.id).join(' ')} data-rehearsal-complete-state="false">
+                                                <span class="rehearsal-call__number">{String(entry.number).padStart(2, '0')}</span>
+                                                <span class="rehearsal-call__content">
+                                                    <strong>{maskedTitle}</strong>
+                                                    <span>{entry.performer || entry.details.replaceAll('\n', '　')}</span>
+                                                    <span class="rehearsal-call__tags" aria-label="曲目標籤">
+                                                        {tags.map((tag) => <em class={`is-${tag.tone}`}>{tag.label}</em>)}
+                                                    </span>
+                                                    {call.note && <small>{call.note}</small>}
+                                                </span>
+                                                <span class="rehearsal-call__actions">
+                                                    <span class:list={['rehearsal-call__mode', `is-${call.mode ?? 'excerpt'}`, technicalNumbers.has(entry.number) && 'has-tech']}>
+                                                        {label}
+                                                    </span>
+                                                    <label class="rehearsal-call__complete">
+                                                        <input type="checkbox" data-rehearsal-complete={entry.number} />
+                                                        <i aria-hidden="true"></i><span>完成</span>
+                                                    </label>
+                                                </span>
+                                                <details class="rehearsal-call__memo">
+                                                    <summary><span aria-hidden="true">＋</span><strong data-rehearsal-note-label>加備註</strong></summary>
+                                                    <label>
+                                                        <span class="sr-only">第 {entry.number} 個節目的彩排備註</span>
+                                                        <textarea data-rehearsal-note={entry.number} rows="2" maxlength="1000" placeholder="記錄時間、設備、需要再試一次的段落或現場狀況……"></textarea>
+                                                    </label>
+                                                </details>
+                                            </li>
+                                            );
+                                        })}
+                                    </ol>
+                                </div>
+                            </article>
+                        ))}
+                    </div>
+                    <footer class="rehearsal-booklet__footer"><span></span><p>四手聯彈完整 · 獨奏節選 · 影音節目走 Cue</p><span></span></footer>
+                </div>
+            </section>
+
+            <section id="equipment" class="production-section production-section--equipment production-workspace-panel" role="tabpanel" tabindex="0" aria-labelledby="workspace-tab-equipment" data-workspace-panel="equipment" hidden>
+                <div class="production-shell">
+                    <header class="production-section__heading">
+                        <div><p>Sound · Projection · Stage</p><h2 id="technical-title">設備與投影</h2></div>
+                        <p>每一曲可留下自己的設備備註並標記完成；內容只會儲存在目前這台裝置。</p>
+                    </header>
+
+                    <aside class="local-storage-notice" data-local-storage-notice>
+                        <span aria-hidden="true">✓</span>
+                        <div><strong>內容會即時保存在這台裝置</strong><p>在同一瀏覽器與網址下，重新整理、關閉分頁再回來仍會保留；無痕模式、換瀏覽器或裝置、清除瀏覽資料則不會同步。</p></div>
+                        <p data-local-save-detail>尚無現場紀錄</p>
+                    </aside>
+
+                    <article id="equipment-memo" class="equipment-memo" aria-labelledby="equipment-memo-title">
+                        <header>
+                            <div><span aria-hidden="true">♪</span><div><p>現場自由筆記</p><h3 id="equipment-memo-title">設備備忘</h3></div></div>
+                            <p data-memo-status aria-live="polite">尚未輸入</p>
+                        </header>
+                        <textarea
+                            data-equipment-memo-input
+                            rows="6"
+                            maxlength="3000"
+                            aria-label="設備備忘"
+                            placeholder="例如：空靈鼓麥克風走 CH3；投影使用 HDMI 2；#20 影片音量先設 65%；備用轉接頭放在……"
+                        ></textarea>
+                        <footer>
+                            <p>輸入時會自動儲存在這台裝置，不會上傳。</p>
+                            <div><button type="button" data-memo-copy>複製設備備忘</button><button type="button" data-memo-clear>清除</button></div>
+                        </footer>
+                    </article>
+
+                    <div class="technical-list">
+                        {technicalCues.map((cue) => {
+                            const entry = byNumber.get(cue.number)!;
+                            return (
+                                <article data-technical-cue={cue.number}>
+                                    <header>
+                                        <span>#{String(cue.number).padStart(2, '0')}</span>
+                                        <div><small>{cue.department}</small><h3>{entry.work}</h3><p>{cue.cue}</p></div>
+                                        <label class="technical-ready">
+                                            <input type="checkbox" data-equipment-ready={cue.number} />
+                                            <i aria-hidden="true"></i><span>已確認</span>
+                                        </label>
+                                    </header>
+                                    <div class="technical-list__check"><span aria-hidden="true">✓</span><p>{cue.check}</p></div>
+                                    <label class="technical-list__memo">
+                                        <span>這一曲的設備備註</span>
+                                        <textarea data-cue-memo={cue.number} rows="2" maxlength="1000" placeholder="補充麥克風、音量、檔案位置或操作提醒……"></textarea>
+                                    </label>
+                                </article>
+                            );
+                        })}
+                    </div>
+                </div>
+            </section>
+
+            <div id="preshow" class="production-workspace-panel" role="tabpanel" tabindex="0" aria-labelledby="workspace-tab-preshow" data-workspace-panel="preshow" hidden>
+            <section id="staff" class="production-section production-shell" aria-labelledby="staff-title">
+                <header class="production-section__heading">
+                    <div><p>Call time</p><h2 id="staff-title">工作人員到場</h2></div>
+                    <p>到場後先向控場報到；若時間異動，請同步告知主持人與設備人員。</p>
+                </header>
+                <div class="staff-calls">
+                    {staffCalls.map((call) => (
+                        <article>
+                            <time datetime={`2026-08-29T${call.time}:00+08:00`}>{call.time}</time>
+                            <div><span>{call.role}</span><h3>{call.name}</h3><p>{call.note}</p></div>
+                        </article>
+                    ))}
+                </div>
+            </section>
+
+            <section id="checklist" class="production-section production-section--checklist" aria-labelledby="checklist-title">
+                <div class="production-shell">
+                    <header class="production-section__heading">
+                        <div><p>Before the doors open</p><h2 id="checklist-title">開演前確認</h2></div>
+                        <div class="checklist-progress" aria-live="polite"><strong data-check-count>0</strong><span> / {productionChecklist.flatMap((group) => group.items).length} 完成</span></div>
+                    </header>
+                    <div class="checklist-groups">
+                        {productionChecklist.map((group, groupIndex) => (
+                            <fieldset>
+                                <legend>{group.title}</legend>
+                                {group.items.map((item, itemIndex) => {
+                                    const id = `production-check-${groupIndex}-${itemIndex}`;
+                                    return (
+                                        <label for={id}>
+                                            <input id={id} type="checkbox" data-production-check />
+                                            <span class="checklist-box" aria-hidden="true"></span>
+                                            <span>{item}</span>
+                                        </label>
+                                    );
+                                })}
+                            </fieldset>
+                        ))}
+                    </div>
+                    <button class="checklist-reset" type="button" data-check-reset>重設本機勾選狀態</button>
+                </div>
+            </section>
+            </div>
+        </main>
+
+        <footer class="production-footer">
+            <div class="production-shell">
+                <p><strong>大手牽小手，音為愛聚一堂</strong><span>演出工作手冊 · 僅供現場使用</span></p>
+                <nav aria-label="其他現場工具"><a href="/concert/2026/guide/">主持與曲目解說</a><a href="/concert/2026/singalong/">合唱投影</a></nav>
+            </div>
+        </footer>
+    </div>
+
+    <script>
+        const checklistStorageKey = 'concert-2026-production-checklist';
+        const memoStorageKey = 'concert-2026-equipment-memo-v1';
+        const cueMemoStorageKey = 'concert-2026-equipment-cue-memos-v1';
+        const readyStorageKey = 'concert-2026-equipment-ready-v1';
+        const rehearsalCompleteStorageKey = 'concert-2026-rehearsal-complete-v1';
+        const rehearsalNotesStorageKey = 'concert-2026-rehearsal-notes-v1';
+        const rehearsalControllerStorageKey = 'concert-2026-rehearsal-controller-v2';
+        const trackedStorageKeys = [
+            checklistStorageKey,
+            memoStorageKey,
+            cueMemoStorageKey,
+            readyStorageKey,
+            rehearsalCompleteStorageKey,
+            rehearsalNotesStorageKey,
+            rehearsalControllerStorageKey,
+        ];
+        const workspaceTabs = Array.from(document.querySelectorAll<HTMLButtonElement>('[data-workspace-tab]'));
+        const workspacePanels = Array.from(document.querySelectorAll<HTMLElement>('[data-workspace-panel]'));
+        const rehearsalFilters = Array.from(document.querySelectorAll<HTMLButtonElement>('[data-rehearsal-filter]'));
+        const rehearsalRows = Array.from(document.querySelectorAll<HTMLElement>('[data-rehearsal-programme]'));
+        const rehearsalBlocksElements = Array.from(document.querySelectorAll<HTMLElement>('[data-rehearsal-time]'));
+        const filterResultCount = document.querySelector<HTMLElement>('[data-filter-result-count]');
+        const rehearsalController = document.querySelector<HTMLInputElement>('[data-rehearsal-controller]');
+        const checks = Array.from(document.querySelectorAll<HTMLInputElement>('[data-production-check]'));
+        const checkCount = document.querySelector<HTMLElement>('[data-check-count]');
+        const checkReset = document.querySelector<HTMLButtonElement>('[data-check-reset]');
+        const memoInput = document.querySelector<HTMLTextAreaElement>('[data-equipment-memo-input]');
+        const memoStatus = document.querySelector<HTMLElement>('[data-memo-status]');
+        const memoCopy = document.querySelector<HTMLButtonElement>('[data-memo-copy]');
+        const memoClear = document.querySelector<HTMLButtonElement>('[data-memo-clear]');
+        const cueMemos = Array.from(document.querySelectorAll<HTMLTextAreaElement>('[data-cue-memo]'));
+        const equipmentReady = Array.from(document.querySelectorAll<HTMLInputElement>('[data-equipment-ready]'));
+        const rehearsalComplete = Array.from(document.querySelectorAll<HTMLInputElement>('[data-rehearsal-complete]'));
+        const rehearsalNotes = Array.from(document.querySelectorAll<HTMLTextAreaElement>('[data-rehearsal-note]'));
+        const rehearsalCompleteCount = document.querySelector<HTMLElement>('[data-rehearsal-complete-count]');
+        const rehearsalProgressBar = document.querySelector<HTMLElement>('[data-rehearsal-progress-bar]');
+        const localSaveIndicator = document.querySelector<HTMLElement>('[data-local-save-indicator]');
+        const localSaveStatus = document.querySelector<HTMLElement>('[data-local-save-status]');
+        const localStorageNotice = document.querySelector<HTMLElement>('[data-local-storage-notice]');
+        const localSaveDetail = document.querySelector<HTMLElement>('[data-local-save-detail]');
+
+        const workspaceIds = new Set(['rehearsal', 'equipment', 'preshow']);
+        const activateWorkspace = (id: string, updateUrl = true) => {
+            const safeId = workspaceIds.has(id) ? id : 'rehearsal';
+            workspaceTabs.forEach((tab) => {
+                const active = tab.dataset.workspaceTab === safeId;
+                tab.setAttribute('aria-selected', String(active));
+                tab.tabIndex = active ? 0 : -1;
+            });
+            workspacePanels.forEach((panel) => { panel.hidden = panel.dataset.workspacePanel !== safeId; });
+            if (updateUrl) history.replaceState(null, '', `#${safeId}`);
+        };
+
+        workspaceTabs.forEach((tab, index) => {
+            tab.addEventListener('click', () => activateWorkspace(tab.dataset.workspaceTab ?? 'rehearsal'));
+            tab.addEventListener('keydown', (event) => {
+                if (!['ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(event.key)) return;
+                event.preventDefault();
+                const nextIndex = event.key === 'Home' ? 0
+                    : event.key === 'End' ? workspaceTabs.length - 1
+                    : (index + (event.key === 'ArrowRight' ? 1 : -1) + workspaceTabs.length) % workspaceTabs.length;
+                const next = workspaceTabs[nextIndex];
+                next?.focus();
+                activateWorkspace(next?.dataset.workspaceTab ?? 'rehearsal');
+            });
+        });
+        activateWorkspace(location.hash.slice(1), false);
+        window.addEventListener('hashchange', () => activateWorkspace(location.hash.slice(1), false));
+
+        let activeProgrammeFilter = 'all';
+        const applyProgrammeFilter = () => {
+            let visibleCount = 0;
+            rehearsalRows.forEach((row) => {
+                const tags = new Set((row.dataset.filterTags ?? '').split(' ').filter(Boolean));
+                const completed = row.dataset.rehearsalCompleteState === 'true';
+                const visible = activeProgrammeFilter === 'all'
+                    || (activeProgrammeFilter === 'priority' && ['four-hand', 'ensemble', 'group', 'technical'].some((tag) => tags.has(tag)))
+                    || (activeProgrammeFilter === 'pending' && !completed)
+                    || tags.has(activeProgrammeFilter);
+                row.hidden = !visible;
+                if (visible) visibleCount += 1;
+            });
+            rehearsalBlocksElements.forEach((block) => {
+                block.hidden = !block.querySelector<HTMLElement>('[data-rehearsal-programme]:not([hidden])');
+            });
+            if (filterResultCount) filterResultCount.textContent = String(visibleCount);
+        };
+        rehearsalFilters.forEach((button) => button.addEventListener('click', () => {
+            activeProgrammeFilter = button.dataset.rehearsalFilter ?? 'all';
+            rehearsalFilters.forEach((item) => item.setAttribute('aria-pressed', String(item === button)));
+            applyProgrammeFilter();
+        }));
+
+        const timeLabel = () => new Intl.DateTimeFormat('zh-TW', {
+            hour: '2-digit', minute: '2-digit', hour12: false,
+        }).format(new Date());
+
+        const setSaveState = (state: 'idle' | 'saved' | 'error', title: string, detail: string) => {
+            if (localSaveIndicator) localSaveIndicator.dataset.state = state;
+            if (localSaveStatus) localSaveStatus.textContent = title;
+            if (localStorageNotice) localStorageNotice.dataset.state = state;
+            if (localSaveDetail) localSaveDetail.textContent = detail;
+        };
+
+        const writeStorage = (key: string, value: string, detail = `已保存 ${timeLabel()}`) => {
+            try {
+                window.localStorage.setItem(key, value);
+                setSaveState('saved', '已保存到這台裝置', detail);
+                return true;
+            } catch {
+                setSaveState('error', '無法自動保存', '請先複製重要備忘');
+                return false;
+            }
+        };
+
+        const removeStorage = (key: string) => {
+            try { window.localStorage.removeItem(key); }
+            catch { setSaveState('error', '無法更新本機保存', '請先複製重要備忘'); }
+        };
+
+        const readJson = <T,>(key: string, fallback: T): T => {
+            try { return JSON.parse(window.localStorage.getItem(key) ?? '') as T; }
+            catch { return fallback; }
+        };
+
+        try {
+            const hasLocalRecord = trackedStorageKeys.some((key) => Boolean(window.localStorage.getItem(key)));
+            setSaveState(
+                hasLocalRecord ? 'saved' : 'idle',
+                hasLocalRecord ? '已載入本機紀錄' : '本機自動保存已開啟',
+                hasLocalRecord ? '已從這台裝置載入' : '尚無現場紀錄',
+            );
+        } catch {
+            setSaveState('error', '無法使用本機保存', '瀏覽器可能封鎖儲存空間');
+        }
+
+        if (rehearsalController) {
+            try {
+                const savedController = window.localStorage.getItem(rehearsalControllerStorageKey);
+                if (savedController !== null) rehearsalController.value = savedController;
+            } catch { /* Keep the server-rendered default. */ }
+            rehearsalController.addEventListener('input', () => {
+                writeStorage(rehearsalControllerStorageKey, rehearsalController.value, '彩排控時人員已保存');
+            });
+        }
+
+        const renderCheckCount = () => {
+            if (checkCount) checkCount.textContent = String(checks.filter((check) => check.checked).length);
+        };
+
+        const setMemoStatus = (message: string) => {
+            if (memoStatus) memoStatus.textContent = message;
+        };
+
+        const savedChecks = readJson<boolean[]>(checklistStorageKey, []);
+        checks.forEach((check, index) => { check.checked = Boolean(savedChecks[index]); });
+        checks.forEach((check) => check.addEventListener('change', () => {
+            writeStorage(checklistStorageKey, JSON.stringify(checks.map((item) => item.checked)), '開演前確認已保存');
+            renderCheckCount();
+        }));
+        checkReset?.addEventListener('click', () => {
+            checks.forEach((check) => { check.checked = false; });
+            removeStorage(checklistStorageKey);
+            renderCheckCount();
+            setSaveState('saved', '本機紀錄已更新', '開演前確認已重設');
+        });
+        renderCheckCount();
+
+        const savedRehearsalComplete = readJson<Record<string, boolean>>(rehearsalCompleteStorageKey, {});
+        const renderRehearsalProgress = () => {
+            const completed = rehearsalComplete.filter((check) => check.checked).length;
+            if (rehearsalCompleteCount) rehearsalCompleteCount.textContent = String(completed);
+            if (rehearsalProgressBar) rehearsalProgressBar.style.width = `${(completed / rehearsalComplete.length) * 100}%`;
+        };
+        rehearsalComplete.forEach((check) => {
+            const number = check.dataset.rehearsalComplete ?? '';
+            const row = check.closest<HTMLElement>('[data-rehearsal-programme]');
+            check.checked = Boolean(savedRehearsalComplete[number]);
+            if (row) row.dataset.rehearsalCompleteState = String(check.checked);
+            check.addEventListener('change', () => {
+                savedRehearsalComplete[number] = check.checked;
+                if (row) row.dataset.rehearsalCompleteState = String(check.checked);
+                writeStorage(rehearsalCompleteStorageKey, JSON.stringify(savedRehearsalComplete), `第 ${number} 個節目進度已保存`);
+                renderRehearsalProgress();
+                applyProgrammeFilter();
+            });
+        });
+        renderRehearsalProgress();
+        applyProgrammeFilter();
+
+        const savedRehearsalNotes = readJson<Record<string, string>>(rehearsalNotesStorageKey, {});
+        rehearsalNotes.forEach((textarea) => {
+            const number = textarea.dataset.rehearsalNote ?? '';
+            const details = textarea.closest<HTMLDetailsElement>('.rehearsal-call__memo');
+            textarea.value = savedRehearsalNotes[number] ?? '';
+            if (details) {
+                details.dataset.hasNote = String(Boolean(textarea.value.trim()));
+                if (textarea.value.trim()) details.open = true;
+            }
+            textarea.addEventListener('input', () => {
+                savedRehearsalNotes[number] = textarea.value;
+                if (details) details.dataset.hasNote = String(Boolean(textarea.value.trim()));
+                writeStorage(rehearsalNotesStorageKey, JSON.stringify(savedRehearsalNotes), `第 ${number} 個節目備註已保存`);
+            });
+        });
+
+        if (memoInput) {
+            try { memoInput.value = window.localStorage.getItem(memoStorageKey) ?? ''; }
+            catch { memoInput.value = ''; }
+            if (memoInput.value) setMemoStatus('已從這台裝置載入');
+            memoInput.addEventListener('input', () => {
+                if (writeStorage(memoStorageKey, memoInput.value, '設備備忘已保存')) setMemoStatus(`已儲存 ${timeLabel()}`);
+            });
+        }
+
+        const savedCueMemos = readJson<Record<string, string>>(cueMemoStorageKey, {});
+        cueMemos.forEach((textarea) => {
+            const number = textarea.dataset.cueMemo ?? '';
+            textarea.value = savedCueMemos[number] ?? '';
+            textarea.addEventListener('input', () => {
+                savedCueMemos[number] = textarea.value;
+                writeStorage(cueMemoStorageKey, JSON.stringify(savedCueMemos), `第 ${number} 個節目設備備註已保存`);
+                setMemoStatus('各曲備註已自動儲存');
+            });
+        });
+
+        const savedReady = readJson<Record<string, boolean>>(readyStorageKey, {});
+        equipmentReady.forEach((check) => {
+            const number = check.dataset.equipmentReady ?? '';
+            check.checked = Boolean(savedReady[number]);
+            check.addEventListener('change', () => {
+                savedReady[number] = check.checked;
+                writeStorage(readyStorageKey, JSON.stringify(savedReady), `第 ${number} 個節目設備狀態已保存`);
+            });
+        });
+
+        memoCopy?.addEventListener('click', async () => {
+            const cueText = cueMemos
+                .filter((textarea) => textarea.value.trim())
+                .map((textarea) => `#${textarea.dataset.cueMemo} ${textarea.value.trim()}`)
+                .join('\n');
+            const text = [memoInput?.value.trim(), cueText].filter(Boolean).join('\n\n');
+            if (!text) { setMemoStatus('目前沒有可複製的備忘'); return; }
+            try {
+                await navigator.clipboard.writeText(text);
+                setMemoStatus('設備備忘已複製');
+            } catch {
+                memoInput?.focus();
+                setMemoStatus('無法自動複製，請手動選取內容');
+            }
+        });
+
+        memoClear?.addEventListener('click', () => {
+            if (!memoInput?.value && cueMemos.every((textarea) => !textarea.value)) return;
+            if (!window.confirm('確定要清除設備備忘與各曲備註嗎？')) return;
+            if (memoInput) memoInput.value = '';
+            cueMemos.forEach((textarea) => { textarea.value = ''; });
+            removeStorage(memoStorageKey);
+            removeStorage(cueMemoStorageKey);
+            setMemoStatus('設備備忘已清除');
+            setSaveState('saved', '本機紀錄已更新', '設備備忘已清除');
+        });
+    </script>
+</BaseLayout>

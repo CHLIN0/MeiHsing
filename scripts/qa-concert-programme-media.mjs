@@ -111,7 +111,7 @@ await coldPage.locator('[data-programme-tab][href="#second-half"]').click();
 await coldPage.locator('[data-programme-media-button][data-media-number="17"]').click();
 await coldPage.waitForFunction(() => {
   const player = document.querySelector('[data-programme-media-player][data-active="true"]');
-  return document.querySelector('[data-programme-media-dialog]')?.open && player?.currentSrc.startsWith('blob:') && !player.paused;
+  return document.querySelector('[data-programme-media-dialog]')?.open && player?.currentSrc.startsWith('blob:') && player.paused;
 });
 await coldPage.waitForTimeout(260);
 await coldPage.screenshot({ path: path.join(evidenceDir, 'mobile-audio-modal.png') });
@@ -119,13 +119,20 @@ await coldPage.screenshot({ path: path.join(evidenceDir, 'mobile-audio-modal.png
 const modalState = await coldPage.evaluate(() => {
   const dialog = document.querySelector('[data-programme-media-dialog]');
   const sheet = dialog.querySelector('.concert-programme-media__sheet');
+  const controls = dialog.querySelector('[data-programme-media-controls]');
+  const activePlayer = dialog.querySelector('[data-programme-media-player][data-active="true"]');
   const sheetRect = sheet.getBoundingClientRect();
+  const controlsRect = controls.getBoundingClientRect();
   return {
     title: dialog.querySelector('[data-programme-media-title]')?.textContent?.trim(),
     audioTitle: dialog.querySelector('[data-programme-media-audio-title]')?.textContent?.trim(),
     audioPerformer: dialog.querySelector('[data-programme-media-audio-performer]')?.textContent?.trim(),
+    audioNote: dialog.querySelector('[data-programme-media-audio-note]')?.textContent?.trim(),
     audioVisible: !dialog.querySelector('[data-programme-media-audio-card]')?.hidden,
     videoHidden: dialog.querySelector('[data-programme-media-player="video"]')?.hidden,
+    nativeControls: activePlayer?.controls,
+    controlsRect: { top: controlsRect.top, left: controlsRect.left, right: controlsRect.right, bottom: controlsRect.bottom },
+    cacheState: controls.dataset.cacheState,
     status: dialog.querySelector('[data-programme-media-status]')?.textContent?.trim(),
     sheet: { top: sheetRect.top, left: sheetRect.left, right: sheetRect.right, bottom: sheetRect.bottom },
     source: dialog.querySelector('[data-programme-media-player][data-active="true"]')?.currentSrc,
@@ -134,9 +141,47 @@ const modalState = await coldPage.evaluate(() => {
 if (modalState.sheet.left < 0 || modalState.sheet.top < 0 || modalState.sheet.right > 390 || modalState.sheet.bottom > 844) {
   failures.push(`mobile modal exceeds viewport: ${JSON.stringify(modalState.sheet)}`);
 }
-if (!modalState.audioVisible || !modalState.videoHidden || modalState.audioTitle !== 'Opalite｜Taylor Swift TikTok Dance' || !modalState.audioPerformer) {
+if (!modalState.audioVisible || !modalState.videoHidden || modalState.audioTitle !== 'Opalite｜Taylor Swift TikTok Dance' || !modalState.audioPerformer || !modalState.audioNote?.includes('連續播放兩次')) {
   failures.push(`audio modal identity failed: ${JSON.stringify(modalState)}`);
 }
+if (modalState.nativeControls || modalState.cacheState !== 'ready' || modalState.controlsRect.left < 0 || modalState.controlsRect.right > 390 || modalState.controlsRect.bottom > 844) {
+  failures.push(`custom controls failed: ${JSON.stringify(modalState)}`);
+}
+
+await coldPage.locator('[data-programme-media-play]').click();
+await coldPage.waitForFunction(() => document.querySelector('[data-programme-media-player][data-active="true"]')?.paused === false);
+await coldPage.locator('[data-programme-media-play]').click();
+await coldPage.waitForFunction(() => document.querySelector('[data-programme-media-player][data-active="true"]')?.paused === true);
+
+await coldPage.locator('[data-programme-media-seek]').evaluate((range) => {
+  range.value = '5';
+  range.dispatchEvent(new Event('input', { bubbles: true }));
+  range.dispatchEvent(new Event('change', { bubbles: true }));
+});
+const seekTime = await coldPage.locator('[data-programme-media-player][data-active="true"]').evaluate((player) => player.currentTime);
+if (Math.abs(seekTime - 5) > 0.5) failures.push(`custom seek failed: ${seekTime}`);
+
+await coldPage.locator('[data-programme-media-volume]').evaluate((range) => {
+  range.value = '0.4';
+  range.dispatchEvent(new Event('input', { bubbles: true }));
+});
+const volume = await coldPage.locator('[data-programme-media-player][data-active="true"]').evaluate((player) => player.volume);
+if (Math.abs(volume - 0.4) > 0.02) failures.push(`custom volume failed: ${volume}`);
+
+await coldPage.locator('[data-programme-media-fullscreen]').click();
+await coldPage.waitForFunction(() => document.querySelector('[data-programme-media-fullscreen]')?.getAttribute('aria-label') === '退出全螢幕');
+await coldPage.locator('[data-programme-media-fullscreen]').click();
+await coldPage.waitForFunction(() => !document.fullscreenElement && document.querySelector('[data-programme-media-fullscreen]')?.getAttribute('aria-label') === '進入全螢幕');
+
+const sourceBeforeReload = await coldPage.locator('[data-programme-media-player][data-active="true"]').evaluate((player) => player.currentSrc);
+await coldPage.locator('[data-programme-media-cache-toggle]').click();
+await coldPage.waitForFunction(() => document.querySelector('[data-programme-media-cache-popover]')?.hidden === false);
+await coldPage.locator('[data-programme-media-reload]').click();
+await coldPage.waitForFunction(() => document.querySelector('[data-programme-media-controls]')?.dataset.cacheState === 'ready'
+  && document.querySelector('[data-programme-media-player][data-active="true"]')?.currentSrc.startsWith('blob:')
+  && Number.isFinite(document.querySelector('[data-programme-media-player][data-active="true"]')?.duration), null, { timeout: 10000 });
+const sourceAfterReload = await coldPage.locator('[data-programme-media-player][data-active="true"]').evaluate((player) => player.currentSrc);
+if (sourceAfterReload === sourceBeforeReload) failures.push('cache reload did not replace the Blob source');
 
 await coldPage.locator('[data-programme-media-player][data-active="true"]').evaluate((player) => {
   player.currentTime = Math.max(0, player.duration - 0.12);
@@ -148,6 +193,29 @@ await coldPage.locator('[data-programme-media-player][data-active="true"]').eval
   void player.play();
 });
 await coldPage.waitForFunction(() => /已完成 2 次播放/.test(document.querySelector('[data-programme-media-status]')?.textContent ?? ''), null, { timeout: 5000 });
+await coldPage.locator('[data-programme-media-close]').click();
+
+await coldPage.locator('[data-programme-tab][href="#first-half"]').click();
+await coldPage.locator('[data-programme-media-button][data-media-number="11"]').click();
+await coldPage.waitForFunction(() => {
+  const player = document.querySelector('[data-programme-media-player][data-active="true"]');
+  return document.querySelector('[data-programme-media-dialog]')?.open
+    && player?.currentSrc.startsWith('blob:')
+    && player.paused
+    && player.readyState >= HTMLMediaElement.HAVE_CURRENT_DATA;
+});
+const programme11State = await coldPage.evaluate(() => ({
+  title: document.querySelector('[data-programme-media-title]')?.textContent?.trim(),
+  credit: document.querySelector('[data-programme-media-credit]')?.textContent?.trim(),
+  paused: document.querySelector('[data-programme-media-player][data-active="true"]')?.paused,
+}));
+if (programme11State.title !== '細雪'
+  || programme11State.credit !== '詞｜吉岡治　曲｜市川昭介　演唱｜林麗琴　舞蹈｜王姿云、洪碧玲'
+  || !programme11State.paused) {
+  failures.push(`programme 11 presentation failed: ${JSON.stringify(programme11State)}`);
+}
+await coldPage.waitForTimeout(420);
+await coldPage.screenshot({ path: path.join(evidenceDir, 'mobile-programme-11-modal.png') });
 await coldPage.locator('[data-programme-media-close]').click();
 
 const mediaResponsesAfterCold = networkMediaResponses.length;
@@ -177,8 +245,10 @@ await warmPage.locator('[data-programme-tab][href="#second-half"]').click();
 await warmPage.locator('[data-programme-media-button][data-media-number="20"]').click();
 await warmPage.waitForFunction(() => {
   const player = document.querySelector('[data-programme-media-player][data-active="true"]');
-  return player?.currentSrc.startsWith('blob:') && !player.paused;
+  return player?.currentSrc.startsWith('blob:') && player.paused;
 });
+await warmPage.locator('[data-programme-media-play]').click();
+await warmPage.waitForFunction(() => document.querySelector('[data-programme-media-player][data-active="true"]')?.paused === false);
 const warmStart = await warmPage.locator('[data-programme-media-player][data-active="true"]').evaluate((player) => player.currentTime);
 await warmPage.waitForTimeout(800);
 const warmEnd = await warmPage.locator('[data-programme-media-player][data-active="true"]').evaluate((player) => player.currentTime);
@@ -198,6 +268,12 @@ const result = {
   capturedIntermediateProgress: progressSamples.some((sample) => sample.buttons.some((button) => button.progress > 0 && button.progress < 100)),
   networkMediaResponses,
   modalState,
+  programme11State,
+  customControls: {
+    seekTime,
+    volume,
+    sourceReplacedOnReload: sourceAfterReload !== sourceBeforeReload,
+  },
   warmReadyMs,
   warmButtons,
   warmNetworkAttempts,

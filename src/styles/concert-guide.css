@@ -95,6 +95,12 @@
 
 .programme-nav__back:hover { color: var(--programme-gold); }
 
+.programme-nav__links {
+    display: flex;
+    align-items: center;
+    gap: 1.25rem;
+}
+
 .programme-masthead {
     display: grid;
     grid-template-columns: minmax(0, 1.15fr) minmax(20rem, 0.85fr);

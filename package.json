@@ -20,6 +20,8 @@
     "qa:cloudflare": "node scripts/qa-cloudflare-static.mjs",
     "qa:concert-stage": "node scripts/qa-concert-stage.mjs",
     "qa:concert-stage-loop": "node scripts/qa-concert-stage-loop.mjs",
+    "qa:concert-lyrics-player": "node scripts/qa-concert-lyrics-player.mjs",
+    "qa:concert-production": "node scripts/qa-concert-production-guide.mjs",
     "astro": "astro"
   },
   "dependencies": {
