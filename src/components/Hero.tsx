@@ -103,19 +103,19 @@ export default function Hero() {
                         </p>
 
                         <p className="text-warm-200 text-lg leading-relaxed mb-5 max-w-xl mx-auto lg:mx-0">
-                            三十幾年音樂教育深耕，YAMAHA 資深音樂講師，以細膩的聲音想像與肢體律動訓練，
-                            陪伴每一位學生探索音樂的層次與故事。
+                            逾四十年音樂教育深耕，曾任 YAMAHA 資深音樂講師。以細膩的聲音想像與肢體律動訓練，
+                            陪伴不同世代探索音樂的層次與故事。
                         </p>
 
                         {/* Current positions — highlighted cards */}
-                        <ul className="mb-6 space-y-3 text-lg text-warm-100 max-w-xl mx-auto lg:mx-0 list-none">
+                        <ul className="mb-6 grid sm:grid-cols-2 gap-3 text-base text-warm-100 max-w-2xl mx-auto lg:mx-0 list-none">
                             <li className="flex items-center gap-3 bg-white/10 backdrop-blur-sm rounded-lg px-4 py-2.5 border border-gold-light/20">
                                 <span className="text-gold-light text-base flex-shrink-0" aria-hidden="true">▸</span>
-                                岡山長青學苑合唱團老師兼伴奏
+                                岡山長青學苑合唱團指導老師兼鋼琴伴奏
                             </li>
                             <li className="flex items-center gap-3 bg-white/10 backdrop-blur-sm rounded-lg px-4 py-2.5 border border-gold-light/20">
                                 <span className="text-gold-light text-base flex-shrink-0" aria-hidden="true">▸</span>
-                                岡山長青民謠班老師
+                                岡山長青民謠班教師
                             </li>
                             <li className="flex items-center gap-3 bg-white/10 backdrop-blur-sm rounded-lg px-4 py-2.5 border border-gold-light/20">
                                 <span className="text-gold-light text-base flex-shrink-0" aria-hidden="true">▸</span>
@@ -123,7 +123,15 @@ export default function Hero() {
                             </li>
                             <li className="flex items-center gap-3 bg-white/10 backdrop-blur-sm rounded-lg px-4 py-2.5 border border-gold-light/20">
                                 <span className="text-gold-light text-base flex-shrink-0" aria-hidden="true">▸</span>
-                                林美杏音樂教室
+                                岡山樂齡中心音樂輔療講師
+                            </li>
+                            <li className="flex items-center gap-3 bg-white/10 backdrop-blur-sm rounded-lg px-4 py-2.5 border border-gold-light/20">
+                                <span className="text-gold-light text-base flex-shrink-0" aria-hidden="true">▸</span>
+                                義大醫院音樂志工
+                            </li>
+                            <li className="flex items-center gap-3 bg-white/10 backdrop-blur-sm rounded-lg px-4 py-2.5 border border-gold-light/20">
+                                <span className="text-gold-light text-base flex-shrink-0" aria-hidden="true">▸</span>
+                                林美杏音樂教室鋼琴教師
                             </li>
                         </ul>
 

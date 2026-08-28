@@ -52,7 +52,7 @@
     padding: 0.82rem 1.35rem;
     border: 1px solid transparent;
     border-radius: 999px;
-    font-family: 'Noto Sans TC', sans-serif;
+    font-family: 'Noto Sans TC Variable', sans-serif;
     font-size: 0.9rem;
     font-weight: 600;
     letter-spacing: 0.08em;
@@ -154,7 +154,7 @@
 
 .concert-nav__brand strong {
     overflow: hidden;
-    font-family: 'Noto Serif TC', serif;
+    font-family: 'Noto Serif TC Variable', serif;
     font-size: 0.98rem;
     font-weight: 600;
     letter-spacing: 0.08em;
@@ -287,7 +287,7 @@
 
 .concert-hero__kicker {
     margin: 1.35rem 0 0;
-    font-family: 'Noto Sans TC', sans-serif;
+    font-family: 'Noto Sans TC Variable', sans-serif;
     font-size: clamp(1.35rem, 2.2vw, 2.15rem);
     font-weight: 600;
     letter-spacing: 0.2em;
@@ -296,7 +296,7 @@
 .concert-hero h1 {
     margin: 0;
     color: var(--concert-ink);
-    font-family: 'Noto Serif TC', serif;
+    font-family: 'Noto Serif TC Variable', serif;
     font-size: clamp(4.6rem, 8.8vw, 7.7rem);
     font-weight: 500;
     line-height: 1.04;
@@ -307,7 +307,7 @@
 .concert-hero__theme-line {
     margin: 0.55rem 0 0;
     color: #5b453c;
-    font-family: 'Noto Serif TC', serif;
+    font-family: 'Noto Serif TC Variable', serif;
     font-size: clamp(2rem, 4.2vw, 3.6rem);
     font-weight: 500;
     line-height: 1.2;
@@ -411,7 +411,7 @@
 .concert-closing h2 {
     margin: 1.15rem 0 0;
     color: var(--concert-ink);
-    font-family: 'Noto Serif TC', serif;
+    font-family: 'Noto Serif TC Variable', serif;
     font-size: clamp(2.45rem, 5vw, 4.6rem);
     font-weight: 500;
     line-height: 1.28;
@@ -421,7 +421,7 @@
 .concert-story__lead {
     margin: 2rem 0 0;
     color: #57433a;
-    font-family: 'Noto Serif TC', serif;
+    font-family: 'Noto Serif TC Variable', serif;
     font-size: clamp(1.25rem, 2vw, 1.65rem);
     font-weight: 500;
     line-height: 1.8;
@@ -499,7 +499,7 @@
     border: 1px solid rgba(142, 101, 54, 0.22);
     background: rgba(255, 250, 242, 0.92);
     box-shadow: 0 14px 36px rgba(67, 51, 46, 0.09);
-    font-family: 'Noto Serif TC', serif;
+    font-family: 'Noto Serif TC Variable', serif;
     font-size: 0.9rem;
     line-height: 1.7;
     text-align: center;
@@ -571,7 +571,7 @@
     align-items: center;
     gap: 0.55rem;
     color: var(--concert-ink);
-    font-family: 'Noto Serif TC', serif;
+    font-family: 'Noto Serif TC Variable', serif;
     font-size: 0.86rem;
     font-weight: 600;
     letter-spacing: 0.08em;
@@ -652,7 +652,7 @@
 .concert-programme__half-heading h3 {
     margin: 0.4rem 0 0;
     color: var(--concert-ink);
-    font-family: 'Noto Serif TC', serif;
+    font-family: 'Noto Serif TC Variable', serif;
     font-size: clamp(2rem, 3vw, 2.8rem);
     font-weight: 500;
     letter-spacing: 0.12em;
@@ -711,7 +711,7 @@
     min-width: 0;
     margin: 0;
     color: var(--concert-ink);
-    font-family: 'Noto Serif TC', serif;
+    font-family: 'Noto Serif TC Variable', serif;
     font-size: 1.02rem;
     font-weight: 600;
     line-height: 1.55;
@@ -791,7 +791,7 @@
 
 .concert-programme__intermission p {
     margin: 0;
-    font-family: 'Noto Serif TC', serif;
+    font-family: 'Noto Serif TC Variable', serif;
     font-size: 0.82rem;
     font-weight: 600;
     letter-spacing: 0.22em;
@@ -846,7 +846,7 @@
 .concert-gratitude h2 {
     margin: 1.2rem 0 0;
     color: var(--concert-ivory);
-    font-family: 'Noto Serif TC', serif;
+    font-family: 'Noto Serif TC Variable', serif;
     font-size: clamp(2.7rem, 5.3vw, 4.8rem);
     font-weight: 500;
     line-height: 1.28;
@@ -862,7 +862,7 @@
 .concert-gratitude blockquote p {
     margin: 0;
     color: #f8eee5;
-    font-family: 'Noto Serif TC', serif;
+    font-family: 'Noto Serif TC Variable', serif;
     font-size: clamp(1.25rem, 2vw, 1.6rem);
     line-height: 1.9;
     letter-spacing: 0.03em;
@@ -919,7 +919,7 @@
 .concert-choirs h3 {
     margin: 0.75rem 0 0;
     color: var(--concert-ink);
-    font-family: 'Noto Serif TC', serif;
+    font-family: 'Noto Serif TC Variable', serif;
     font-size: clamp(1.65rem, 3vw, 2.35rem);
     font-weight: 500;
     letter-spacing: 0.08em;
@@ -936,7 +936,7 @@
 
 .concert-sponsors li {
     color: var(--concert-ink);
-    font-family: 'Noto Serif TC', serif;
+    font-family: 'Noto Serif TC Variable', serif;
     font-size: clamp(1.35rem, 2.5vw, 2rem);
     line-height: 1.5;
 }
@@ -976,7 +976,7 @@
     gap: 1rem;
     color: var(--concert-ink);
     cursor: pointer;
-    font-family: 'Noto Serif TC', serif;
+    font-family: 'Noto Serif TC Variable', serif;
     font-size: 1rem;
     font-weight: 600;
     letter-spacing: 0.04em;
@@ -1005,7 +1005,7 @@
 .concert-choirs summary > span:last-child {
     margin-left: auto;
     color: var(--concert-muted);
-    font-family: 'Noto Sans TC', sans-serif;
+    font-family: 'Noto Sans TC Variable', sans-serif;
     font-size: 0.72rem;
     font-weight: 500;
     letter-spacing: 0.06em;
@@ -1043,7 +1043,7 @@
 .concert-choirs__leadership dd {
     margin: 0.28rem 0 0;
     color: var(--concert-ink);
-    font-family: 'Noto Serif TC', serif;
+    font-family: 'Noto Serif TC Variable', serif;
     font-size: 0.86rem;
     font-weight: 600;
     line-height: 1.65;
@@ -1507,7 +1507,7 @@
 .concert-programme__masthead h2 {
     margin: 0.7rem 0 0;
     color: var(--concert-ink);
-    font-family: 'Noto Serif TC', serif;
+    font-family: 'Noto Serif TC Variable', serif;
     font-size: clamp(2.8rem, 5vw, 3.6rem);
     font-weight: 500;
     line-height: 1.2;
@@ -1685,7 +1685,7 @@
 .concert-gratitude h2 {
     margin: 1rem 0 0;
     color: var(--concert-ivory);
-    font-family: 'Noto Serif TC', serif;
+    font-family: 'Noto Serif TC Variable', serif;
     font-size: clamp(2.75rem, 5vw, 3.85rem);
     font-weight: 500;
     line-height: 1.3;
@@ -1709,7 +1709,7 @@
 .concert-gratitude blockquote p {
     margin: 0;
     color: #f8eee5;
-    font-family: 'Noto Serif TC', serif;
+    font-family: 'Noto Serif TC Variable', serif;
     font-size: clamp(1.35rem, 2.1vw, 1.7rem);
     line-height: 1.85;
     letter-spacing: 0.025em;
@@ -1803,7 +1803,7 @@
 .concert-credits__roles dd {
     margin: 0.45rem 0 0;
     color: var(--concert-ink);
-    font-family: 'Noto Serif TC', serif;
+    font-family: 'Noto Serif TC Variable', serif;
     font-size: 1.08rem;
     font-weight: 600;
 }
@@ -1829,7 +1829,7 @@
 .concert-gratitude__signoff {
     margin: 0;
     color: rgba(255, 250, 242, 0.72);
-    font-family: 'Noto Serif TC', serif;
+    font-family: 'Noto Serif TC Variable', serif;
     font-size: 1rem;
     letter-spacing: 0.16em;
 }
@@ -2116,7 +2116,7 @@
 }
 
 .concert-programme__jump .concert-programme__tab strong {
-    font-family: 'Noto Serif TC', serif;
+    font-family: 'Noto Serif TC Variable', serif;
     font-size: 0.98rem;
     font-weight: 600;
     letter-spacing: 0.1em;
@@ -2195,7 +2195,7 @@
 
 .concert-programme__intermission-label p {
     margin: 0;
-    font-family: 'Noto Serif TC', serif;
+    font-family: 'Noto Serif TC Variable', serif;
     font-size: 0.92rem;
     font-weight: 600;
     letter-spacing: 0.22em;
@@ -2228,7 +2228,7 @@
 }
 
 .concert-programme__continue strong {
-    font-family: 'Noto Serif TC', serif;
+    font-family: 'Noto Serif TC Variable', serif;
     font-size: 0.98rem;
     font-weight: 600;
     letter-spacing: 0.1em;
@@ -2367,7 +2367,7 @@
 .concert-lyrics__masthead h2 {
     margin: 0;
     color: var(--concert-ink);
-    font-family: 'Noto Serif TC', serif;
+    font-family: 'Noto Serif TC Variable', serif;
     font-size: clamp(2.75rem, 5vw, 4.5rem);
     font-weight: 500;
     line-height: 1.2;
@@ -2377,7 +2377,7 @@
 .concert-lyrics__masthead p {
     margin: 0.8rem 0 0;
     color: var(--concert-gold);
-    font-family: 'Noto Serif TC', serif;
+    font-family: 'Noto Serif TC Variable', serif;
     font-size: clamp(1.15rem, 2vw, 1.45rem);
     font-weight: 600;
     letter-spacing: 0.12em;
@@ -2446,7 +2446,7 @@
 .concert-lyrics__stanza h3 {
     margin: 0;
     color: var(--concert-gold);
-    font-family: 'Noto Sans TC', sans-serif;
+    font-family: 'Noto Sans TC Variable', sans-serif;
     font-size: 0.78rem;
     font-weight: 600;
     letter-spacing: 0.14em;
@@ -2455,7 +2455,7 @@
 .concert-lyrics__lines {
     margin: 0.85rem 0 0;
     color: var(--concert-ink);
-    font-family: 'Noto Serif TC', serif;
+    font-family: 'Noto Serif TC Variable', serif;
     font-size: clamp(1.4rem, 2.15vw, 1.78rem);
     font-weight: 500;
     line-height: 2;
@@ -2569,7 +2569,7 @@
     display: block;
     margin-top: 0.2rem;
     overflow: hidden;
-    font-family: 'Noto Serif TC', serif;
+    font-family: 'Noto Serif TC Variable', serif;
     font-size: 1rem;
     font-weight: 600;
     letter-spacing: 0.06em;
@@ -2588,7 +2588,7 @@
     border: 1px solid rgba(142, 101, 54, 0.24);
     border-radius: 999px;
     background: transparent;
-    font-family: 'Noto Sans TC', sans-serif;
+    font-family: 'Noto Sans TC Variable', sans-serif;
     cursor: pointer;
     transition: color 180ms ease, border-color 180ms ease, background 180ms ease;
 }
@@ -2629,7 +2629,7 @@
     margin: 0.9rem 0 0;
     overflow: hidden;
     color: var(--concert-gold);
-    font-family: 'Noto Serif TC', serif;
+    font-family: 'Noto Serif TC Variable', serif;
     font-size: 0.86rem;
     line-height: 1.5;
     text-overflow: ellipsis;
@@ -3106,7 +3106,7 @@ html[data-concert-stage='true'] .concert-stage-ui:focus-within {
     border-radius: 999px;
     color: rgba(255, 250, 242, 0.88);
     background: transparent;
-    font-family: 'Noto Sans TC', sans-serif;
+    font-family: 'Noto Sans TC Variable', sans-serif;
     font-size: 0.72rem;
     text-decoration: none;
     cursor: pointer;
@@ -3194,4 +3194,5 @@ html[data-concert-stage='true'][data-stage-paused='true'] .concert-stage-ambient
     html[data-concert-stage='true'] .concert-stage-effects {
         opacity: 0.34;
     }
+
 }

@@ -3,22 +3,22 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 import Nav from '../components/Nav';
 import Hero from '../components/Hero';
 import About from '../components/About';
+import CommunityService from '../components/CommunityService';
 import Stats from '../components/Stats';
 import Experience from '../components/Experience';
 import Certifications from '../components/Certifications';
 import Gallery from '../components/Gallery';
-import VideoSection from '../components/VideoSection';
-import Testimonials from '../components/Testimonials';
 import Contact from '../components/Contact';
 import FAQ from '../components/FAQ';
 import Footer from '../components/Footer';
 ---
 
-<BaseLayout title="林美杏老師 | 鋼琴家 · 音樂教育家">
+<BaseLayout title="林美杏老師 | 鋼琴教師 · 音樂教育工作者" includeReviewSchema={false}>
   <Nav client:load />
   <main id="main-content">
     <Hero client:load />
     <About client:visible />
+    <CommunityService client:visible />
     <Stats client:visible />
     <Experience client:visible />
     <Certifications client:visible />

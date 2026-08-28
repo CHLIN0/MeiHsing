@@ -3,7 +3,7 @@ import { fadeInUp, staggerContainer, viewportOnce } from '../animations/variants
 
 const stats = [
     {
-        number: '35+',
+        number: '40+',
         label: '年教學經歷',
         icon: (
             <svg className="w-8 h-8" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden="true">

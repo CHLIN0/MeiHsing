@@ -45,8 +45,8 @@ export default function About() {
 
                         <div className="space-y-5 text-warm-600 text-lg leading-relaxed">
                             <p>
-                                美杏老師擁有<strong className="text-piano font-medium">近四十年</strong>的鋼琴教學經驗，
-                                於 YAMAHA 音樂教室擔任資深講師超過 31 年，同時擔任合唱團指揮與伴奏長達 30 年。
+                                美杏老師擁有<strong className="text-piano font-medium">逾四十年</strong>的鋼琴教學經驗，
+                                曾於 YAMAHA 音樂教室擔任資深講師長達 31 年，並累積 30 年合唱團指揮與鋼琴伴奏經驗。
                             </p>
                             <p>
                                 她擅長以<em className="text-gold font-serif">細膩的聲音想像</em>與肢體律動訓練，

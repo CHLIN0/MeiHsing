@@ -2,7 +2,8 @@
  * Line start times for the 2026 concert rehearsal instrumental.
  *
  * The timing was aligned against the vocal source and its isolated vocal stem,
- * then mapped to the sample-aligned 2:19.5 MDX23C rehearsal instrumental.
+ * then mapped to the sample-aligned MDX23C instrumental. The lyric timeline
+ * finishes at 2:19.5 while the concert player preserves the complete outro.
  */
 export const concert2026LyricStartTimes = [
     6.00,
@@ -49,5 +50,6 @@ export const concert2026LyricStartTimes = [
 
 export const concert2026Instrumental = {
     src: '/audio/concert-2026/mingtian-hui-geng-hao-instrumental.m4a',
-    duration: 139.5,
+    duration: 154.965,
+    lyricsEnd: 139.5,
 } as const;

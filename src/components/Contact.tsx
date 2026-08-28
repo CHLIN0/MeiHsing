@@ -40,18 +40,28 @@ const socialLinks = [
 const currentTeaching = [
     {
         title: '岡山長青學苑合唱團',
-        role: '老師兼伴奏',
+        role: '指導老師兼鋼琴伴奏',
         icon: '🎤',
     },
     {
         title: '岡山長青民謠班',
-        role: '教師',
+        role: '民謠歌唱班教師',
         icon: '🎶',
     },
     {
         title: '純陽南忠區合唱團',
         role: '指導老師',
         icon: '🎵',
+    },
+    {
+        title: '岡山樂齡中心',
+        role: '音樂輔療講師',
+        icon: '♫',
+    },
+    {
+        title: '義大醫院',
+        role: '音樂志工',
+        icon: '♪',
     },
     {
         title: '林美杏音樂教室',
@@ -172,7 +182,7 @@ export default function Contact() {
                     <motion.div variants={fadeInLeft}>
                         <h3 className="font-serif text-2xl text-piano mb-6 flex items-center gap-2">
                             <span className="text-gold" aria-hidden="true">♩</span>
-                            目前教學
+                            目前教學與服務
                         </h3>
                         <div className="space-y-4">
                             {currentTeaching.map((item) => (
@@ -200,7 +210,7 @@ export default function Contact() {
                         </h3>
                         <div className="bg-white/80 border border-warm-200 rounded-xl p-6 shadow-sm">
                             <p className="text-piano text-base font-sans mb-4 leading-relaxed">
-                                歡迎填寫下方資訊，一鍵複製訊息或發送 Email 與我聯繫！收到訊息後，我會盡快回覆您。
+                                歡迎留下以下資訊；您可以複製洽詢內容至常用社群，或直接透過 Email 聯繫。收到後，我會盡快回覆。
                             </p>
 
                             <form className="space-y-4 mb-6" onSubmit={(e) => e.preventDefault()}>
@@ -303,7 +313,7 @@ export default function Contact() {
                                                 </>
                                             )}
                                         </svg>
-                                        {copied ? '已複製到剪貼簿！' : '複製訊息，前往社群發送'}
+                                        {copied ? '已複製洽詢內容' : '複製洽詢內容'}
                                     </button>
 
                                     <button

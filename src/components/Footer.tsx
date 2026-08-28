@@ -22,7 +22,7 @@ export default function Footer() {
                             <span className="font-serif text-2xl text-cream tracking-wide">林美杏音樂教室</span>
                         </div>
                         <p className="text-warm-400/80 text-sm leading-relaxed">
-                            用心傾聽每一個音符，專業指導您的音樂之路。為不同年齡層與程度量身打造專屬教學方案。
+                            從兒童啟蒙、進階演奏到樂齡學習，依照每位學生的步調安排課程，陪伴他們聽見音樂，也更認識自己。
                         </p>
                     </div>
 

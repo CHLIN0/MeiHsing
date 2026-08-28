@@ -108,7 +108,7 @@
 .review-hero h1 {
   max-width: 760px;
   margin: 1.25rem 0 1.6rem;
-  font-family: 'Noto Serif TC', serif;
+  font-family: 'Noto Serif TC Variable', serif;
   font-size: clamp(3.2rem, 7vw, 6.1rem);
   font-weight: 300;
   line-height: 1.08;
@@ -214,7 +214,7 @@
 .listen-desk__title-row h2 {
   margin: 0;
   color: #fffaf2;
-  font-family: 'Noto Serif TC', serif;
+  font-family: 'Noto Serif TC Variable', serif;
   font-size: clamp(1.5rem, 3vw, 2.45rem);
   font-weight: 400;
   letter-spacing: 0.015em;
@@ -375,7 +375,7 @@
   line-height: 1;
 }
 
-.comparison-note h2 { margin: 0 0 0.35rem; font-family: 'Noto Serif TC', serif; font-size: 1.25rem; font-weight: 500; }
+.comparison-note h2 { margin: 0 0 0.35rem; font-family: 'Noto Serif TC Variable', serif; font-size: 1.25rem; font-weight: 500; }
 .comparison-note p { max-width: 620px; margin: 0; color: var(--review-muted); font-size: 0.9rem; line-height: 1.75; }
 
 .result-metrics,
@@ -386,7 +386,7 @@
 
 .section-heading { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: end; gap: 0.35rem 2rem; }
 .section-heading > p { grid-column: 1 / -1; color: var(--review-gold); }
-.section-heading h2 { margin: 0; font-family: 'Noto Serif TC', serif; font-size: clamp(1.65rem, 3.5vw, 2.5rem); font-weight: 400; }
+.section-heading h2 { margin: 0; font-family: 'Noto Serif TC Variable', serif; font-size: clamp(1.65rem, 3.5vw, 2.5rem); font-weight: 400; }
 .section-heading > span { color: var(--review-muted); font-size: 0.78rem; }
 
 .metrics-table {
@@ -411,9 +411,9 @@
 button.metrics-row { cursor: pointer; transition: background-color 160ms ease, padding 160ms ease; }
 button.metrics-row:hover { padding-inline: 1.25rem; background: rgba(231,206,208,0.18); }
 .metrics-row--head { color: var(--review-muted); font-size: 0.68rem; letter-spacing: 0.09em; text-transform: uppercase; }
-.metrics-row strong { font-family: 'Noto Serif TC', serif; font-size: 0.92rem; font-weight: 500; }
+.metrics-row strong { font-family: 'Noto Serif TC Variable', serif; font-size: 0.92rem; font-weight: 500; }
 .metrics-row span { font-family: 'Montserrat', sans-serif; font-size: 0.8rem; }
-.metrics-row small { margin-left: 0.4rem; color: var(--review-gold); font-family: 'Noto Sans TC', sans-serif; font-size: 0.62rem; }
+.metrics-row small { margin-left: 0.4rem; color: var(--review-gold); font-family: 'Noto Sans TC Variable', sans-serif; font-size: 0.62rem; }
 .metrics-row--winner { background: linear-gradient(90deg, rgba(217,189,150,0.15), transparent); }
 
 .track-library { margin-top: 1rem; }
@@ -427,7 +427,7 @@ button.metrics-row:hover { padding-inline: 1.25rem; background: rgba(231,206,208
   border-top: 1px solid rgba(56,42,38,0.13);
 }
 
-.track-group__heading h3 { margin: 0; font-family: 'Noto Serif TC', serif; font-size: 1.05rem; font-weight: 500; }
+.track-group__heading h3 { margin: 0; font-family: 'Noto Serif TC Variable', serif; font-size: 1.05rem; font-weight: 500; }
 .track-group__heading p { margin: 0.55rem 0 0; color: var(--review-muted); font-size: 0.76rem; line-height: 1.65; }
 .track-list { display: grid; gap: 0.55rem; }
 
@@ -466,8 +466,8 @@ button.metrics-row:hover { padding-inline: 1.25rem; background: rgba(231,206,208
 
 .track-row--active .track-row__play { color: var(--review-paper); background: var(--review-gold); }
 .track-row__copy { min-width: 0; display: grid; gap: 0.3rem; }
-.track-row__title { display: flex; align-items: center; flex-wrap: wrap; gap: 0.5rem; font-family: 'Noto Serif TC', serif; font-size: 0.88rem; font-weight: 500; }
-.track-row__title .track-status { min-height: 1.35rem; color: var(--review-muted); border-color: rgba(116,98,90,0.2); font-family: 'Noto Sans TC', sans-serif; font-size: 0.55rem; }
+.track-row__title { display: flex; align-items: center; flex-wrap: wrap; gap: 0.5rem; font-family: 'Noto Serif TC Variable', serif; font-size: 0.88rem; font-weight: 500; }
+.track-row__title .track-status { min-height: 1.35rem; color: var(--review-muted); border-color: rgba(116,98,90,0.2); font-family: 'Noto Sans TC Variable', sans-serif; font-size: 0.55rem; }
 .track-row__title .track-status--recommended { color: #8a5e32; border-color: rgba(149,107,63,0.3); }
 .track-row__title .track-status--invalid { color: #975d56; border-color: rgba(151,93,86,0.25); }
 .track-row__detail { overflow: hidden; color: var(--review-muted); font-size: 0.72rem; line-height: 1.55; text-overflow: ellipsis; white-space: nowrap; }
@@ -533,7 +533,7 @@ button.metrics-row:hover { padding-inline: 1.25rem; background: rgba(231,206,208
   }
   button.metrics-row span::before {
     color: var(--review-muted);
-    font-family: 'Noto Sans TC', sans-serif;
+    font-family: 'Noto Sans TC Variable', sans-serif;
     font-size: 0.64rem;
     letter-spacing: 0.04em;
   }

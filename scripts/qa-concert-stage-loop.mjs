@@ -19,7 +19,7 @@ fs.writeFileSync(path.join(evidenceDir, 'design-decision.md'), `# Long-running c
 ## Common brief
 
 Run the real 2026 concert stage page continuously and retain enough evidence to decide whether the
-clean-plate Veo source can be presented with a native HTML video loop at the venue.
+clean-plate Omni source can be presented with a native HTML video loop at the venue.
 
 ## Alternatives retained
 

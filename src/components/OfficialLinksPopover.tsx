@@ -56,9 +56,10 @@ export default function OfficialLinksPopover({
     lyrics,
     triggerClassName = '',
 }: OfficialLinksPopoverProps) {
-    const triggerRef = useRef<HTMLButtonElement>(null);
+    const triggerRef = useRef<HTMLAnchorElement>(null);
     const rootRef = useRef<HTMLDivElement>(null);
     const suppressNextFocusOpen = useRef(false);
+    const hoverCloseTimer = useRef<number | null>(null);
     const titleId = useId();
     const fallback = useMemo(() => new URL(fallbackUrl), [fallbackUrl]);
     const [runtimeOrigin, setRuntimeOrigin] = useState(fallback.origin);
@@ -98,6 +99,10 @@ export default function OfficialLinksPopover({
         return () => window.removeEventListener('keydown', onKeyDown);
     }, [open]);
 
+    useEffect(() => () => {
+        if (hoverCloseTimer.current !== null) window.clearTimeout(hoverCloseTimer.current);
+    }, []);
+
     const currentUrl = useMemo(() => {
         const selected = officialDestinations.find((item) => item.key === destination) ?? officialDestinations[0];
         return new URL(selected.path, runtimeOrigin).href;
@@ -130,10 +135,18 @@ export default function OfficialLinksPopover({
             data-open={open ? 'true' : 'false'}
             data-pinned={pinned ? 'true' : 'false'}
             onPointerEnter={(event) => {
-                if (event.pointerType !== 'touch') setHovered(true);
+                if (event.pointerType === 'touch') return;
+                if (hoverCloseTimer.current !== null) window.clearTimeout(hoverCloseTimer.current);
+                hoverCloseTimer.current = null;
+                setHovered(true);
             }}
             onPointerLeave={(event) => {
-                if (event.pointerType !== 'touch') setHovered(false);
+                if (event.pointerType === 'touch') return;
+                if (hoverCloseTimer.current !== null) window.clearTimeout(hoverCloseTimer.current);
+                hoverCloseTimer.current = window.setTimeout(() => {
+                    setHovered(false);
+                    hoverCloseTimer.current = null;
+                }, 140);
             }}
             onFocusCapture={() => {
                 if (suppressNextFocusOpen.current) {
@@ -146,19 +159,18 @@ export default function OfficialLinksPopover({
                 if (!rootRef.current?.contains(event.relatedTarget as Node | null)) setFocusWithin(false);
             }}
         >
-            <button
+            <a
                 ref={triggerRef}
                 className={`official-links-popover__trigger ${triggerClassName}`}
-                type="button"
+                href="/links/"
                 aria-expanded={open}
                 aria-haspopup="dialog"
-                onClick={() => setPinned((value) => !value)}
             >
                 <svg viewBox="0 0 24 24" aria-hidden="true">
                     <path d="M4 4h6v6H4zM14 4h6v6h-6zM4 14h6v6H4zM15 14h2v2h-2zM18 14h2v5h-2zM14 18h3v2h-3z" />
                 </svg>
                 <span className="official-links-popover__trigger-label">官方連結</span>
-            </button>
+            </a>
 
             {open && (
                 <div className="official-links-popover__positioner">

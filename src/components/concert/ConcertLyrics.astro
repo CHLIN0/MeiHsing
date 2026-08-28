@@ -33,7 +33,12 @@ if (
 let lyricLineIndex = 0;
 ---
 
-<section id="lyrics" class="concert-lyrics" aria-labelledby="lyrics-heading">
+<section
+    id="lyrics"
+    class="concert-lyrics"
+    aria-labelledby="lyrics-heading"
+    data-lyrics-end={concert2026Instrumental.lyricsEnd}
+>
     <div class="concert-programme__layout concert-lyrics__layout">
         <header class="concert-lyrics__masthead">
             <h2 id="lyrics-heading">大合唱</h2>
@@ -120,7 +125,7 @@ let lyricLineIndex = 0;
                 data-audio-progress
                 aria-label="伴奏播放進度"
             />
-            <output data-audio-time>0:00 / 2:20</output>
+            <output data-audio-time>0:00 / 2:35</output>
         </div>
     </aside>
 </section>
@@ -136,6 +141,7 @@ let lyricLineIndex = 0;
     const currentLyric = player?.querySelector<HTMLElement>('[data-current-lyric]');
     const lyricLines = Array.from(document.querySelectorAll<HTMLElement>('[data-lyric-line]'));
     const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+    const lyricTimelineEnd = Number(lyricsSection?.dataset.lyricsEnd || 0);
 
     if (lyricsSection && player && audio && playToggle && followToggle && progress && timeOutput && currentLyric && lyricLines.length) {
         let following = true;
@@ -169,12 +175,14 @@ let lyricLineIndex = 0;
 
         const updateActiveLine = () => {
             const time = audio.currentTime;
-            let nextIndex = -1;
+            let nextIndex = time >= lyricTimelineEnd ? -2 : -1;
 
-            for (let index = 0; index < lyricLines.length; index += 1) {
-                const start = Number(lyricLines[index].dataset.start);
-                if (time >= start) nextIndex = index;
-                else break;
+            if (nextIndex !== -2) {
+                for (let index = 0; index < lyricLines.length; index += 1) {
+                    const start = Number(lyricLines[index].dataset.start);
+                    if (time >= start) nextIndex = index;
+                    else break;
+                }
             }
 
             if (nextIndex === activeLineIndex) return;
@@ -189,6 +197,11 @@ let lyricLineIndex = 0;
                 lyricLine.classList.toggle('is-near', nextIndex >= 0 && Math.abs(index - nextIndex) === 1);
             });
             lyricsSection.dataset.playback = nextIndex >= 0 && !audio.paused ? 'active' : 'idle';
+
+            if (nextIndex === -2) {
+                currentLyric.textContent = '尾奏';
+                return;
+            }
 
             if (nextIndex < 0) {
                 currentLyric.textContent = audio.currentTime > 0 ? '前奏' : '準備播放';
@@ -209,7 +222,7 @@ let lyricLineIndex = 0;
             progress.value = String(audio.currentTime);
             const percent = duration > 0 ? (audio.currentTime / duration) * 100 : 0;
             progress.style.setProperty('--audio-progress', `${percent}%`);
-            timeOutput.textContent = `${formatTime(audio.currentTime)} / ${formatTime(duration)}`;
+            timeOutput.textContent = `${formatTime(audio.currentTime)} / ${formatTime(Math.ceil(duration))}`;
             updateActiveLine();
 
             if (!audio.paused && !audio.ended) animationFrame = window.requestAnimationFrame(renderProgress);

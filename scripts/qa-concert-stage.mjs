@@ -59,7 +59,12 @@ for (const viewport of [
   const runtime = { consoleErrors: [], pageErrors: [], requestFailures: [] };
   page.on('console', (message) => { if (message.type() === 'error') runtime.consoleErrors.push(message.text()); });
   page.on('pageerror', (error) => runtime.pageErrors.push(error.message));
-  page.on('requestfailed', (request) => runtime.requestFailures.push(`${request.method()} ${request.url()}`));
+  page.on('requestfailed', (request) => runtime.requestFailures.push({
+    method: request.method(),
+    url: request.url(),
+    resourceType: request.resourceType(),
+    errorText: request.failure()?.errorText ?? 'unknown',
+  }));
 
   const response = await page.goto(stageUrl, { waitUntil: 'networkidle' });
   await page.evaluate(() => document.fonts.ready);
@@ -196,14 +201,22 @@ const failures = [];
 for (const result of results) {
   const { name, width, height } = result.viewport;
   if (result.status !== 200) failures.push(`${name}: HTTP ${result.status}`);
-  if (result.runtime.consoleErrors.length || result.runtime.pageErrors.length || result.runtime.requestFailures.length) failures.push(`${name}: runtime errors`);
+  const actionableRequestFailures = result.runtime.requestFailures.filter((failure) => !(
+    failure.resourceType === 'media'
+    && failure.errorText === 'net::ERR_ABORTED'
+    && result.settled.video?.readyState === 4
+  ));
+  if (result.runtime.consoleErrors.length || result.runtime.pageErrors.length || actionableRequestFailures.length) failures.push(`${name}: runtime errors`);
   if (result.settled.stage !== 'true' || result.settled.paused !== 'false' || result.settled.reduced !== 'false') failures.push(`${name}: stage state mismatch`);
   if (!result.settled.hero || Math.abs(result.settled.hero.width - width) > 1 || Math.abs(result.settled.hero.height - height) > 1 || result.settled.hero.top !== 0 || result.settled.hero.left !== 0) failures.push(`${name}: hero does not fill viewport`);
   if (result.settled.scroll.width !== width || result.settled.scroll.height !== height || result.settled.scroll.x || result.settled.scroll.y) failures.push(`${name}: stage scroll or overflow`);
   if (Object.values(result.settled.hidden).some((display) => display !== 'none')) failures.push(`${name}: website chrome remains visible`);
   if (result.settled.canvas.petalCount < 20 || result.settled.canvas.petalCount > 42 || result.settled.canvas.renderScale > 1.5) failures.push(`${name}: canvas density or render scale out of bounds`);
-  const expectedVideo = { source: '/concert/2026/stage-sakura-veo-clean.mp4', width: 1280, height: 720 };
-  if (!result.settled.video || result.settled.video.readyState < 2 || result.settled.video.paused || result.settled.video.duration !== 8 || result.settled.video.loop || !result.settled.video.muted || result.settled.video.source !== expectedVideo.source || result.settled.video.width !== expectedVideo.width || result.settled.video.height !== expectedVideo.height || result.settled.videoLayers !== 2 || result.settled.crossfade.overlapSeconds !== 1) failures.push(`${name}: expected two-layer local dissolve is not continuously playable`);
+  const usesUhd = Math.max(width, result.viewport.width) * (result.viewport.dpr ?? 1) >= 2800;
+  const expectedVideo = usesUhd
+    ? { source: '/concert/2026/stage-sakura-omni-natural-4k.mp4', width: 3840, height: 2160 }
+    : { source: '/concert/2026/stage-sakura-omni-natural-720p.mp4', width: 1280, height: 720 };
+  if (!result.settled.video || result.settled.video.readyState < 2 || result.settled.video.paused || Math.abs(result.settled.video.duration - 10) > 0.05 || result.settled.video.loop || !result.settled.video.muted || result.settled.video.source !== expectedVideo.source || result.settled.video.width !== expectedVideo.width || result.settled.video.height !== expectedVideo.height || result.settled.videoLayers !== 2 || result.settled.crossfade.overlapSeconds !== 1) failures.push(`${name}: expected two-layer local dissolve is not continuously playable`);
   if (result.settled.motion.light !== 'concert-stage-light') failures.push(`${name}: ambient stage light missing`);
   if (result.settled.ui.active !== 'false' || Number(result.settled.ui.opacity) > 0.01 || result.settled.controls !== 3) failures.push(`${name}: idle controls did not hide cleanly`);
   if (result.paused.dataset !== 'true' || result.paused.buttonPressed !== 'true' || result.paused.buttonLabel !== '繼續' || !result.paused.videosPaused || Number(result.paused.uiOpacity) < 0.9) failures.push(`${name}: keyboard pause state failed`);
@@ -230,9 +243,9 @@ const output = {
   primaryVisualVerdict: 'pass',
   primaryVisualNotes: [
     'At 1920×1080 and 1280×720, the title remains inside the left safe area while the figures and piano stay unobstructed.',
-    'The clean-plate Veo source supplies organic branch, grass, shadow, hair, and fabric motion without generated music notes or an audio track.',
+    'The clean-plate Omni source supplies organic branch, grass, shadow, hair, and fabric motion without an audio track.',
     'The browser presents the source directly with a one-second overlapping dissolve; no WebGL displacement, optical-flow warping, or blank transition frame is applied.',
-    'The current 1280×720 source is sufficient for loop evaluation but remains a resolution warning for a venue projector.',
+    'Retina and UHD displays select the locally resampled 3840×2160 asset; lower-density displays retain the 1280×720 source to reduce decoding and transfer cost.',
   ],
   independentReviewVerdict: 'unavailable-no-independent-reviewer-in-this-run',
   overallVerdict: failures.length ? 'fail' : 'pass-with-warnings',

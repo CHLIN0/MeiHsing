@@ -12,7 +12,8 @@ export interface Props {
 
 import '../styles/global.css';
 
-// Local fonts via Fontsource for optimal performance
+// Local fonts via Fontsource. CJK families use one variable file per Unicode
+// subset instead of repeating every subset for each individual weight.
 import '@fontsource/cormorant/300.css';
 import '@fontsource/cormorant/400.css';
 import '@fontsource/cormorant/500.css';
@@ -26,18 +27,10 @@ import '@fontsource/montserrat/400.css';
 import '@fontsource/montserrat/500.css';
 import '@fontsource/montserrat/600.css';
 
-import '@fontsource/noto-sans-tc/300.css';
-import '@fontsource/noto-sans-tc/400.css';
-import '@fontsource/noto-sans-tc/500.css';
-import '@fontsource/noto-sans-tc/700.css';
+import '@fontsource-variable/noto-sans-tc/wght.css';
+import '@fontsource-variable/noto-serif-tc/wght.css';
 
-import '@fontsource/noto-serif-tc/300.css';
-import '@fontsource/noto-serif-tc/400.css';
-import '@fontsource/noto-serif-tc/500.css';
-import '@fontsource/noto-serif-tc/600.css';
-import '@fontsource/noto-serif-tc/700.css';
-
-const siteDescription = '林美杏老師 — 鋼琴家、音樂教育家。四十年音樂教育深耕，YAMAHA 資深講師，合唱團指揮與伴奏，樂齡音樂推廣者。';
+const siteDescription = '林美杏老師——鋼琴教師與音樂教育工作者。逾四十年音樂教育深耕，曾任 YAMAHA 資深講師，現投入鋼琴教學、合唱指導、樂齡音樂輔療與醫院音樂志工服務。';
 
 const {
   title,
@@ -60,7 +53,7 @@ const personSchema = {
   "@id": `${siteUrl}/#person`,
   "name": "林美杏",
   "alternateName": "Mei-Hsing Lin",
-  "jobTitle": "鋼琴家、音樂教育家",
+  "jobTitle": "鋼琴教師、音樂教育工作者",
   "description": siteDescription,
   "url": siteUrl,
   "image": `${siteUrl}/head.webp`,
@@ -69,11 +62,7 @@ const personSchema = {
     "https://www.instagram.com/meishing888/",
     "https://www.youtube.com/@%E6%9E%97%E7%BE%8E%E6%9D%8F-w2d"
   ],
-  "worksFor": {
-    "@type": "Organization",
-    "name": "YAMAHA 音樂教室"
-  },
-  "knowsAbout": ["鋼琴", "音樂教育", "合唱指揮", "YAMAHA 音樂系統", "古典鋼琴", "爵士鋼琴", "自彈自唱", "樂理教學", "樂齡音樂教育"],
+  "knowsAbout": ["鋼琴", "音樂教育", "合唱指揮", "YAMAHA 音樂系統", "古典鋼琴", "爵士鋼琴", "自彈自唱", "樂理教學", "樂齡音樂教育", "音樂輔療", "醫院音樂志工服務"],
   "hasCredential": [
     { "@type": "EducationalOccupationalCredential", "name": "YAMAHA 鋼琴教師資格" },
     { "@type": "EducationalOccupationalCredential", "name": "YAMAHA 電子琴教師資格" },
@@ -82,8 +71,8 @@ const personSchema = {
     "@type": "Occupation",
     "name": "鋼琴教師",
     "occupationLocation": { "@type": "City", "name": "高雄市" },
-    "description": "鋼琴教學、合唱團指揮與伴奏、樂齡音樂推廣",
-    "skills": "古典鋼琴, 爵士鋼琴, 自彈自唱, 樂理教學, 合唱指揮",
+    "description": "鋼琴教學、合唱團指揮與伴奏、樂齡音樂輔療、醫院音樂志工服務",
+    "skills": "古典鋼琴, 爵士鋼琴, 自彈自唱, 樂理教學, 合唱指揮, 樂齡音樂",
   },
 };
 
@@ -93,7 +82,7 @@ const websiteSchema = {
   "@type": "WebSite",
   "@id": `${siteUrl}/#website`,
   "url": siteUrl,
-  "name": "林美杏老師 | 鋼琴家 · 音樂教育家",
+  "name": "林美杏老師 | 鋼琴教師 · 音樂教育工作者",
   "description": siteDescription,
   "publisher": { "@id": `${siteUrl}/#person` },
   "inLanguage": "zh-Hant",
@@ -173,7 +162,7 @@ const reviewSchema = {
     <meta property="og:image" content={`${siteUrl}${ogImage}`} />
     <meta property="og:image:alt" content={ogImageAlt} />
     <meta property="og:locale" content="zh_TW" />
-    <meta property="og:site_name" content="林美杏老師 | 鋼琴家 · 音樂教育家" />
+    <meta property="og:site_name" content="林美杏老師 | 鋼琴教師 · 音樂教育工作者" />
 
     <!-- Twitter -->
     <meta name="twitter:card" content="summary_large_image" />

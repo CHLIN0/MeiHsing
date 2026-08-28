@@ -96,7 +96,7 @@
   align-items: center;
   gap: 0.75rem;
   color: #f9efe5;
-  font-family: 'Noto Serif TC', serif;
+  font-family: 'Noto Serif TC Variable', serif;
   font-size: 0.86rem;
   font-weight: 600;
   letter-spacing: 0.08em;
@@ -131,7 +131,7 @@
   right: -1.15rem;
   bottom: -0.25rem;
   color: var(--links-gold);
-  font-family: 'Noto Serif TC', serif;
+  font-family: 'Noto Serif TC Variable', serif;
   font-size: 2.2rem;
 }
 
@@ -148,7 +148,7 @@
 .links-profile h1 {
   margin: 0.85rem 0 0;
   color: #fff8ef;
-  font-family: 'Noto Serif TC', serif;
+  font-family: 'Noto Serif TC Variable', serif;
   font-size: clamp(2.8rem, 5vw, 4rem);
   font-weight: 500;
   line-height: 1.2;
@@ -166,7 +166,7 @@
   border-left: 1px solid rgba(210, 171, 118, 0.58);
 }
 
-.links-profile blockquote p { margin: 0; color: rgba(249, 239, 229, 0.82); font-family: 'Noto Serif TC', serif; font-size: 1rem; line-height: 1.9; letter-spacing: 0.05em; }
+.links-profile blockquote p { margin: 0; color: rgba(249, 239, 229, 0.82); font-family: 'Noto Serif TC Variable', serif; font-size: 1rem; line-height: 1.9; letter-spacing: 0.05em; }
 
 .links-profile__contact {
   position: relative;
@@ -308,7 +308,7 @@
   display: block;
   margin-top: 0.38rem;
   color: var(--links-ink);
-  font-family: 'Noto Serif TC', serif;
+  font-family: 'Noto Serif TC Variable', serif;
   font-size: 0.92rem;
   font-weight: 600;
   line-height: 1.55;
@@ -343,7 +343,7 @@
   border-bottom: 1px solid rgba(116, 85, 62, 0.18);
 }
 
-.links-directory__header h2 { margin: 0.5rem 0 0; color: var(--links-ink); font-family: 'Noto Serif TC', serif; font-size: clamp(2rem, 3.6vw, 3rem); font-weight: 500; line-height: 1.3; letter-spacing: 0.05em; }
+.links-directory__header h2 { margin: 0.5rem 0 0; color: var(--links-ink); font-family: 'Noto Serif TC Variable', serif; font-size: clamp(2rem, 3.6vw, 3rem); font-weight: 500; line-height: 1.3; letter-spacing: 0.05em; }
 .links-directory__header > p { margin: 0; color: var(--links-muted); font-size: 0.83rem; line-height: 1.85; }
 
 .links-feature {
@@ -366,7 +366,7 @@
 
 .links-feature__content { width: min(72%, 30rem); display: flex; flex-direction: column; padding: 1.55rem 1.75rem; }
 .links-feature__topline { display: flex; justify-content: space-between; gap: 1rem; color: #e0bd8c; font-family: 'Cormorant', serif; font-size: 0.82rem; font-weight: 700; line-height: 1.5; letter-spacing: 0.14em; text-transform: uppercase; }
-.links-feature__content > strong { margin-top: auto; color: #fffaf3; font-family: 'Noto Serif TC', serif; font-size: clamp(1.8rem, 3.5vw, 2.75rem); font-weight: 500; letter-spacing: 0.1em; }
+.links-feature__content > strong { margin-top: auto; color: #fffaf3; font-family: 'Noto Serif TC Variable', serif; font-size: clamp(1.8rem, 3.5vw, 2.75rem); font-weight: 500; letter-spacing: 0.1em; }
 .links-feature__subtitle { margin-top: 0.2rem; color: rgba(255, 250, 243, 0.84); font-size: 0.875rem; line-height: 1.65; letter-spacing: 0.045em; }
 .links-feature__action { display: inline-flex; align-items: center; gap: 0.55rem; margin-top: 0.8rem; color: #e0bd8c; font-size: 0.85rem; font-weight: 600; letter-spacing: 0.045em; }
 .links-feature__action svg { width: 1.05rem; height: 1.05rem; fill: none; stroke: currentColor; stroke-linecap: round; stroke-linejoin: round; stroke-width: 1.6; transition: transform 180ms ease; }
@@ -375,7 +375,7 @@
 
 .links-destinations { margin-top: 1.9rem; }
 .links-destinations__heading { display: flex; align-items: baseline; justify-content: space-between; gap: 1rem; }
-.links-destinations__heading h2 { margin: 0; color: var(--links-ink); font-family: 'Noto Serif TC', serif; font-size: 1.15rem; font-weight: 600; letter-spacing: 0.1em; }
+.links-destinations__heading h2 { margin: 0; color: var(--links-ink); font-family: 'Noto Serif TC Variable', serif; font-size: 1.15rem; font-weight: 600; letter-spacing: 0.1em; }
 .links-destinations__heading > span { color: #ad9274; font-family: 'Cormorant', serif; font-size: 0.66rem; font-weight: 600; letter-spacing: 0.18em; text-transform: uppercase; }
 .links-destinations__list { margin-top: 0.7rem; border-top: 1px solid rgba(116, 85, 62, 0.16); }
 

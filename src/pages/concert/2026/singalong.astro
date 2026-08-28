@@ -29,7 +29,15 @@ if (
     includeReviewSchema={false}
     robots="noindex, nofollow"
 >
-    <main class="singalong" data-singalong data-playing="false" data-controls-visible="true" id="main-content">
+    <main
+        class="singalong"
+        data-singalong
+        data-playing="false"
+        data-outro="false"
+        data-controls-visible="true"
+        data-lyrics-end={concert2026Instrumental.lyricsEnd}
+        id="main-content"
+    >
         <div class="singalong__art" aria-hidden="true">
             <img src="/concert/2026/stage-sakura-poster-4k.webp?v=20260828c" alt="" />
         </div>
@@ -94,7 +102,7 @@ if (
                 />
                 <div>
                     <span data-playback-state>準備播放</span>
-                    <output data-audio-time>0:00 / 2:20</output>
+                    <output data-audio-time>0:00 / 2:35</output>
                 </div>
             </div>
             <p class="singalong__shortcuts"><kbd>Space</kbd> 播放　<kbd>←</kbd><kbd>→</kbd> 快轉　<kbd>F</kbd> 全螢幕</p>
@@ -112,6 +120,7 @@ if (
         const titleCard = singalong?.querySelector<HTMLElement>('[data-singalong-title]');
         const lyricWindow = singalong?.querySelector<HTMLElement>('[data-singalong-lyrics]');
         const previousLine = singalong?.querySelector<HTMLElement>('[data-previous-line]');
+        const currentWrap = singalong?.querySelector<HTMLElement>('.singalong__current-wrap');
         const currentLine = singalong?.querySelector<HTMLElement>('[data-current-line]');
         const nextLine = singalong?.querySelector<HTMLElement>('[data-next-line]');
         const sourceLines = Array.from(singalong?.querySelectorAll<HTMLElement>('[data-singalong-source] span') || []);
@@ -119,15 +128,19 @@ if (
 
         if (
             singalong && audio && playToggle && fullscreenToggle && progress && timeOutput && playbackState
-            && titleCard && lyricWindow && previousLine && currentLine && nextLine && sourceLines.length
+            && titleCard && lyricWindow && previousLine && currentWrap && currentLine && nextLine && sourceLines.length
         ) {
             const lines = sourceLines.map((line) => ({
                 text: line.textContent?.trim() || '',
                 start: Number(line.dataset.start),
             }));
+            const lyricPreviewLead = 0.5;
+            const lineProgressCompletionHold = 0.1;
+            const lyricTimelineEnd = Number(singalong.dataset.lyricsEnd);
             let activeIndex = -2;
             let animationFrame = 0;
             let controlsTimer = 0;
+            let rollingAnimations: Animation[] = [];
 
             const formatTime = (seconds: number) => {
                 const safeSeconds = Number.isFinite(seconds) ? Math.max(0, Math.floor(seconds)) : 0;
@@ -146,15 +159,109 @@ if (
                 }
             };
 
+            const renderCurrentLine = (text: string) => {
+                currentLine.textContent = text;
+                currentLine.setAttribute('aria-label', text);
+            };
+
+            const clearRollingTransition = () => {
+                rollingAnimations.forEach((animation) => animation.cancel());
+                rollingAnimations = [];
+            };
+
+            type LyricRects = {
+                previous: DOMRect;
+                current: DOMRect;
+                next: DOMRect;
+            };
+
+            const captureLyricRects = (): LyricRects => ({
+                previous: previousLine.getBoundingClientRect(),
+                current: currentWrap.getBoundingClientRect(),
+                next: nextLine.getBoundingClientRect(),
+            });
+
+            const invertTransform = (from: DOMRect, to: DOMRect) => {
+                const fromX = from.left + from.width / 2;
+                const fromY = from.top + from.height / 2;
+                const toX = to.left + to.width / 2;
+                const toY = to.top + to.height / 2;
+                const scale = to.height > 0 ? Math.min(2.7, Math.max(0.34, from.height / to.height)) : 1;
+                return `translate(${fromX - toX}px, ${fromY - toY}px) scale(${scale})`;
+            };
+
+            const animateLyricRoll = (direction: 1 | -1, before: LyricRects) => {
+                clearRollingTransition();
+
+                const after = captureLyricRects();
+                const movingToContext = direction > 0 ? previousLine : nextLine;
+                const movingToCurrent = currentWrap;
+                const arrivingContext = direction > 0 ? nextLine : previousLine;
+                const contextSource = before.current;
+                const currentSource = direction > 0 ? before.next : before.previous;
+
+                const contextMovement = movingToContext.animate([
+                    {
+                        transform: invertTransform(contextSource, direction > 0 ? after.previous : after.next),
+                        color: '#fffdf9',
+                        filter: 'blur(0)',
+                    },
+                    {
+                        transform: 'translate(0, 0) scale(1)',
+                        color: 'rgba(255, 250, 242, 0.46)',
+                        filter: 'blur(0)',
+                    },
+                ], {
+                    duration: 720,
+                    easing: 'cubic-bezier(0.16, 1, 0.3, 1)',
+                });
+
+                const currentMovement = movingToCurrent.animate([
+                    {
+                        opacity: 0.5,
+                        transform: invertTransform(currentSource, after.current),
+                        filter: 'blur(2.5px)',
+                    },
+                    { offset: 0.76, opacity: 1, transform: 'translate(0, -0.2rem) scale(1.006)', filter: 'blur(0)' },
+                    { opacity: 1, transform: 'translate(0, 0) scale(1)', filter: 'blur(0)' },
+                ], {
+                    duration: 760,
+                    easing: 'cubic-bezier(0.16, 1, 0.3, 1)',
+                });
+
+                const contextArrival = arrivingContext.animate([
+                    {
+                        opacity: 0,
+                        transform: `translateY(${direction > 0 ? '2.2rem' : '-2.2rem'})`,
+                        filter: 'blur(5px)',
+                    },
+                    { opacity: 1, transform: 'translateY(0)', filter: 'blur(0)' },
+                ], {
+                    duration: 640,
+                    delay: 90,
+                    easing: 'cubic-bezier(0.16, 1, 0.3, 1)',
+                });
+
+                rollingAnimations = [contextMovement, currentMovement, contextArrival];
+                Promise.all(rollingAnimations.map((animation) => animation.finished.catch(() => undefined))).then(() => {
+                    rollingAnimations = [];
+                });
+            };
+
             const setLyricWindow = (index: number) => {
                 if (index === activeIndex) return;
+                const previousIndex = activeIndex;
+                const shouldAnimate = previousIndex >= 0 && index >= 0 && !reduceMotion.matches;
+                const beforeRects = shouldAnimate ? captureLyricRects() : null;
+
                 activeIndex = index;
 
                 if (index < 0) {
+                    clearRollingTransition();
                     titleCard.dataset.visible = 'true';
                     lyricWindow.dataset.visible = 'false';
                     previousLine.textContent = '';
-                    currentLine.textContent = '準備開始';
+                    renderCurrentLine('準備開始');
                     nextLine.textContent = lines[0]?.text || '';
                     return;
                 }
@@ -162,18 +269,10 @@ if (
                 titleCard.dataset.visible = 'false';
                 lyricWindow.dataset.visible = 'true';
                 previousLine.textContent = index > 0 ? lines[index - 1].text : '';
-                currentLine.textContent = lines[index].text;
+                renderCurrentLine(lines[index].text);
                 nextLine.textContent = lines[index + 1]?.text || '';
 
-                if (!reduceMotion.matches) {
-                    lyricWindow.animate([
-                        { opacity: 0.46, transform: 'translateY(1.4rem)' },
-                        { opacity: 1, transform: 'translateY(0)' },
-                    ], {
-                        duration: 460,
-                        easing: 'cubic-bezier(0.22, 1, 0.36, 1)',
-                    });
-                }
+                if (beforeRects) animateLyricRoll(index >= previousIndex ? 1 : -1, beforeRects);
             };
 
             const render = () => {
@@ -182,7 +281,7 @@ if (
                 let nextIndex = -1;
 
                 for (let index = 0; index < lines.length; index += 1) {
-                    if (time >= lines[index].start) nextIndex = index;
+                    if (time >= lines[index].start - lyricPreviewLead) nextIndex = index;
                     else break;
                 }
 
@@ -191,17 +290,26 @@ if (
                 progress.value = String(time);
                 const audioPercent = duration > 0 ? (time / duration) * 100 : 0;
                 progress.style.setProperty('--audio-progress', `${audioPercent}%`);
-                timeOutput.textContent = `${formatTime(time)} / ${formatTime(duration)}`;
+                timeOutput.textContent = `${formatTime(time)} / ${formatTime(Math.ceil(duration))}`;
+                singalong.dataset.outro = String(time >= lyricTimelineEnd);
+                if (!audio.paused && !audio.ended) {
+                    playbackState.textContent = time >= lyricTimelineEnd ? '尾奏' : '播放中';
+                }
 
                 if (nextIndex >= 0) {
                     const lineStart = lines[nextIndex].start;
-                    const lineEnd = lines[nextIndex + 1]?.start ?? duration;
+                    const nextPreviewStart = lines[nextIndex + 1]
+                        ? lines[nextIndex + 1].start - lyricPreviewLead
+                        : lyricTimelineEnd;
+                    const lineEnd = Math.max(lineStart, nextPreviewStart - lineProgressCompletionHold);
                     const linePercent = lineEnd > lineStart
                         ? Math.min(100, Math.max(0, ((time - lineStart) / (lineEnd - lineStart)) * 100))
                         : 100;
                     lyricWindow.style.setProperty('--line-progress', `${linePercent}%`);
+                    singalong.dataset.linePreview = String(time < lineStart);
                 } else {
                     lyricWindow.style.setProperty('--line-progress', '0%');
+                    singalong.dataset.linePreview = 'false';
                 }
 
                 if (!audio.paused && !audio.ended) animationFrame = window.requestAnimationFrame(render);

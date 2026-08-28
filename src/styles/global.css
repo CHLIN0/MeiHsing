@@ -16,7 +16,7 @@
   body {
     max-width: 100%;
     overflow-x: hidden;
-    font-family: 'Montserrat', 'Noto Sans TC', sans-serif;
+    font-family: 'Montserrat', 'Noto Sans TC Variable', sans-serif;
     background-color: #FAF7F2;
     color: #3D2B1F;
     line-height: 1.7;
@@ -29,7 +29,7 @@
   h4,
   h5,
   h6 {
-    font-family: 'Cormorant', 'Noto Serif TC', '思源宋體', 'Songti TC', 'PingFang TC', 'Microsoft JhengHei', sans-serif;
+    font-family: 'Cormorant', 'Noto Serif TC Variable', '思源宋體', 'Songti TC', 'PingFang TC', 'Microsoft JhengHei', sans-serif;
     text-wrap: balance;
     color: #2C1810;
   }

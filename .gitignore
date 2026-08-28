@@ -12,9 +12,17 @@ yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
 
+# Python-generated files
+__pycache__/
+*.py[cod]
+
 # generated visual QA evidence
 qa/
 .qr-studio-dist/
+.wrangler/
+
+# generated stage-video source retained locally; only optimized delivery files ship
+public/concert/2026/stage-sakura-veo-clean-source.mp4
 
 
 # environment variables

@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 
 type TrackStatus = 'source' | 'recommended' | 'alternate' | 'candidate' | 'diagnostic' | 'invalid';
-type TrackGroup = 'reference' | 'final' | 'instrumental' | 'vocal' | 'residual' | 'invalid';
+type TrackGroup = 'reference' | 'final' | 'instrumental' | 'vocal' | 'stem' | 'residual' | 'invalid';
 
 interface Track {
   id: string;
@@ -33,6 +33,51 @@ const tracks: Track[] = [
     duration: '2:19.5',
   },
   {
+    id: 'final-demucs-4-1',
+    title: '聽感排除 · Demucs 4.1',
+    detail: '量測通過，但人工 A/B 認為整體偏混；保留研究對照，不取代 MDX23C。',
+    file: '/audio/separation-review/19-demucs-4.1-candidate-rehearsal.m4a',
+    group: 'final',
+    status: 'alternate',
+    duration: '2:19.5',
+  },
+  {
+    id: 'final-scnet-xl',
+    title: '優先盲聽 · SCNet XL IHF',
+    detail: 'drums、bass、other 三 stem 重建；同規格母帶，客觀結果最值得和 MDX23C 直接比較。',
+    file: '/audio/separation-review/25-scnet-xl-rehearsal.m4a',
+    group: 'final',
+    status: 'candidate',
+    duration: '2:19.5',
+  },
+  {
+    id: 'final-scnet-masked',
+    title: '候選排練版 · SCNet Masked XL',
+    detail: 'Masked XL 的三 stem 重建與同規格母帶；殘留低於 MDX23C，但仍需人工聽音色完整度。',
+    file: '/audio/separation-review/26-scnet-masked-xl-rehearsal.m4a',
+    group: 'final',
+    status: 'candidate',
+    duration: '2:19.5',
+  },
+  {
+    id: 'final-bs-large',
+    title: '候選排練版 · BS-RoFormer Large',
+    detail: 'Large-Inst 原生 instrument 輸出的同規格母帶。',
+    file: '/audio/separation-review/23-bs-large-rehearsal.m4a',
+    group: 'final',
+    status: 'candidate',
+    duration: '2:19.5',
+  },
+  {
+    id: 'final-duality-v2',
+    title: '候選排練版 · Duality v2',
+    detail: 'MelBand InstVoc Duality v2 原生 instrumental 輸出的同規格母帶。',
+    file: '/audio/separation-review/24-duality-v2-rehearsal.m4a',
+    group: 'final',
+    status: 'candidate',
+    duration: '2:19.5',
+  },
+  {
     id: 'final-melband',
     title: '備選排練版 · MelBand',
     detail: '與推薦版使用相同長度、淡出與響度設定，適合直接 A/B。',
@@ -55,6 +100,51 @@ const tracks: Track[] = [
     title: 'MelBand Inst v2 · Instrumental',
     detail: '以 instrumental 為目標訓練的 RoFormer 候選。',
     file: '/audio/separation-review/05-melband-inst-v2-instrumental.m4a',
+    group: 'instrumental',
+    status: 'candidate',
+    duration: '2:34.9',
+  },
+  {
+    id: 'demucs-4-1-instrumental',
+    title: 'Demucs 4.1 · HTDemucs-ft minus vocals',
+    detail: '官方 4.1.0 runtime 以 htdemucs_ft、two-stem、minus 重跑的完整伴奏；不是先前異常的 stem 加總結果。',
+    file: '/audio/separation-review/20-demucs-4.1-minus-raw.m4a',
+    group: 'instrumental',
+    status: 'candidate',
+    duration: '2:34.9',
+  },
+  {
+    id: 'scnet-xl-instrumental',
+    title: 'SCNet XL IHF · Instrumental stem sum',
+    detail: 'drums、bass、other 原生 stems 直接相加；不是原曲減 vocals。',
+    file: '/audio/separation-review/30-scnet-xl-instrumental-sum.m4a',
+    group: 'instrumental',
+    status: 'candidate',
+    duration: '2:34.9',
+  },
+  {
+    id: 'scnet-masked-instrumental',
+    title: 'SCNet Masked XL IHF · Instrumental stem sum',
+    detail: 'Masked XL 的 drums、bass、other 原生 stems 直接相加。',
+    file: '/audio/separation-review/36-scnet-masked-instrumental-sum.m4a',
+    group: 'instrumental',
+    status: 'candidate',
+    duration: '2:34.9',
+  },
+  {
+    id: 'bs-large-instrumental',
+    title: 'BS-RoFormer Large Inst · Instrumental',
+    detail: 'Large-Inst checkpoint 直接輸出的原生 instrument stem。',
+    file: '/audio/separation-review/27-bs-large-instrumental-raw.m4a',
+    group: 'instrumental',
+    status: 'candidate',
+    duration: '2:34.9',
+  },
+  {
+    id: 'duality-v2-instrumental',
+    title: 'MelBand InstVoc Duality v2 · Instrumental',
+    detail: 'Duality v2 checkpoint 直接輸出的原生 instrumental stem。',
+    file: '/audio/separation-review/28-duality-v2-instrumental.m4a',
     group: 'instrumental',
     status: 'candidate',
     duration: '2:34.9',
@@ -96,6 +186,15 @@ const tracks: Track[] = [
     duration: '2:34.9',
   },
   {
+    id: 'demucs-4-1-vocals',
+    title: 'Demucs 4.1 · Vocals',
+    detail: '同一次官方 Demucs 4.1.0 two-stem 推論抽出的人聲，可檢查伴奏是否被一併帶走。',
+    file: '/audio/separation-review/21-demucs-4.1-vocals.m4a',
+    group: 'vocal',
+    status: 'candidate',
+    duration: '2:34.9',
+  },
+  {
     id: 'bs-vocal',
     title: 'BS-RoFormer 1297 · Vocals',
     detail: 'BS-RoFormer 分離出的 vocal stem。',
@@ -112,6 +211,57 @@ const tracks: Track[] = [
     group: 'vocal',
     status: 'candidate',
     duration: '2:34.9',
+  },
+  {
+    id: 'duality-v2-vocals',
+    title: 'MelBand InstVoc Duality v2 · Vocals',
+    detail: 'Duality v2 同一次推論輸出的互補 vocal stem。',
+    file: '/audio/separation-review/29-duality-v2-vocals.m4a',
+    group: 'vocal',
+    status: 'candidate',
+    duration: '2:34.9',
+  },
+  {
+    id: 'scnet-xl-vocals',
+    title: 'SCNet XL IHF · Vocals',
+    detail: 'SCNet XL 四 stem 推論中的 vocal stem。',
+    file: '/audio/separation-review/31-scnet-xl-vocals.m4a',
+    group: 'vocal',
+    status: 'candidate',
+    duration: '2:34.9',
+  },
+  {
+    id: 'scnet-masked-vocals',
+    title: 'SCNet Masked XL IHF · Vocals',
+    detail: 'SCNet Masked XL 四 stem 推論中的 vocal stem。',
+    file: '/audio/separation-review/37-scnet-masked-vocals.m4a',
+    group: 'vocal',
+    status: 'candidate',
+    duration: '2:34.9',
+  },
+  {
+    id: 'scnet-xl-drums', title: 'SCNet XL IHF · Drums', detail: '原生 drums stem。',
+    file: '/audio/separation-review/32-scnet-xl-drums.m4a', group: 'stem', status: 'diagnostic', duration: '2:34.9',
+  },
+  {
+    id: 'scnet-xl-bass', title: 'SCNet XL IHF · Bass', detail: '原生 bass stem。',
+    file: '/audio/separation-review/33-scnet-xl-bass.m4a', group: 'stem', status: 'diagnostic', duration: '2:34.9',
+  },
+  {
+    id: 'scnet-xl-other', title: 'SCNet XL IHF · Other', detail: '原生 other stem，主要包含鋼琴、弦樂與其餘伴奏。',
+    file: '/audio/separation-review/34-scnet-xl-other.m4a', group: 'stem', status: 'diagnostic', duration: '2:34.9',
+  },
+  {
+    id: 'scnet-masked-drums', title: 'SCNet Masked XL IHF · Drums', detail: '原生 drums stem。',
+    file: '/audio/separation-review/38-scnet-masked-drums.m4a', group: 'stem', status: 'diagnostic', duration: '2:34.9',
+  },
+  {
+    id: 'scnet-masked-bass', title: 'SCNet Masked XL IHF · Bass', detail: '原生 bass stem。',
+    file: '/audio/separation-review/39-scnet-masked-bass.m4a', group: 'stem', status: 'diagnostic', duration: '2:34.9',
+  },
+  {
+    id: 'scnet-masked-other', title: 'SCNet Masked XL IHF · Other', detail: '原生 other stem。',
+    file: '/audio/separation-review/40-scnet-masked-other.m4a', group: 'stem', status: 'diagnostic', duration: '2:34.9',
   },
   {
     id: 'residual-mdx',
@@ -139,6 +289,43 @@ const tracks: Track[] = [
     group: 'residual',
     status: 'diagnostic',
     duration: '2:34.9',
+  },
+  {
+    id: 'residual-demucs-4-1',
+    title: '殘留檢測 · Demucs 4.1',
+    detail: '把 Demucs 4.1 minus-vocals 伴奏交給同一個 MelBand 偵測器再次抽取 vocals；量測為 −82.18 dBFS。',
+    file: '/audio/separation-review/22-residual-demucs-4.1.m4a',
+    group: 'residual',
+    status: 'diagnostic',
+    duration: '2:34.9',
+  },
+  {
+    id: 'residual-scnet-xl',
+    title: '殘留檢測 · SCNet XL IHF',
+    detail: '從三 stem 伴奏重建再次抽 vocals；量測為 −80.43 dBFS。',
+    file: '/audio/separation-review/44-residual-scnet-xl-sum.m4a',
+    group: 'residual', status: 'diagnostic', duration: '2:34.9',
+  },
+  {
+    id: 'residual-scnet-masked',
+    title: '殘留檢測 · SCNet Masked XL',
+    detail: '從三 stem 伴奏重建再次抽 vocals；量測為 −66.04 dBFS。',
+    file: '/audio/separation-review/45-residual-scnet-masked-sum.m4a',
+    group: 'residual', status: 'diagnostic', duration: '2:34.9',
+  },
+  {
+    id: 'residual-bs-large',
+    title: '殘留檢測 · BS-RoFormer Large',
+    detail: '從 Large-Inst 伴奏再次抽 vocals；量測為 −61.72 dBFS。',
+    file: '/audio/separation-review/42-residual-bs-large.m4a',
+    group: 'residual', status: 'diagnostic', duration: '2:34.9',
+  },
+  {
+    id: 'residual-duality-v2',
+    title: '殘留檢測 · Duality v2',
+    detail: '從 Duality v2 伴奏再次抽 vocals；量測為 −60.56 dBFS。',
+    file: '/audio/separation-review/43-residual-duality-v2.m4a',
+    group: 'residual', status: 'diagnostic', duration: '2:34.9',
   },
   {
     id: 'demucs-sum',
@@ -185,6 +372,34 @@ const tracks: Track[] = [
     status: 'invalid',
     duration: '2:34.9',
   },
+  {
+    id: 'scnet-xl-mix-minus',
+    title: 'SCNet XL · Mix-minus vocals',
+    detail: '原曲減 SCNet vocal stem 後仍有大量人聲；不作伴奏候選。',
+    file: '/audio/separation-review/35-scnet-xl-mix-minus-invalid.m4a',
+    group: 'invalid', status: 'invalid', duration: '2:34.9',
+  },
+  {
+    id: 'residual-scnet-xl-minus',
+    title: '殘留檢測 · SCNet XL mix-minus',
+    detail: '殘留人聲約 −15.56 dBFS，證實此重建方式不可採用。',
+    file: '/audio/separation-review/46-residual-scnet-xl-minus.m4a',
+    group: 'invalid', status: 'invalid', duration: '2:34.9',
+  },
+  {
+    id: 'scnet-masked-mix-minus',
+    title: 'SCNet Masked XL · Mix-minus vocals',
+    detail: '原曲減 SCNet vocal stem 後仍有大量人聲；不作伴奏候選。',
+    file: '/audio/separation-review/41-scnet-masked-mix-minus-invalid.m4a',
+    group: 'invalid', status: 'invalid', duration: '2:34.9',
+  },
+  {
+    id: 'residual-scnet-masked-minus',
+    title: '殘留檢測 · SCNet Masked XL mix-minus',
+    detail: '殘留人聲約 −15.54 dBFS，證實此重建方式不可採用。',
+    file: '/audio/separation-review/47-residual-scnet-masked-minus.m4a',
+    group: 'invalid', status: 'invalid', duration: '2:34.9',
+  },
 ];
 
 const groups: Array<{ id: TrackGroup; title: string; note: string }> = [
@@ -192,6 +407,7 @@ const groups: Array<{ id: TrackGroup; title: string; note: string }> = [
   { id: 'final', title: '正式成品', note: '已修剪尾聲並校正排練音量。' },
   { id: 'instrumental', title: '伴奏候選', note: '未修剪的模型原始輸出。' },
   { id: 'vocal', title: '人聲 stems', note: '用來判斷模型把哪些聲音帶走。' },
+  { id: 'stem', title: 'SCNet 樂器 stems', note: '保留四 stem 模型的原生分軌，供後續研究與局部補償。' },
   { id: 'residual', title: '人聲殘留檢測', note: '從伴奏再抽一次人聲；越安靜越好。' },
   { id: 'invalid', title: '排除結果', note: '保留失敗輸出，避免只展示成功案例。' },
 ];
@@ -291,7 +507,7 @@ export default function AudioComparison() {
             </span>
             <p>目前播放</p>
           </div>
-          <span className="listen-desk__count">19 個可比較音軌</span>
+          <span className="listen-desk__count">{tracks.length} 個可比較音軌</span>
         </div>
 
         <div className="listen-desk__title-row">
@@ -368,8 +584,8 @@ export default function AudioComparison() {
       <section className="result-metrics" aria-labelledby="metrics-title">
         <div className="section-heading">
           <p>Objective check</p>
-          <h2 id="metrics-title">三個主要候選的量測結果</h2>
-          <span>數字是輔助，不代替實際聆聽。</span>
+          <h2 id="metrics-title">同條件量測與人工決策</h2>
+          <span>同一組區段與偵測器；數字只用來篩選，最後仍以聆聽決定。</span>
         </div>
         <div className="metrics-table" aria-label="模型量測比較">
           <div className="metrics-row metrics-row--head">
@@ -379,16 +595,28 @@ export default function AudioComparison() {
             <span>殘留人聲 ↓</span>
           </div>
           <button type="button" className="metrics-row metrics-row--winner" onClick={() => selectTrack('mdx-instrumental')} aria-label="播放 MDX23C 原始伴奏候選">
-            <strong>MDX23C <small>推薦</small></strong>
+            <strong>MDX23C <small>目前保底</small></strong>
             <span>0.830</span><span>5.581 dB</span><span>−64.94 dBFS</span>
           </button>
-          <button type="button" className="metrics-row" onClick={() => selectTrack('melband-instrumental')} aria-label="播放 MelBand Inst v2 原始伴奏候選">
-            <strong>MelBand Inst v2</strong>
-            <span>0.826</span><span>5.806 dB</span><span>−58.70 dBFS</span>
+          <button type="button" className="metrics-row" onClick={() => selectTrack('scnet-xl-instrumental')} aria-label="播放 SCNet XL IHF 伴奏候選">
+            <strong>SCNet XL IHF <small>優先盲聽</small></strong>
+            <span>0.831</span><span>5.647 dB</span><span>−80.43 dBFS</span>
           </button>
-          <button type="button" className="metrics-row" onClick={() => selectTrack('bs-instrumental')} aria-label="播放 BS-RoFormer 原始伴奏候選">
-            <strong>BS-RoFormer</strong>
-            <span>0.818</span><span>6.686 dB</span><span>−60.23 dBFS</span>
+          <button type="button" className="metrics-row" onClick={() => selectTrack('scnet-masked-instrumental')} aria-label="播放 SCNet Masked XL IHF 伴奏候選">
+            <strong>SCNet Masked XL</strong>
+            <span>0.831</span><span>6.010 dB</span><span>−66.04 dBFS</span>
+          </button>
+          <button type="button" className="metrics-row" onClick={() => selectTrack('demucs-4-1-instrumental')} aria-label="播放 Demucs 4.1 原始伴奏">
+            <strong>Demucs 4.1 <small>聽感排除</small></strong>
+            <span>0.829</span><span>5.573 dB</span><span>−82.18 dBFS</span>
+          </button>
+          <button type="button" className="metrics-row" onClick={() => selectTrack('bs-large-instrumental')} aria-label="播放 BS-RoFormer Large 伴奏候選">
+            <strong>BS-RoFormer Large</strong>
+            <span>0.824</span><span>5.593 dB</span><span>−61.72 dBFS</span>
+          </button>
+          <button type="button" className="metrics-row" onClick={() => selectTrack('duality-v2-instrumental')} aria-label="播放 Duality v2 伴奏候選">
+            <strong>Duality v2</strong>
+            <span>0.819</span><span>6.233 dB</span><span>−60.56 dBFS</span>
           </button>
         </div>
       </section>

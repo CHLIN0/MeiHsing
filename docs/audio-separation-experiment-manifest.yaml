@@ -1,0 +1,280 @@
+schema_version: 1
+observed_at: "2026-08-28T14:42:00+08:00"
+purpose: "Reproduce and compare rehearsal accompaniment candidates for 明天會更好"
+
+environment:
+  platform: "Apple Silicon / macOS / Metal"
+  ffmpeg: "8.1"
+  mastering_script: "scripts/audio-separation/master_rehearsal.py"
+  mastering_script_behavior: "two-pass FFmpeg loudnorm followed by an independent verification pass"
+
+source:
+  original_48k_float32:
+    path: "/private/tmp/video-digest/sR2d5NTOda4/source-48k-f32.wav"
+    sha256: "300f2814b46f3eb3e184df4115894928b9a5b4dbe3d6a17640c2fc33fcc5caf4"
+    sample_rate_hz: 48000
+    channels: 2
+    duration_seconds: 154.965333
+  canonical_44k1_float32:
+    path: "/private/tmp/video-digest/sR2d5NTOda4/source-44k1-f32.wav"
+    sha256: "0c68efabe1e2af65438783f45ba61df10a8accb93c53481c4e6f081ae4c240c0"
+    generation: >-
+      ffmpeg -hide_banner -loglevel error -y -i source-48k-f32.wav
+      -ar 44100 -c:a pcm_f32le source-44k1-f32.wav
+
+mastering:
+  duration_seconds: 139.5
+  fade_start_seconds: 138.0
+  fade_duration_seconds: 1.5
+  target_integrated_lufs: -16.0
+  target_true_peak_db: -1.0
+  target_lra_lu: 11.0
+  output_sample_rate_hz: 44100
+  output_channels: 2
+  output_codec: "pcm_s24le"
+  preview_codec: "AAC 256 kbps"
+
+residual_vocal_detector:
+  runtime: "mlx-audio-separator 0.1.7"
+  model: "vocals_mel_band_roformer.ckpt"
+  backend: "MLX / Metal GPU"
+  command_template: >-
+    MLX_AUDIO_SEPARATOR_CACHE_DIR=<cache>
+    mlx-audio-separator -m vocals_mel_band_roformer.ckpt
+    --model_file_dir <model-dir> --output_format WAV
+    --output_dir <output-dir> --single_stem Vocals <candidate-wav>
+  measurement_window_seconds: [5.2, 138.2]
+  caveat: "This is a consistent screening detector, not ground truth; architectural bias is possible."
+
+experiments:
+  mdx23c_hq_public:
+    decision: "recommended_baseline"
+    checkpoint: "MDX23C-8KFFT-InstVoc_HQ.ckpt"
+    checkpoint_sha256: "49d51472769e34a2501cd1da782346a3212555c3a5619fc2c53507445528d816"
+    instrumental_sha256: "27fefe7904d19e8eb3da0a29a84c16494cfb1a096d5c6ba80a2dd29ca5b40f2c"
+    objective:
+      instrumental_interval_correlation: 0.8301613208
+      log_spectral_distance_db: 5.5808485917
+      residual_vocal_rms_dbfs: -64.9393624270
+      residual_vocal_to_candidate_db: -43.4795884967
+    rehearsal_master_sha256: "8af4c675dfdd807f27772839785dadaeb1babefb6f23534510ce63c0ba7ee5b1"
+    concert_playback:
+      path: "public/audio/concert-2026/mingtian-hui-geng-hao-instrumental.m4a"
+      duration_seconds: 154.965
+      lyrics_end_seconds: 139.5
+      fade_duration_seconds: 0.0
+      wav_sha256: "9877b71558fcb509f23ca3b328ee048b409b6689c7b24d97b9b4f9e2d5b0f179"
+      aac_sha256: "401b64bc73efeeddcdac4506c5ab8f20e0631c5c460754df94665c05904b35aa"
+      measured_integrated_lufs: -15.99
+      measured_true_peak_db: -0.99
+      note: "Lyrics finish at 2:19.5; the complete MDX23C outro continues to 2:34.965."
+    human_note: "Current fallback remains the most balanced and least muddy to the listener."
+
+  demucs_4_1_htdemucs_ft_minus:
+    decision: "rejected_by_human_listening_keep_for_reference"
+    package: "demucs==4.1.0"
+    model: "htdemucs_ft four-model fine-tuned bag"
+    backend: "PyTorch MPS"
+    command: >-
+      uvx --python 3.12 --with numpy --from demucs==4.1.0 demucs
+      -n htdemucs_ft --two-stems vocals --other-method minus
+      --shifts 2 --overlap 0.5 --float32 -o <output-directory> <source-wav>
+    parameters:
+      two_stems: "vocals"
+      other_method: "minus"
+      shifts: 2
+      overlap: 0.5
+      output_dtype: "float32"
+    objective:
+      instrumental_interval_correlation: 0.8291632879
+      log_spectral_distance_db: 5.5732100776
+      residual_vocal_rms_dbfs: -82.1762561535
+      residual_vocal_to_candidate_db: -60.6705378718
+    rehearsal_master_sha256: "79ea23d2f5664305d47dbf3901ef5269cc1ae175d42682928829d7c3aaed32ca"
+    human_note: "Objective metrics passed, but Demo 4.1 sounded muddier than MDX23C."
+
+  bs_roformer_large_inst:
+    decision: "candidate"
+    source: "https://github.com/openmirlab/bs-roformer-infer"
+    source_commit: "b0f1386fcced25f559f3e61c9f08a73cd9bddf80"
+    package_version: "0.1.6 from Git main; PyPI 0.1.5 does not contain this MLX Large-Inst path"
+    wrapper_license: "MIT"
+    checkpoint_source: "https://huggingface.co/pcunwa/BS-Roformer-Large-Inst"
+    checkpoint_license: "not declared by the weight publisher"
+    checkpoint: "bs_large_v2_inst.ckpt"
+    checkpoint_sha256: "09251ab8b5bb892414a6ab8aa80a1be30c17852d5e7f4e76943610de049e4bc4"
+    config: "bs_large_v2_inst_config.yaml"
+    config_sha256: "85d10906007df21ee48dbb86faa09205609274eb38ea224dce767e2844d0a934"
+    command: >-
+      UV_CACHE_DIR=/private/tmp/uv-cache-audio-research uv run bs-roformer-infer
+      --model roformer-model-bs-roformer-large-inst-by-pcunwa
+      --models_dir /private/tmp/audio-research-models/bs
+      --input_folder /private/tmp/audio-candidate-input
+      --store_dir /private/tmp/video-digest/sR2d5NTOda4/separation/bs-large-inst
+      --backend mlx --device mps --output_format wav_float32
+    parameters:
+      sample_rate_hz: 44100
+      chunk_size: 960000
+      fft_size: 2048
+      stft_hop: 512
+      model_dim: 256
+      depth: 12
+      heads: 8
+      inference_batch_size: 2
+      inference_dim_t: 1876
+      overlap_count: 4
+      target_stem: "instrument"
+    instrumental_sha256: "3a9332bd293ae82f78c9cb2e347d8be9468f95f9d939659c629f55b24f789962"
+    objective:
+      instrumental_interval_correlation: 0.8237016059
+      log_spectral_distance_db: 5.5929843996
+      residual_vocal_rms_dbfs: -61.7239484530
+      residual_vocal_to_candidate_db: -40.2985475697
+    rehearsal_master_sha256: "ee5f4006e4b83ecd78532609d4dfdbda254a2ad94fbd3b97ec03420eb402b7d9"
+    preview_sha256: "b45bbbe0bed1be3ed10e387879a68a4dab0f587959833ce472f6b136d3d87b5c"
+
+  melband_instvoc_duality_v2:
+    decision: "candidate"
+    runtime: "mlx-audio-separator 0.1.7"
+    source: "https://huggingface.co/pcunwa/Mel-Band-Roformer-InstVoc-Duality"
+    checkpoint_license: "not declared; repository has no model card/license"
+    checkpoint: "melband_roformer_instvox_duality_v2.ckpt"
+    checkpoint_sha256: "b4a69558708f2857e36ac86a0e03ed95c4e3d8b9c5b8113963987d0d7df7e20f"
+    converted_safetensors_sha256: "bc3d8b8b3a0fceb9084aacc240e06b33bc5540e3f520d6f4be50b92ac7607db3"
+    config: "config_melbandroformer_instvoc_duality.yaml"
+    config_sha256: "62dbc3ecf29c7ac99df35003f8cb72da3348d646cb5e6d50e07323551c3d968f"
+    command: >-
+      MLX_AUDIO_SEPARATOR_CACHE_DIR=/private/tmp/ms-cache-home-audio
+      mlx-audio-separator -m melband_roformer_instvox_duality_v2.ckpt
+      --model_file_dir /private/tmp/audio-research-models/melband-duality-v2
+      --output_format WAV --output_dir <output-dir>
+      --save_converted_safetensors --perf_trace --perf_trace_path <trace.jsonl>
+      <source-48k-f32.wav>
+    parameters:
+      internal_sample_rate_hz: 44100
+      chunk_size: 485100
+      fft_size: 2048
+      stft_hop: 441
+      model_dim: 384
+      depth: 6
+      heads: 8
+      num_bands: 60
+      inference_batch_size: 1
+      inference_dim_t: 1101
+      overlap_count: 2
+      output_stems: ["Vocals", "Instrumental"]
+    instrumental_sha256: "0d6bb04106110919ff4fac0c6bfec6b1b7d0d4f3d7282b2778ee11793ddd108f"
+    vocals_sha256: "f7c6d9f29c81be8171f94048bd6556b91577571f8d03a6c318d6c3bd26042c3a"
+    objective:
+      instrumental_interval_correlation: 0.8188912015
+      log_spectral_distance_db: 6.2330128976
+      residual_vocal_rms_dbfs: -60.5552691239
+      residual_vocal_to_candidate_db: -39.1392438423
+    rehearsal_master_sha256: "1fc598d17f8c7e3525115b6a00063616404d23efccde553f920bc8892bdfcae8"
+    preview_sha256: "13d1e4c649aa6f24331725fef69f15716974ceff11f0ece20a2495e74be8bd4e"
+
+  scnet_xl_ihf:
+    decision: "priority_blind_listening_candidate"
+    source: "https://github.com/openmirlab/scnet-infer"
+    source_commit: "a5437e37c8b942baf74529f35a719aa70dfa9bdc"
+    package_version: "0.1.0"
+    wrapper_license: "MIT"
+    checkpoint_source: "https://github.com/ZFTurbo/Music-Source-Separation-Training/releases/tag/v1.0.15"
+    checkpoint_license: "NOASSERTION"
+    checkpoint: "model_scnet_ep_36_sdr_10.0891.ckpt"
+    checkpoint_sha256: "ac25975f0f5704f3d1a3c3c251505b7a0f417a22eafe82773440ee4f7e14b74f"
+    registry_config_sha256: "a14167f820b546d9b53c93b0b76315fe7126c6de81d29b896224040b2a7c5ad5"
+    command: >-
+      UV_CACHE_DIR=/private/tmp/uv-cache-audio-research uv run scnet-infer
+      /private/tmp/video-digest/sR2d5NTOda4/source-44k1-f32.wav
+      /private/tmp/video-digest/sR2d5NTOda4/separation/scnet-xl-ihf
+      --model scnet-xl-ihf-v1.0.15 --backend mlx --device mps
+      --cache-dir /private/tmp/audio-research-models/scnet
+    parameters:
+      sample_rate_hz: 44100
+      chunk_size: 485100
+      batch_size: 4
+      overlap_count: 4
+      normalize: false
+      use_amp: true
+      fft_size: 4096
+      stft_hop: 1024
+      reconstruction: "sample-aligned sum of drums + bass + other, amix normalize=0"
+    stem_sha256:
+      drums: "e45c81c51fa52f4806816a2d2c0b32ab4d68ce6c706ec8d7dd1b2f7685a4770b"
+      bass: "750dc24cafb78e06bf96c72f3be9c001578472535beaa90988cbfdc47f76c92d"
+      other: "c4b24a00a465b59d6dcaea60dffa691bc8c105cb6709e59d84161dbec1bc91af"
+      vocals: "65de04fc442fa80a73ff0ae7531ad86700e2464eb4ae13d801076458774c31aa"
+      instrumental_sum: "6bf6338f22fb591a6c5f55cb9ddd265768d983c3dbdf20da1e6e43d9ff85d80c"
+    objective:
+      instrumental_interval_correlation: 0.8307078437
+      log_spectral_distance_db: 5.6472251245
+      residual_vocal_rms_dbfs: -80.4317400760
+      residual_vocal_to_candidate_db: -58.9243292271
+    rehearsal_master_sha256: "02844b40e47569376c3542f93979262a6bc361c55cac42ecc1e14f5a60e19a3b"
+    preview_sha256: "1cb787bea081c409bd4eacaff71adfad07cbe654abfa89d20b0d397fab7e3dda"
+
+  scnet_masked_xl_ihf:
+    decision: "candidate"
+    source: "https://github.com/openmirlab/scnet-infer"
+    source_commit: "a5437e37c8b942baf74529f35a719aa70dfa9bdc"
+    package_version: "0.1.0"
+    wrapper_license: "MIT"
+    checkpoint_source: "https://github.com/ZFTurbo/Music-Source-Separation-Training/releases/tag/v1.0.17"
+    checkpoint_license: "NOASSERTION"
+    checkpoint: "model_scnet_masked_ep_111_sdr_9.8286.ckpt"
+    checkpoint_sha256: "b4675b0269809de27172a050e8767a857077635eda1738db0874d63a79f2b6dd"
+    registry_config_sha256: "a14167f820b546d9b53c93b0b76315fe7126c6de81d29b896224040b2a7c5ad5"
+    command: >-
+      UV_CACHE_DIR=/private/tmp/uv-cache-audio-research uv run scnet-infer
+      /private/tmp/video-digest/sR2d5NTOda4/source-44k1-f32.wav
+      /private/tmp/video-digest/sR2d5NTOda4/separation/scnet-masked-xl-ihf
+      --model scnet-masked-xl-v1.0.17 --backend mlx --device mps
+      --cache-dir /private/tmp/audio-research-models/scnet
+    parameters:
+      sample_rate_hz: 44100
+      chunk_size: 485100
+      batch_size: 4
+      overlap_count: 4
+      normalize: false
+      use_amp: true
+      fft_size: 4096
+      stft_hop: 1024
+      reconstruction: "sample-aligned sum of drums + bass + other, amix normalize=0"
+    stem_sha256:
+      drums: "f4c03eb6b960ae93cf6690b71fe1cc76eca3f11a9b319cf8343917bcd9be0120"
+      bass: "8b776dd702ca2b5983c65942c8bba9296a8a30425124cce0e47e8f0ae95a3aa0"
+      other: "a783c9802e96e85dec06b0b2fdb54a977767d2f78588cf7f4211a06b4d0e5937"
+      vocals: "85319f981a31eafeef6f52f52f3de50ac5afa7a39ce8628ee88d17c7da94b435"
+      instrumental_sum: "69df17742e06ccc7e236b4a5a620344dbb74c546f05fb1cebfe434acaf76f6c6"
+    objective:
+      instrumental_interval_correlation: 0.8306218167
+      log_spectral_distance_db: 6.0102470432
+      residual_vocal_rms_dbfs: -66.0376108924
+      residual_vocal_to_candidate_db: -44.4716801230
+    rehearsal_master_sha256: "1b17bd46a835aba27b197338c79dfb5ef8b6ae63849786d34d3511f0c1483084"
+    preview_sha256: "f0244e13d4da14751caea1a5cadfe93b526ae3c96cf5b15dec12ede343b6712f"
+
+rejected_reconstruction_paths:
+  scnet_xl_mix_minus:
+    reason: "The SCNet vocal stem is not suitable for direct subtraction from the source mixture."
+    residual_vocal_rms_dbfs: -15.5641314444
+  scnet_masked_xl_mix_minus:
+    reason: "The SCNet vocal stem is not suitable for direct subtraction from the source mixture."
+    residual_vocal_rms_dbfs: -15.5449299041
+
+evaluation:
+  instrumental_only_intervals_seconds:
+    - [0.0, 5.0]
+    - [30.9, 32.6]
+    - [58.6, 60.7]
+    - [73.1, 74.0]
+    - [85.1, 86.0]
+    - [112.1, 113.8]
+    - [125.1, 126.8]
+  listening_cues_seconds:
+    intro: 4
+    verse: 28
+    chorus: 64
+    final_chorus: 116
+  policy: "Objective metrics screen candidates; same-level human A/B decides adoption."

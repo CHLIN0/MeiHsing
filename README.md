@@ -62,7 +62,7 @@ MS/
 ## 開發與運行 (Setup & Development)
 
 ### 先決條件
-- [Node.js](https://nodejs.org/) (建議 v18 以上)
+- [Node.js](https://nodejs.org/) 22（版本由 `.node-version` 統一）
 - 建議使用 `npm` 進行套件管理
 
 ### 安裝依賴
@@ -87,20 +87,38 @@ npm run dev -- --host
 ```bash
 npm run build
 ```
-建置完成的檔案將會輸出至 `dist/` 目錄中。
+建置完成的檔案會輸出至 `dist/`，並且自動：
+
+- 產生 `deploy-meta.json`，供上線後確認實際服務中的 Git commit。
+- 驗證 Cloudflare `_headers`，避免未帶內容指紋的圖片、影片或字型被誤設為長效 `immutable` cache。
+- 確認主要靜態頁面與安全標頭仍存在。
 
 ## 部署說明 (Deployment)
 
-本專案透過 **Cloudflare Pages** 部署，並串聯 GitHub repository 自動觸發建置。
+本專案透過 **Cloudflare Workers Static Assets** 部署，並串聯 GitHub repository 自動觸發 Workers Builds。production 的 HTML 與 `public/` 同名資源會重新驗證；只有 Astro 產生、檔名含內容指紋的 `/_astro/*` 資源使用一年 `immutable` browser cache。
 
-### Cloudflare Pages 設定
+### Cloudflare Workers Builds 設定
 
-1. **連結 GitHub**: 在 Cloudflare Dashboard 中建立新的 Pages 專案，連結此 GitHub repository。
-2. **建置設定**:
-   - **Framework preset**: `Astro`
+1. **Git repository**: 連結此 repository，production branch 設為 `main`。
+2. **Build settings**:
    - **Build command**: `npm run build`
-   - **Build output directory**: `dist`
-   - **Node.js version**: `20` (在 Environment variables 中設定 `NODE_VERSION=20`)
-3. **自動部署**: 每當推送到 `main` 分支時，Cloudflare Pages 會自動觸發建置與部署。
-4. **自訂域名**: 在 Cloudflare Pages 專案的 **Custom domains** 中新增 `ms.linho.me`。
-5. **上線**: 部署完成後，網站即可透過 `https://ms.linho.me` 存取。
+   - **Deploy command**: 沿用現有 Worker 的 `npx wrangler deploy` 設定。
+   - **Non-production branch deploy command**: `npx wrangler versions upload`
+   - **Root directory**: `/`
+   - **Build cache**: enabled
+   - Node.js 版本由 repository 的 `.node-version` 控制，不在 Dashboard 重複指定。
+3. **Preview**: 非 `main` 分支只上傳 preview version，不自動切換 production traffic。
+4. **Production**: 在 GitHub 對 `main` 啟用 branch protection，要求 `production-build` 通過才能 merge；merge 後才由 Workers Builds 建置並部署 production。
+5. **Custom domain**: `ms.linho.me` 直接綁定既有 Worker；不需要為每次部署修改 DNS。
+
+> `wrangler.jsonc` 需要與 Cloudflare Dashboard 中既有 Worker 名稱完全一致。本 repo 尚未保存該名稱，因此不要以推測名稱建立設定檔；先從 Dashboard 匯出現行設定，再將它納入版本控制。
+
+### 上線後快速驗證
+
+```bash
+curl -fsS https://ms.linho.me/deploy-meta.json
+curl -sSI https://ms.linho.me/concert/2026/
+curl -sSI https://ms.linho.me/concert/2026/hands-melody.webp
+```
+
+`deploy-meta.json` 的 `commit` 應等於本次 production commit。HTML 與同名 public asset 不應再出現一年 `immutable`；`/_astro/*` 則應保留長效 cache。

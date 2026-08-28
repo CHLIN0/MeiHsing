@@ -6,7 +6,6 @@ const navLinks = [
     { href: '#about', label: '關於' },
     { href: '#experience', label: '經歷' },
     { href: '#gallery', label: '相簿' },
-    { href: '#video', label: '影音' },
     { href: '#contact', label: '聯繫' },
 ];
 
@@ -139,7 +138,8 @@ export default function Nav() {
                                     {label}
                                 </motion.a>
                             ))}
-                            <div className="py-3 text-piano border-b border-gold-muted">
+                            <div className="py-3 text-piano border-b border-gold-muted flex items-center justify-between gap-3">
+                                <span className="font-serif text-lg text-piano">官方連結</span>
                                 <OfficialLinksPopover
                                     fallbackUrl="https://ms.linho.me/"
                                     pageName="林美杏老師官方網站"

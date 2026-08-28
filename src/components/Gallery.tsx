@@ -10,20 +10,53 @@ interface GalleryTab {
     count: number;
 }
 
+const legacyCategoryCounts: Record<Exclude<Category, 'all'>, number> = {
+    concert: 16,
+    choir: 13,
+    ensemble: 7,
+    'music-class': 2,
+    volunteer: 2,
+};
+
+const additionalCategoryImages: Record<Exclude<Category, 'all'>, string[]> = {
+    concert: [],
+    choir: [],
+    ensemble: [],
+    'music-class': [
+        '/gallery/music-class/okayama-senior-music-therapy-2026-08-a.webp',
+        '/gallery/music-class/okayama-senior-music-therapy-2026-08-b.webp',
+    ],
+    volunteer: [
+        '/gallery/volunteer/hospital-music-volunteer-2026-08.webp',
+    ],
+};
+
 const categoryTabs: GalleryTab[] = [
-    { id: 'concert', label: '音樂會', count: 16 },
-    { id: 'choir', label: '合唱團', count: 13 },
-    { id: 'ensemble', label: '合奏', count: 7 },
-    { id: 'music-class', label: '音樂班', count: 2 },
-    { id: 'volunteer', label: '志工', count: 2 },
+    { id: 'concert', label: '音樂會', count: legacyCategoryCounts.concert + additionalCategoryImages.concert.length },
+    { id: 'choir', label: '合唱團', count: legacyCategoryCounts.choir + additionalCategoryImages.choir.length },
+    { id: 'ensemble', label: '合奏', count: legacyCategoryCounts.ensemble + additionalCategoryImages.ensemble.length },
+    { id: 'music-class', label: '音樂班', count: legacyCategoryCounts['music-class'] + additionalCategoryImages['music-class'].length },
+    { id: 'volunteer', label: '志工', count: legacyCategoryCounts.volunteer + additionalCategoryImages.volunteer.length },
 ];
 
 function getCategoryImages(category: Exclude<Category, 'all'>): string[] {
-    const tab = categoryTabs.find(t => t.id === category);
-    if (!tab) return [];
-    return Array.from({ length: tab.count }, (_, i) =>
+    const legacyImages = Array.from({ length: legacyCategoryCounts[category] }, (_, i) =>
         `/gallery/${category}/${category}-${String(i + 1).padStart(2, '0')}.webp`
     );
+    return [...additionalCategoryImages[category], ...legacyImages];
+}
+
+function getImageAlt(src: string, categoryLabel: string, index: number): string {
+    if (src.includes('hospital-music-volunteer')) {
+        return '林美杏老師與音樂志工夥伴在義大醫院合影，現場有鋼琴、空靈鼓與吉他';
+    }
+    if (src.includes('okayama-senior-music-therapy-2026-08-a')) {
+        return '林美杏老師帶領學員進行團體音樂律動活動';
+    }
+    if (src.includes('okayama-senior-music-therapy-2026-08-b')) {
+        return '學員跟隨林美杏老師以拍手與歌唱參與團體音樂活動';
+    }
+    return `${categoryLabel}照片 ${index + 1}`;
 }
 
 function getAllImages(): string[] {
@@ -52,6 +85,7 @@ export default function Gallery() {
         activeTab === 'all' ? getAllImages() : getCategoryImages(activeTab as Exclude<Category, 'all'>),
         [activeTab]
     );
+    const activeTabLabel = tabs.find(t => t.id === activeTab)?.label || '教學活動';
 
     const openLightbox = useCallback((index: number) => {
         setLightboxIndex(index);
@@ -136,7 +170,7 @@ export default function Gallery() {
                                     <div className="relative overflow-hidden rounded-xl">
                                         <img
                                             src={src}
-                                            alt={`${tabs.find(t => t.id === activeTab)?.label || ''} 照片 ${i + 1}`}
+                                            alt={getImageAlt(src, activeTabLabel, i)}
                                             className="w-full h-auto block transition-transform duration-500 group-hover:scale-105"
                                             loading="lazy"
                                             width={400}
@@ -197,7 +231,7 @@ export default function Gallery() {
                         >
                             <img
                                 src={images[lightboxIndex]}
-                                alt={`${tabs.find(t => t.id === activeTab)?.label || ''} 照片 ${lightboxIndex + 1}`}
+                                alt={getImageAlt(images[lightboxIndex], activeTabLabel, lightboxIndex)}
                                 className="max-w-full max-h-[85vh] object-contain rounded-lg"
                             />
 

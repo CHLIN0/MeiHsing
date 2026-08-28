@@ -19,7 +19,7 @@ body {
     overflow: hidden;
     color: var(--singalong-ivory);
     background: #2d201c;
-    font-family: 'Noto Sans TC', sans-serif;
+    font-family: 'Noto Sans TC Variable', sans-serif;
 }
 
 .singalong__art,
@@ -93,7 +93,7 @@ body {
     padding-left: 0.7rem;
     color: var(--singalong-gold);
     border-left: 1px solid rgba(217, 177, 125, 0.5);
-    font-family: 'Noto Serif TC', serif;
+    font-family: 'Noto Serif TC Variable', serif;
     font-weight: 600;
 }
 
@@ -203,7 +203,7 @@ body {
 .singalong__title h1 {
     margin: 1.2rem 0 0;
     color: #fffdf9;
-    font-family: 'Noto Serif TC', serif;
+    font-family: 'Noto Serif TC Variable', serif;
     font-size: clamp(4rem, 8.2vw, 9rem);
     font-weight: 600;
     line-height: 1.08;
@@ -217,7 +217,7 @@ body {
     padding-top: 1.3rem;
     color: var(--singalong-gold);
     border-top: 1px solid rgba(217, 177, 125, 0.55);
-    font-family: 'Noto Serif TC', serif;
+    font-family: 'Noto Serif TC Variable', serif;
     font-size: clamp(1.1rem, 1.8vw, 1.8rem);
     letter-spacing: 0.24em;
 }
@@ -232,7 +232,7 @@ body {
 .singalong__line {
     width: 100%;
     margin: 0;
-    font-family: 'Noto Serif TC', serif;
+    font-family: 'Noto Serif TC Variable', serif;
     text-wrap: balance;
 }
 
@@ -248,10 +248,27 @@ body {
 
 .singalong__current-wrap {
     position: relative;
+    z-index: 0;
     width: fit-content;
     max-width: 100%;
     justify-self: center;
     padding: 0.55rem clamp(1rem, 2.5vw, 2.5rem) 1.25rem;
+}
+
+.singalong__current-wrap::before {
+    content: '';
+    position: absolute;
+    inset: 8% -8%;
+    z-index: -1;
+    opacity: 0.13;
+    border-radius: 50%;
+    background: radial-gradient(ellipse, rgba(229, 190, 145, 0.52), transparent 68%);
+    filter: blur(1.6rem);
+    transform: scale(0.92);
+}
+
+.singalong[data-playing='true'] .singalong__current-wrap::before {
+    animation: singalong-phrase-breathe 2.8s ease-in-out infinite;
 }
 
 .singalong__line--current {
@@ -286,6 +303,11 @@ body {
     box-shadow: 0 0 1rem rgba(217, 177, 125, 0.58);
     transform: scaleX(calc(var(--line-progress, 0%) / 100%));
     transform-origin: left;
+}
+
+@keyframes singalong-phrase-breathe {
+    0%, 100% { opacity: 0.1; transform: scale(0.9); }
+    50% { opacity: 0.22; transform: scale(1.04); }
 }
 
 .singalong__controls {
@@ -509,7 +531,7 @@ body {
     }
 
     .singalong__current-wrap {
-        padding-inline: 0.25rem;
+        padding: 0.4rem 0.25rem 1rem;
     }
 
     .singalong__line--current {
@@ -558,5 +580,9 @@ body {
     .singalong__topbar,
     .singalong__controls {
         transition: none;
+    }
+
+    .singalong__current-wrap::before {
+        animation: none !important;
     }
 }

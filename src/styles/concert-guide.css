@@ -63,7 +63,7 @@
 
 .programme-nav__brand strong {
     overflow: hidden;
-    font-family: 'Noto Serif TC', serif;
+    font-family: 'Noto Serif TC Variable', serif;
     font-size: 0.95rem;
     font-weight: 600;
     letter-spacing: 0.08em;
@@ -115,7 +115,7 @@
 .programme-masthead h1 {
     margin: 1rem 0 0;
     color: var(--programme-ink);
-    font-family: 'Noto Serif TC', serif;
+    font-family: 'Noto Serif TC Variable', serif;
     font-size: clamp(3.1rem, 6vw, 5.6rem);
     font-weight: 300;
     line-height: 1.08;
@@ -157,7 +157,7 @@
 .programme-masthead__facts dd {
     margin: 0;
     color: var(--programme-ink);
-    font-family: 'Noto Serif TC', serif;
+    font-family: 'Noto Serif TC Variable', serif;
     font-size: 0.82rem;
     font-weight: 600;
     text-align: right;
@@ -196,7 +196,7 @@
 .programme-sheet__header h2 {
     margin: 0.42rem 0 0;
     color: var(--programme-ink);
-    font-family: 'Noto Serif TC', serif;
+    font-family: 'Noto Serif TC Variable', serif;
     font-size: clamp(2rem, 3.3vw, 3rem);
     font-weight: 400;
     letter-spacing: -0.025em;
@@ -242,7 +242,7 @@
 .programme-half__header h3 {
     margin: 0.32rem 0 0;
     color: var(--programme-ink);
-    font-family: 'Noto Serif TC', serif;
+    font-family: 'Noto Serif TC Variable', serif;
     font-size: 1.45rem;
     font-weight: 500;
     letter-spacing: 0.08em;
@@ -324,7 +324,7 @@
 .programme-row__title-line strong {
     min-width: 0;
     color: var(--programme-ink);
-    font-family: 'Noto Serif TC', serif;
+    font-family: 'Noto Serif TC Variable', serif;
     font-size: 0.9rem;
     font-weight: 600;
     line-height: 1.55;
@@ -396,7 +396,7 @@
 }
 
 .programme-intermission span { height: 1px; flex: 1; background: rgba(142, 101, 54, 0.24); }
-.programme-intermission p { margin: 0; font-family: 'Noto Serif TC', serif; font-size: 0.72rem; letter-spacing: 0.12em; }
+.programme-intermission p { margin: 0; font-family: 'Noto Serif TC Variable', serif; font-size: 0.72rem; letter-spacing: 0.12em; }
 
 .programme-source {
     margin-bottom: 7rem;
@@ -411,9 +411,9 @@
 }
 
 .programme-source > header p { margin: 0; color: var(--programme-gold); font-size: 0.65rem; letter-spacing: 0.16em; text-transform: uppercase; }
-.programme-source > header h2 { margin: 0.55rem 0 0; font-family: 'Noto Serif TC', serif; font-size: 2rem; font-weight: 400; }
+.programme-source > header h2 { margin: 0.55rem 0 0; font-family: 'Noto Serif TC Variable', serif; font-size: 2rem; font-weight: 400; }
 .programme-source-note { max-width: 50rem; margin: 3rem auto 0; padding-top: 2rem; border-top: 1px solid rgba(142, 101, 54, 0.18); }
-.programme-source-note h2 { font-family: 'Noto Serif TC', serif; }
+.programme-source-note h2 { font-family: 'Noto Serif TC Variable', serif; }
 .programme-source-note p,
 .programme-source-note li { line-height: 1.85; }
 
@@ -434,7 +434,7 @@ html.programme-enhanced .programme-source { display: none; }
     color: var(--programme-ink);
     background: rgba(255, 250, 242, 0.94);
     box-shadow: 0 0.8rem 2.5rem rgba(67, 51, 46, 0.14);
-    font-family: 'Noto Sans TC', sans-serif;
+    font-family: 'Noto Sans TC Variable', sans-serif;
     font-size: 0.66rem;
     font-weight: 600;
     opacity: 0;
@@ -505,7 +505,7 @@ body.is-programme-dialog-open { overflow: hidden; }
 .programme-dialog__heading h2 {
     margin: 0.72rem 0 0;
     color: var(--programme-ink);
-    font-family: 'Noto Serif TC', serif;
+    font-family: 'Noto Serif TC Variable', serif;
     font-size: clamp(1.8rem, 4vw, 3rem);
     font-weight: 400;
     line-height: 1.35;
@@ -562,7 +562,7 @@ body.is-programme-dialog-open { overflow: hidden; }
 .programme-detail > p:not(.programme-detail__label):not(.programme-detail__cue) {
     margin-top: 0;
     color: var(--programme-ink);
-    font-family: 'Noto Serif TC', serif;
+    font-family: 'Noto Serif TC Variable', serif;
     font-size: clamp(1.02rem, 1.5vw, 1.16rem);
     line-height: 2.05;
     letter-spacing: 0.025em;
@@ -628,7 +628,7 @@ body.is-programme-dialog-open { overflow: hidden; }
     border: 0;
     color: var(--programme-muted);
     background: transparent;
-    font-family: 'Noto Sans TC', sans-serif;
+    font-family: 'Noto Sans TC Variable', sans-serif;
     font-size: 0.7rem;
     font-weight: 600;
     cursor: pointer;
