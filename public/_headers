@@ -1,42 +1,20 @@
-# Cache static assets aggressively
-/gallery/*
-  Cache-Control: public, max-age=31536000, immutable
-
-/*.webp
-  Cache-Control: public, max-age=31536000, immutable
-
-/*.jpeg
-  Cache-Control: public, max-age=31536000, immutable
-
-/*.jpg
-  Cache-Control: public, max-age=31536000, immutable
-
-/*.png
-  Cache-Control: public, max-age=31536000, immutable
-
-/*.svg
-  Cache-Control: public, max-age=31536000, immutable
-
-/*.ico
-  Cache-Control: public, max-age=31536000, immutable
-
-# Fonts
-/*.woff2
-  Cache-Control: public, max-age=31536000, immutable
-
-/*.woff
-  Cache-Control: public, max-age=31536000, immutable
-
-# CSS and JS assets (hashed by Astro)
+# Astro fingerprints these assets, so a one-year immutable browser cache is safe.
 /_astro/*
-  Cache-Control: public, max-age=31536000, immutable
+  Cache-Control: public, max-age=31556952, immutable
 
-# HTML pages — short cache with revalidation
+# HTML and every same-name file in public/ must be revalidated. Workers Static
+# Assets already uses this policy by default; these two rules document the HTML
+# contract without overlapping /_astro/*.
 /*.html
   Cache-Control: public, max-age=0, must-revalidate
 
 /
   Cache-Control: public, max-age=0, must-revalidate
+
+# Allows a smoke test to identify the exact build currently serving traffic.
+/deploy-meta.json
+  Cache-Control: no-store
+  X-Robots-Tag: noindex
 
 # Security headers for all pages
 /*
