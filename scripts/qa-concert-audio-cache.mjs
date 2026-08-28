@@ -7,7 +7,7 @@ const runtimeModules = process.env.MS_QA_NODE_MODULES
   ?? '/Users/br/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/node_modules';
 const { chromium } = require(path.join(runtimeModules, 'playwright'));
 
-const target = process.env.MS_CONCERT_URL ?? 'http://127.0.0.1:4335/concert/2026/';
+const target = process.env.MS_CONCERT_URL ?? 'http://127.0.0.1:4334/concert/2026/';
 const evidenceDir = process.env.MS_AUDIO_QA_DIR ?? '/tmp/ms-concert-audio-cache-qa';
 const videoDir = path.join(evidenceDir, 'video');
 fs.mkdirSync(videoDir, { recursive: true });
@@ -151,25 +151,13 @@ const coldReadyState = await coldPage.evaluate(async () => {
   };
 });
 
-await tap(coldPage, '[data-audio-status-toggle]');
-await coldPage.waitForFunction(() => document.querySelector('[data-lyrics-player]')?.dataset.resourceOnly === 'true');
 await coldPage.waitForTimeout(250);
-const compactStatusState = await coldPage.evaluate(() => ({
+const heroStatusState = await coldPage.evaluate(() => ({
+  visible: document.querySelector('[data-lyrics-player]')?.dataset.visible,
   resourceOnly: document.querySelector('[data-lyrics-player]')?.dataset.resourceOnly,
-  expanded: document.querySelector('[data-audio-status-toggle]')?.getAttribute('aria-expanded'),
-  label: document.querySelector('[data-audio-status-toggle]')?.getAttribute('aria-label'),
-  panelVisible: getComputedStyle(document.querySelector('[data-audio-status-panel]')).visibility,
+  playerVisibility: getComputedStyle(document.querySelector('[data-lyrics-player]')).visibility,
 }));
-await coldPage.screenshot({ path: path.join(evidenceDir, 'mobile-ready-compact-icon.png') });
-await tap(coldPage, '[data-audio-status-toggle]');
-await coldPage.waitForFunction(() => document.querySelector('[data-lyrics-player]')?.dataset.resourceStatusOpen === 'true');
-await coldPage.waitForTimeout(250);
-const reopenedStatusState = await coldPage.evaluate(() => ({
-  resourceOnly: document.querySelector('[data-lyrics-player]')?.dataset.resourceOnly,
-  expanded: document.querySelector('[data-audio-status-toggle]')?.getAttribute('aria-expanded'),
-  panelVisible: getComputedStyle(document.querySelector('[data-audio-status-panel]')).visibility,
-}));
-await coldPage.screenshot({ path: path.join(evidenceDir, 'mobile-ready-status-open.png') });
+await coldPage.screenshot({ path: path.join(evidenceDir, 'mobile-hero-without-audio-status.png') });
 
 await tap(coldPage, '.concert-hero__actions a[href="#lyrics"]');
 await coldPage.evaluate(() => document.querySelector('#lyrics')?.scrollIntoView({ behavior: 'instant', block: 'start' }));
@@ -178,6 +166,12 @@ await coldPage.waitForFunction(() => {
   return player?.dataset.visible === 'true' && player?.dataset.resourceOnly === 'false';
 });
 await coldPage.waitForTimeout(250);
+const lyricsStatusState = await coldPage.evaluate(() => ({
+  visible: document.querySelector('[data-lyrics-player]')?.dataset.visible,
+  resourceOnly: document.querySelector('[data-lyrics-player]')?.dataset.resourceOnly,
+  playerVisibility: getComputedStyle(document.querySelector('[data-lyrics-player]')).visibility,
+}));
+await coldPage.screenshot({ path: path.join(evidenceDir, 'mobile-lyrics-player-visible.png') });
 await setNetwork(coldCdp, { offline: true });
 const pausedBeforeOfflinePlayback = await coldPage.locator('[data-lyrics-audio]').evaluate((audio) => audio.paused);
 if (pausedBeforeOfflinePlayback) await coldPage.locator('[data-play-toggle]').tap();
@@ -191,7 +185,7 @@ try {
       scheduledStarts: window.__concertScheduledStarts,
       playDisabled: document.querySelector('[data-play-toggle]')?.disabled,
       currentLyric: document.querySelector('[data-current-lyric]')?.textContent?.trim(),
-      preflightVisibility: getComputedStyle(document.querySelector('[data-audio-status-panel]')).visibility,
+      preflightVisibility: getComputedStyle(document.querySelector('.concert-audio-source__panel')).visibility,
     };
   });
   throw new Error(`Offline playback did not start: ${JSON.stringify(playbackStartState)}`, { cause: error });
@@ -270,6 +264,10 @@ await retryContext.route('**/mingtian-hui-geng-hao-guide-vocal-v3.mp4', async (r
 const retryPage = await retryContext.newPage();
 await retryPage.goto(target, { waitUntil: 'domcontentloaded' });
 await retryPage.waitForFunction(() => document.querySelector('[data-lyrics-player]')?.dataset.audioReady === 'true', null, { timeout: 20000 });
+await retryPage.locator('#lyrics').scrollIntoViewIfNeeded();
+await retryPage.waitForFunction(() => document.querySelector('[data-lyrics-player]')?.dataset.visible === 'true');
+await retryPage.locator('[data-audio-asset-toggle="instrumental"]').click();
+await retryPage.waitForFunction(() => document.querySelector('[data-lyrics-player]')?.dataset.resourceStatusOpen === 'true');
 const retryState = await retryPage.evaluate(() => ({
   ready: document.querySelector('[data-lyrics-player]')?.dataset.audioReady,
   label: document.querySelector('[data-audio-load-label]')?.textContent?.trim(),
@@ -287,6 +285,8 @@ const instrumentalTestState = await retryPage.evaluate(() => ({
 await retryPage.locator('[data-audio-asset-test="instrumental"]').click();
 await retryPage.waitForFunction(() => document.querySelector('[data-audio-asset-control="instrumental"]')?.dataset.testing === 'false');
 
+await retryPage.locator('[data-audio-asset-toggle="guide-vocal"]').click();
+await retryPage.waitForFunction(() => document.querySelector('[data-audio-source="guide-vocal"]')?.dataset.open === 'true');
 await retryPage.locator('[data-audio-asset-test="guide-vocal"]').click();
 await retryPage.waitForFunction(() => document.querySelector('[data-audio-asset-control="guide-vocal"]')?.dataset.testing === 'true');
 const guideTestState = await retryPage.evaluate(() => ({
@@ -319,6 +319,8 @@ const afterGuideResync = await retryPage.evaluate(() => ({
   guideSource: document.querySelector('[data-guide-vocal-audio]')?.currentSrc,
 }));
 
+await retryPage.locator('[data-audio-asset-toggle="instrumental"]').click();
+await retryPage.waitForFunction(() => document.querySelector('[data-audio-source="instrumental"]')?.dataset.open === 'true');
 await retryPage.locator('[data-audio-asset-resync="instrumental"]').click();
 await retryPage.waitForFunction((previousSources) => {
   const player = document.querySelector('[data-lyrics-player]');
@@ -376,11 +378,11 @@ if (coldReadyState.preflight.state !== 'ready' || !coldReadyState.preflight.visi
 if (coldReadyState.trackProgress.length !== 2 || coldReadyState.trackProgress.some((track) => track.state !== 'ready' || track.percent !== '100%' || track.ariaValue !== '100')) {
   failures.push(`Instrumental and guide-vocal status rings did not both finish: ${JSON.stringify(coldReadyState.trackProgress)}.`);
 }
-if (compactStatusState.resourceOnly !== 'true' || compactStatusState.expanded !== 'false' || compactStatusState.panelVisible !== 'hidden') {
-  failures.push(`Ready status did not collapse to a checkable icon: ${JSON.stringify(compactStatusState)}.`);
+if (heroStatusState.visible !== 'false' || heroStatusState.playerVisibility !== 'hidden') {
+  failures.push(`Audio status remained visible over the hero: ${JSON.stringify(heroStatusState)}.`);
 }
-if (reopenedStatusState.resourceOnly !== 'false' || reopenedStatusState.expanded !== 'true' || reopenedStatusState.panelVisible !== 'visible') {
-  failures.push(`Touch did not reopen the resource explanation: ${JSON.stringify(reopenedStatusState)}.`);
+if (lyricsStatusState.visible !== 'true' || lyricsStatusState.resourceOnly !== 'false' || lyricsStatusState.playerVisibility !== 'visible') {
+  failures.push(`The full player did not appear in the sing-along section: ${JSON.stringify(lyricsStatusState)}.`);
 }
 if (guideRequestAttempts < 2 || retryState.ready !== 'true' || !retryState.guideSource.startsWith('blob:')) {
   failures.push(`Interrupted guide-vocal request did not recover: attempts=${guideRequestAttempts}, ready=${retryState.ready}.`);
@@ -431,8 +433,8 @@ const result = {
     warmOfflineReadyMs: warmReadyMs,
   },
   coldReadyState,
-  compactStatusState,
-  reopenedStatusState,
+  heroStatusState,
+  lyricsStatusState,
   offlinePlayback,
   offlineTailPlayback,
   warmState,

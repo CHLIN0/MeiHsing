@@ -92,6 +92,257 @@ body {
     }
 }
 
+@keyframes singalong-ready-check {
+    from { opacity: 0; transform: scale(0.72); }
+    to { opacity: 1; transform: scale(1); }
+}
+
+.singalong-audio-dock {
+    position: absolute;
+    top: 50%;
+    right: clamp(0.85rem, 1.8vw, 1.6rem);
+    z-index: 6;
+    display: grid;
+    gap: 0.65rem;
+    transform: translateY(-50%);
+}
+
+.singalong-audio-dock__source {
+    --dock-accent: #d9b17d;
+    --dock-accent-soft: rgba(217, 177, 125, 0.18);
+    position: relative;
+    color: var(--dock-accent);
+}
+
+.singalong-audio-dock__source.is-guide-vocal {
+    --dock-accent: #e2a9b2;
+    --dock-accent-soft: rgba(226, 169, 178, 0.2);
+}
+
+
+.singalong-audio-dock__trigger {
+    width: clamp(2.8rem, 3.6vw, 3.35rem);
+    aspect-ratio: 1;
+    display: grid;
+    place-items: center;
+    padding: 0;
+    color: inherit;
+    border: 1px solid rgba(255, 250, 242, 0.16);
+    border-radius: 50%;
+    background: rgba(35, 23, 19, 0.6);
+    box-shadow: 0 0.6rem 1.8rem rgba(17, 10, 8, 0.2);
+    cursor: pointer;
+    touch-action: manipulation;
+    backdrop-filter: blur(0.8rem);
+    transition: transform 170ms ease, border-color 170ms ease, background 170ms ease;
+}
+
+.singalong-audio-dock__trigger:hover,
+.singalong-audio-dock__trigger:focus-visible,
+.singalong-audio-dock__source[data-open='true'] .singalong-audio-dock__trigger {
+    border-color: color-mix(in srgb, var(--dock-accent) 68%, transparent);
+    background: rgba(35, 23, 19, 0.78);
+    transform: translateX(-2px);
+}
+
+.singalong-audio-dock__trigger:focus-visible {
+    outline: 3px solid var(--dock-accent-soft);
+    outline-offset: 3px;
+}
+
+.singalong-audio-dock__ring {
+    --asset-progress-number: 0;
+    position: relative;
+    width: 100%;
+    aspect-ratio: 1;
+    display: grid;
+    place-items: center;
+}
+
+.singalong-audio-dock__ring > svg:not(.is-check) {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    overflow: visible;
+    transform: rotate(-90deg);
+}
+
+.singalong-audio-dock__ring circle {
+    fill: none;
+    stroke-width: 2.6;
+}
+
+.singalong-audio-dock__ring .is-track {
+    stroke: var(--dock-accent-soft);
+}
+
+.singalong-audio-dock__ring .is-progress {
+    stroke: var(--dock-accent);
+    stroke-linecap: round;
+    stroke-dasharray: 100;
+    stroke-dashoffset: calc(100 - var(--asset-progress-number));
+    transition: stroke-dashoffset 180ms linear;
+}
+
+.singalong-audio-dock__ring strong {
+    color: var(--dock-accent);
+    font-family: 'Montserrat', sans-serif;
+    font-size: clamp(0.5rem, 0.75vw, 0.62rem);
+    font-variant-numeric: tabular-nums;
+}
+
+.singalong-audio-dock__ring .is-check {
+    width: 1.35rem;
+    height: 1.35rem;
+    display: none;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.9;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+.singalong-audio-dock__source[data-state='ready'] .is-check {
+    display: block;
+    animation: singalong-ready-check 440ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+
+.singalong-audio-dock__source[data-state='ready'] .singalong-audio-dock__ring strong {
+    display: none;
+}
+
+.singalong-audio-dock__source[data-state='failed'] .is-progress {
+    stroke: #ef8274;
+}
+
+.singalong-audio-dock__panel {
+    position: absolute;
+    top: 50%;
+    right: calc(100% + 0.7rem);
+    width: min(16rem, calc(100vw - 5rem));
+    padding: 0.78rem 0.82rem 0.72rem;
+    visibility: hidden;
+    opacity: 0;
+    color: rgba(255, 250, 242, 0.92);
+    border: 1px solid color-mix(in srgb, var(--dock-accent) 38%, transparent);
+    border-radius: 0.9rem;
+    background: rgba(35, 23, 19, 0.86);
+    box-shadow: 0 0.9rem 2.6rem rgba(17, 10, 8, 0.28);
+    pointer-events: none;
+    transform: translate(0.4rem, -50%) scale(0.98);
+    transform-origin: right center;
+    transition: opacity 170ms ease, transform 170ms ease, visibility 170ms step-end;
+    backdrop-filter: blur(1rem) saturate(112%);
+}
+
+.singalong-audio-dock__source[data-open='true'] .singalong-audio-dock__panel,
+.singalong-audio-dock__source:focus-within .singalong-audio-dock__panel {
+    visibility: visible;
+    opacity: 1;
+    pointer-events: auto;
+    transform: translate(0, -50%) scale(1);
+    transition: opacity 170ms ease, transform 170ms ease, visibility 0s;
+}
+
+@media (hover: hover) and (pointer: fine) {
+    .singalong-audio-dock__source:hover .singalong-audio-dock__panel {
+        visibility: visible;
+        opacity: 1;
+        pointer-events: auto;
+        transform: translate(0, -50%) scale(1);
+    }
+}
+
+.singalong-audio-dock__status {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.singalong-audio-dock__status span,
+.singalong-audio-dock__status strong,
+.singalong-audio-dock__status small {
+    display: block;
+}
+
+.singalong-audio-dock__status strong {
+    color: #fffaf2;
+    font-family: 'Noto Serif TC Variable', serif;
+    font-size: 0.82rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+}
+
+.singalong-audio-dock__status small {
+    margin-top: 0.12rem;
+    color: color-mix(in srgb, var(--dock-accent) 78%, #fffaf2);
+    font-size: 0.64rem;
+    letter-spacing: 0.04em;
+}
+
+.singalong-audio-dock__status output {
+    color: var(--dock-accent);
+    font-family: 'Montserrat', sans-serif;
+    font-size: 0.68rem;
+    font-variant-numeric: tabular-nums;
+}
+
+.singalong-audio-dock__actions {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.45rem;
+    margin-top: 0.62rem;
+}
+
+.singalong-audio-dock__actions button,
+.singalong-audio-dock__retry {
+    min-height: 2.6rem;
+    padding: 0.55rem 0.6rem;
+    color: #fffaf2;
+    border: 1px solid rgba(255, 250, 242, 0.18);
+    border-radius: 999px;
+    background: rgba(255, 250, 242, 0.08);
+    font: 600 0.66rem/1.2 'Noto Sans TC Variable', sans-serif;
+    letter-spacing: 0.04em;
+    cursor: pointer;
+    touch-action: manipulation;
+}
+
+.singalong-audio-dock__actions button:hover,
+.singalong-audio-dock__actions button:focus-visible {
+    color: var(--dock-accent);
+    border-color: color-mix(in srgb, var(--dock-accent) 58%, transparent);
+    outline: none;
+    background: color-mix(in srgb, var(--dock-accent) 14%, transparent);
+}
+
+.singalong-audio-dock__actions button:disabled {
+    opacity: 0.46;
+    cursor: wait;
+}
+
+.singalong-audio-dock__panel[data-testing='true'] [data-audio-asset-test] {
+    color: var(--dock-accent);
+    border-color: var(--dock-accent);
+}
+
+.singalong-audio-dock__panel[data-resyncing='true'] [data-audio-asset-resync] {
+    color: var(--dock-accent);
+}
+
+.singalong-audio-dock__retry {
+    position: absolute;
+    top: calc(100% + 0.55rem);
+    right: 0;
+    width: 10.5rem;
+    color: #2f211d;
+    border-color: rgba(255, 250, 242, 0.5);
+    background: rgba(255, 250, 242, 0.92);
+    box-shadow: 0 0.8rem 2rem rgba(17, 10, 8, 0.24);
+}
+
 .singalong__topbar {
     position: absolute;
     top: 0;
@@ -432,6 +683,8 @@ body {
 }
 
 .singalong__play {
+    --instrumental-load-progress-number: 0;
+    position: relative;
     width: 3.15rem;
     height: 3.15rem;
     display: grid;
@@ -443,6 +696,7 @@ body {
     background: var(--singalong-ivory);
     cursor: pointer;
 }
+
 
 .singalong__play:disabled {
     opacity: 0.45;
@@ -652,6 +906,22 @@ body {
 }
 
 @media (max-width: 760px) {
+    .singalong-audio-dock {
+        top: 4.65rem;
+        right: 0.7rem;
+        gap: 0.45rem;
+        transform: none;
+    }
+
+    .singalong-audio-dock__trigger {
+        width: 2.75rem;
+    }
+
+    .singalong-audio-dock__panel {
+        right: calc(100% + 0.5rem);
+        width: min(15rem, calc(100vw - 4.6rem));
+    }
+
     .singalong__art img {
         object-position: 58% center;
     }
@@ -814,5 +1084,15 @@ body {
     .singalong__entry-cue,
     .singalong__entry-cue i {
         transition: none;
+    }
+
+    .singalong-audio-dock__trigger,
+    .singalong-audio-dock__panel,
+    .singalong-audio-dock__ring .is-progress {
+        transition: none;
+    }
+
+    .singalong-audio-dock__source[data-state='ready'] .is-check {
+        animation: none;
     }
 }

@@ -52,6 +52,7 @@ const petalMotion = [
         class="singalong"
         data-singalong
         data-playing="false"
+        data-audio-ready="false"
         data-outro="false"
         data-controls-visible="true"
         data-lyrics-end={concert2026Instrumental.lyricsEnd}
@@ -67,8 +68,57 @@ const petalMotion = [
             ))}
         </div>
 
+        <aside class="singalong-audio-dock" data-audio-preflight aria-label="播放資源狀態">
+            <div class="singalong-audio-dock__source is-instrumental" data-audio-source="instrumental" data-audio-asset-status="instrumental" data-state="preparing" data-open="false">
+                <button class="singalong-audio-dock__trigger" type="button" data-audio-asset-toggle="instrumental" aria-controls="singalong-audio-instrumental-panel" aria-expanded="false" aria-label="伴奏準備中 0%，顯示詳細狀態">
+                    <span class="singalong-audio-dock__ring" role="progressbar" aria-label="伴奏載入進度" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+                        <svg viewBox="0 0 44 44" aria-hidden="true">
+                            <circle class="is-track" cx="22" cy="22" r="18" pathLength="100"></circle>
+                            <circle class="is-progress" cx="22" cy="22" r="18" pathLength="100"></circle>
+                        </svg>
+                        <svg class="is-check" viewBox="0 0 24 24" aria-hidden="true"><path d="m6.5 12.5 3.5 3.5 7.5-8"></path></svg>
+                        <strong data-audio-dock-percent>0</strong>
+                    </span>
+                </button>
+                <div id="singalong-audio-instrumental-panel" class="singalong-audio-dock__panel" data-audio-asset-control="instrumental" role="group" aria-label="伴奏狀態與維護">
+                    <div class="singalong-audio-dock__status">
+                        <span><strong>伴奏</strong><small data-audio-asset-label>正在載入</small></span>
+                        <output data-audio-asset-percent>0%</output>
+                    </div>
+                    <div class="singalong-audio-dock__actions">
+                        <button type="button" data-audio-asset-test="instrumental" aria-label="測試播放伴奏"><span data-audio-asset-test-label>測試播放</span></button>
+                        <button type="button" data-audio-asset-resync="instrumental" aria-label="清除並重新同步伴奏"><span data-audio-asset-resync-label>重新同步</span></button>
+                    </div>
+                </div>
+            </div>
+            <div class="singalong-audio-dock__source is-guide-vocal" data-audio-source="guide-vocal" data-audio-asset-status="guide-vocal" data-state="preparing" data-open="false">
+                <button class="singalong-audio-dock__trigger" type="button" data-audio-asset-toggle="guide-vocal" aria-controls="singalong-audio-guide-vocal-panel" aria-expanded="false" aria-label="導唱準備中 0%，顯示詳細狀態">
+                    <span class="singalong-audio-dock__ring" role="progressbar" aria-label="導唱載入進度" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+                        <svg viewBox="0 0 44 44" aria-hidden="true">
+                            <circle class="is-track" cx="22" cy="22" r="18" pathLength="100"></circle>
+                            <circle class="is-progress" cx="22" cy="22" r="18" pathLength="100"></circle>
+                        </svg>
+                        <svg class="is-check" viewBox="0 0 24 24" aria-hidden="true"><path d="m6.5 12.5 3.5 3.5 7.5-8"></path></svg>
+                        <strong data-audio-dock-percent>0</strong>
+                    </span>
+                </button>
+                <div id="singalong-audio-guide-vocal-panel" class="singalong-audio-dock__panel" data-audio-asset-control="guide-vocal" role="group" aria-label="導唱狀態與維護">
+                    <div class="singalong-audio-dock__status">
+                        <span><strong>導唱</strong><small data-audio-asset-label>Vocal · 正在載入</small></span>
+                        <output data-audio-asset-percent>0%</output>
+                    </div>
+                    <div class="singalong-audio-dock__actions">
+                        <button type="button" data-audio-asset-test="guide-vocal" aria-label="測試播放導唱"><span data-audio-asset-test-label>測試播放</span></button>
+                        <button type="button" data-audio-asset-resync="guide-vocal" aria-label="清除並重新同步導唱"><span data-audio-asset-resync-label>重新同步</span></button>
+                    </div>
+                </div>
+            </div>
+            <button class="singalong-audio-dock__retry" type="button" data-audio-load-retry hidden>重新載入播放資源</button>
+            <p class="sr-only" data-audio-preflight-live aria-live="polite">開始準備伴奏與導唱</p>
+        </aside>
+
         <header class="singalong__topbar" data-singalong-chrome>
-            <a class="singalong__back" href="/concert/2026/#lyrics">
+            <a class="singalong__back" href="/concert/2026/#lyrics" aria-label="返回大合唱">
                 <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m15 18-6-6 6-6"></path></svg>
                 <span>返回大合唱</span>
             </a>
@@ -114,15 +164,17 @@ const petalMotion = [
         <aside class="singalong__controls" data-singalong-chrome aria-label="伴奏播放控制">
             <audio
                 data-singalong-audio
+                data-download-bytes={concert2026Instrumental.bytes}
                 src={concert2026Instrumental.src}
-                preload="metadata"
+                preload="none"
             ></audio>
             <audio
                 data-guide-vocal-audio
+                data-download-bytes={concert2026GuideVocal.bytes}
                 src={concert2026GuideVocal.src}
-                preload="metadata"
+                preload="none"
             ></audio>
-            <button class="singalong__play" type="button" data-play-toggle aria-label="播放伴奏">
+            <button class="singalong__play" type="button" data-play-toggle aria-label="播放資源載入中" disabled>
                 <svg class="is-play" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 7 8 5-8 5z"></path></svg>
                 <svg class="is-pause" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 7v10M15 7v10"></path></svg>
             </button>
@@ -162,6 +214,13 @@ const petalMotion = [
     </main>
 
     <script>
+        import {
+            loadConcertAudioAsset,
+            openConcertAudioCache,
+            type ConcertAudioAssetOrigin,
+            type ConcertAudioStore,
+        } from '../../../lib/concert-audio-cache';
+
         const singalong = document.querySelector<HTMLElement>('[data-singalong]');
         const audio = singalong?.querySelector<HTMLAudioElement>('[data-singalong-audio]');
         const guideVocal = singalong?.querySelector<HTMLAudioElement>('[data-guide-vocal-audio]');
@@ -180,34 +239,81 @@ const petalMotion = [
         const nextLine = singalong?.querySelector<HTMLElement>('[data-next-line]');
         const sourceLines = Array.from(singalong?.querySelectorAll<HTMLElement>('[data-singalong-source] span') || []);
         const entryCue = singalong?.querySelector<HTMLElement>('[data-entry-cue]');
+        const preflight = singalong?.querySelector<HTMLElement>('[data-audio-preflight]');
+        const preflightLive = singalong?.querySelector<HTMLElement>('[data-audio-preflight-live]');
+        const loadRetry = singalong?.querySelector<HTMLButtonElement>('[data-audio-load-retry]');
+        const assetStatusElements = Array.from(singalong?.querySelectorAll<HTMLElement>('[data-audio-asset-status]') || []);
+        const assetToggleButtons = Array.from(singalong?.querySelectorAll<HTMLButtonElement>('[data-audio-asset-toggle]') || []);
+        const assetTestButtons = Array.from(singalong?.querySelectorAll<HTMLButtonElement>('[data-audio-asset-test]') || []);
+        const assetResyncButtons = Array.from(singalong?.querySelectorAll<HTMLButtonElement>('[data-audio-asset-resync]') || []);
         const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
 
         if (
             singalong && audio && guideVocal && playToggle && fullscreenToggle && progress
             && guideVocalVolume && guideVocalOutput && timeOutput && playbackState
             && titleCard && lyricWindow && previousLine && currentWrap && currentLine && nextLine && sourceLines.length
+            && preflight && preflightLive && loadRetry && assetStatusElements.length === 2
+            && assetToggleButtons.length === 2 && assetTestButtons.length === 2 && assetResyncButtons.length === 2
         ) {
-            const lines = sourceLines.map((line) => ({
-                text: line.textContent?.trim() || '',
-                start: Number(line.dataset.start),
-            }));
+            type AudioAssetKey = 'instrumental' | 'guide-vocal';
+            type LyricRects = { previous: DOMRect; current: DOMRect; next: DOMRect };
+            const guideVocalStorageKey = 'concert-2026-guide-vocal-volume';
             const lyricPreviewLead = 0.5;
             const entryCueLead = 3.5;
             const lineProgressCompletionHold = 0.1;
             const lyricTimelineEnd = Number(singalong.dataset.lyricsEnd);
+            const lines = sourceLines.map((line) => ({ text: line.textContent?.trim() || '', start: Number(line.dataset.start) }));
+            const audioAssets = [
+                { key: 'instrumental' as const, source: audio.src, expectedBytes: Number(audio.dataset.downloadBytes || 0), element: audio, testOffset: 2 },
+                { key: 'guide-vocal' as const, source: guideVocal.src, expectedBytes: Number(guideVocal.dataset.downloadBytes || 0), element: guideVocal, testOffset: 6 },
+            ];
+            const totalExpectedBytes = audioAssets.reduce((total, asset) => total + asset.expectedBytes, 0);
+            const assetRows = new Map(assetStatusElements.map((element) => [
+                element.dataset.audioAssetStatus as AudioAssetKey,
+                {
+                    element,
+                    ring: element.querySelector<HTMLElement>('[role="progressbar"]'),
+                    ringPercent: element.querySelector<HTMLElement>('[data-audio-dock-percent]'),
+                    detailPercent: element.querySelector<HTMLOutputElement>('[data-audio-asset-percent]'),
+                    label: element.querySelector<HTMLElement>('[data-audio-asset-label]'),
+                    toggle: element.querySelector<HTMLButtonElement>('[data-audio-asset-toggle]'),
+                    control: element.querySelector<HTMLElement>('[data-audio-asset-control]'),
+                    testButton: element.querySelector<HTMLButtonElement>('[data-audio-asset-test]'),
+                    testLabel: element.querySelector<HTMLElement>('[data-audio-asset-test-label]'),
+                    resyncButton: element.querySelector<HTMLButtonElement>('[data-audio-asset-resync]'),
+                    resyncLabel: element.querySelector<HTMLElement>('[data-audio-asset-resync-label]'),
+                },
+            ]));
+            const assetProgress = new Map<AudioAssetKey, number>();
+            const assetOrigins = new Map<AudioAssetKey, ConcertAudioAssetOrigin>();
+            const decodedAudio = new Map<AudioAssetKey, AudioBuffer>();
+            const objectUrls: string[] = [];
+            let audioContext: AudioContext | null = null;
+            let preparationPromise: Promise<void> | null = null;
+            let assetsReady = false;
+            let assetsPreparing = false;
+            let openAssetStatusKey: AudioAssetKey | null = null;
+            let resyncingAssetKey: AudioAssetKey | null = null;
+            let testingAssetKey: AudioAssetKey | null = null;
+            let testSource: AudioBufferSourceNode | null = null;
+            let testTimer = 0;
             let activeIndex = -2;
             let animationFrame = 0;
             let controlsTimer = 0;
             let rollingAnimations: Animation[] = [];
-            const guideVocalStorageKey = 'concert-2026-guide-vocal-volume';
+            let playbackOffset = 0;
+            let playbackStartedAt = 0;
+            let mainPlaying = false;
+            let mainSources: AudioBufferSourceNode[] = [];
+            let mainGuideGain: GainNode | null = null;
+            let resumeAfterSeek = false;
 
-            const storedGuideVocalPreference = window.localStorage.getItem(guideVocalStorageKey);
-            const storedGuideVocalVolume = storedGuideVocalPreference === null ? Number.NaN : Number(storedGuideVocalPreference);
-            const initialGuideVocalVolume = Number.isFinite(storedGuideVocalVolume)
-                ? Math.min(1, Math.max(0, storedGuideVocalVolume))
+            const storedPreference = window.localStorage.getItem(guideVocalStorageKey);
+            const storedVolume = storedPreference === null ? Number.NaN : Number(storedPreference);
+            const initialGuideVolume = Number.isFinite(storedVolume)
+                ? Math.min(1, Math.max(0, storedVolume))
                 : Number(guideVocalVolume.value) / 100;
-            guideVocal.volume = initialGuideVocalVolume;
-            guideVocalVolume.value = String(Math.round(initialGuideVocalVolume * 100));
+            guideVocalVolume.value = String(Math.round(initialGuideVolume * 100));
             guideVocalOutput.value = `${guideVocalVolume.value}%`;
 
             const formatTime = (seconds: number) => {
@@ -215,20 +321,194 @@ const petalMotion = [
                 return `${Math.floor(safeSeconds / 60)}:${String(safeSeconds % 60).padStart(2, '0')}`;
             };
 
-            const syncGuideVocal = (force = false) => {
-                if (guideVocal.readyState < HTMLMediaElement.HAVE_METADATA) return;
-                const drift = Math.abs(guideVocal.currentTime - audio.currentTime);
-                if (force || drift > 0.08) guideVocal.currentTime = audio.currentTime;
+            const getAudioContext = () => {
+                if (audioContext) return audioContext;
+                const AudioContextConstructor = window.AudioContext
+                    ?? (window as typeof window & { webkitAudioContext?: typeof AudioContext }).webkitAudioContext;
+                if (!AudioContextConstructor) throw new Error('Web Audio API is unavailable');
+                audioContext = new AudioContextConstructor({ latencyHint: 'playback' });
+                return audioContext;
+            };
+
+            const updateDownloadProgress = (assetKey: AudioAssetKey, loadedBytes: number, ready = false, failed = false) => {
+                const asset = audioAssets.find(({ key }) => key === assetKey);
+                const row = assetRows.get(assetKey);
+                if (!asset || !row) return;
+                const boundedBytes = Math.min(asset.expectedBytes, Math.max(0, loadedBytes));
+                assetProgress.set(assetKey, boundedBytes);
+                const percent = asset.expectedBytes > 0 ? Math.min(100, Math.round((boundedBytes / asset.expectedBytes) * 100)) : 0;
+                row.element.dataset.state = failed ? 'failed' : ready ? 'ready' : 'preparing';
+                row.element.style.setProperty('--asset-progress-number', String(percent));
+                row.ring?.style.setProperty('--asset-progress-number', String(percent));
+                row.ring?.setAttribute('aria-valuenow', String(percent));
+                if (row.ringPercent) row.ringPercent.textContent = failed ? '!' : ready ? '' : String(percent);
+                if (row.detailPercent) row.detailPercent.value = failed ? '—' : `${percent}%`;
+                const sourceName = assetKey === 'guide-vocal' ? '導唱' : '伴奏';
+                const origin = assetOrigins.get(assetKey);
+                const originLabel = origin === 'cache' ? '本機快取' : origin === 'network' ? '網路下載' : '完整載入';
+                if (row.label) row.label.textContent = failed
+                    ? assetKey === 'guide-vocal' ? 'Vocal · 載入失敗' : '載入失敗'
+                    : ready
+                        ? assetKey === 'guide-vocal' ? `Vocal · ${originLabel}` : originLabel
+                        : assetKey === 'guide-vocal' ? 'Vocal · 正在載入' : '正在載入';
+                row.toggle?.setAttribute('aria-label', failed
+                    ? `${sourceName}載入失敗，顯示重新同步選項`
+                    : ready
+                        ? `${sourceName}已就緒，顯示詳細狀態`
+                        : `${sourceName}準備中 ${percent}%，顯示詳細狀態`);
+
+                const loadedTotal = [...assetProgress.values()].reduce((total, bytes) => total + bytes, 0);
+                const totalPercent = totalExpectedBytes > 0 ? Math.min(100, Math.round((loadedTotal / totalExpectedBytes) * 100)) : 0;
+                singalong.dataset.audioLoadPercent = String(totalPercent);
+                playbackState.textContent = failed ? '播放資源載入失敗' : totalPercent < 100 ? `載入 ${totalPercent}%` : '正在建立播放時鐘';
+            };
+
+            const downloadAudioAsset = async (
+                asset: (typeof audioAssets)[number],
+                cache: ConcertAudioStore | null,
+                forceNetwork = false,
+            ) => {
+                const result = await loadConcertAudioAsset({
+                    source: asset.source,
+                    expectedBytes: asset.expectedBytes,
+                    cache,
+                    forceNetwork,
+                    onProgress: (loadedBytes) => updateDownloadProgress(asset.key, loadedBytes),
+                });
+                assetOrigins.set(asset.key, result.origin);
+                return result.blob;
+            };
+
+            const installAudioBlob = (asset: (typeof audioAssets)[number], blob: Blob) => {
+                const previousObjectUrl = asset.element.src.startsWith('blob:') ? asset.element.src : null;
+                const objectUrl = URL.createObjectURL(blob);
+                objectUrls.push(objectUrl);
+                asset.element.src = objectUrl;
+                asset.element.preload = 'metadata';
+                asset.element.load();
+                return { objectUrl, previousObjectUrl };
+            };
+
+            const releaseObjectUrl = (objectUrl: string | null) => {
+                if (!objectUrl) return;
+                const index = objectUrls.indexOf(objectUrl);
+                if (index >= 0) objectUrls.splice(index, 1);
+                URL.revokeObjectURL(objectUrl);
+            };
+
+            const refreshSourceControls = () => {
+                const busy = assetsPreparing || resyncingAssetKey !== null;
+                playToggle.disabled = !assetsReady || busy || testingAssetKey !== null;
+                assetRows.forEach((row, assetKey) => {
+                    if (row.control) row.control.dataset.testing = String(testingAssetKey === assetKey);
+                    if (row.control) row.control.dataset.resyncing = String(resyncingAssetKey === assetKey);
+                    if (row.testButton) {
+                        row.testButton.disabled = !assetsReady || busy || (testingAssetKey !== null && testingAssetKey !== assetKey);
+                        row.testButton.setAttribute('aria-pressed', String(testingAssetKey === assetKey));
+                    }
+                    if (row.testLabel) row.testLabel.textContent = testingAssetKey === assetKey ? '停止測試' : '測試播放';
+                    if (row.resyncButton) row.resyncButton.disabled = !assetsReady || busy || testingAssetKey !== null;
+                    if (row.resyncLabel) row.resyncLabel.textContent = resyncingAssetKey === assetKey ? '同步中' : '重新同步';
+                });
+            };
+
+            const setOpenAssetStatus = (assetKey: AudioAssetKey | null) => {
+                openAssetStatusKey = assetKey;
+                assetRows.forEach((row, rowKey) => {
+                    const open = rowKey === assetKey;
+                    row.element.dataset.open = String(open);
+                    row.toggle?.setAttribute('aria-expanded', String(open));
+                });
+            };
+
+            const prepareAudioAssets = () => {
+                if (assetsReady) return Promise.resolve();
+                if (preparationPromise) return preparationPromise;
+                assetsPreparing = true;
+                singalong.dataset.audioReady = 'false';
+                preflightLive.textContent = '開始準備伴奏與導唱';
+                loadRetry.hidden = true;
+                playToggle.setAttribute('aria-label', '播放資源載入中');
+                audioAssets.forEach((asset) => updateDownloadProgress(asset.key, 0));
+                refreshSourceControls();
+
+                preparationPromise = (async () => {
+                    const cache = await openConcertAudioCache();
+                    const blobs = await Promise.all(audioAssets.map((asset) => downloadAudioAsset(asset, cache)));
+                    const context = getAudioContext();
+                    const buffers = await Promise.all(blobs.map(async (blob) => context.decodeAudioData(await blob.arrayBuffer())));
+                    audioAssets.forEach((asset, index) => {
+                        decodedAudio.set(asset.key, buffers[index]);
+                        installAudioBlob(asset, blobs[index]);
+                        updateDownloadProgress(asset.key, asset.expectedBytes, true);
+                    });
+                    assetsReady = true;
+                    singalong.dataset.audioReady = 'true';
+                    preflightLive.textContent = '伴奏與導唱已完整載入，可以開始播放';
+                    playbackState.textContent = '準備播放';
+                    playToggle.setAttribute('aria-label', '播放伴奏');
+                    refreshSourceControls();
+                    render();
+                })().catch(() => {
+                    assetsReady = false;
+                    preflightLive.textContent = '伴奏或導唱載入失敗';
+                    audioAssets.forEach((asset) => {
+                        const loaded = assetProgress.get(asset.key) ?? 0;
+                        if (loaded < asset.expectedBytes) updateDownloadProgress(asset.key, loaded, false, true);
+                    });
+                    loadRetry.hidden = false;
+                    playbackState.textContent = '載入失敗';
+                    refreshSourceControls();
+                }).finally(() => {
+                    assetsPreparing = false;
+                    preparationPromise = null;
+                    refreshSourceControls();
+                });
+                return preparationPromise;
+            };
+
+            const getPlaybackDuration = () => decodedAudio.get('instrumental')?.duration ?? Number(progress.max);
+            const getPlaybackTime = () => {
+                if (!mainPlaying || !audioContext) return playbackOffset;
+                return Math.min(getPlaybackDuration(), playbackOffset + Math.max(0, audioContext.currentTime - playbackStartedAt));
+            };
+
+            const stopMainSources = () => {
+                mainSources.forEach((source) => {
+                    source.onended = null;
+                    try { source.stop(); } catch { /* Source may already have ended. */ }
+                    source.disconnect();
+                });
+                mainSources = [];
+                mainGuideGain = null;
+            };
+
+            const createScheduledSource = (
+                assetKey: AudioAssetKey,
+                gainValue: number,
+                when: number,
+                offset: number,
+                duration?: number,
+            ) => {
+                const context = getAudioContext();
+                const buffer = decodedAudio.get(assetKey);
+                if (!buffer) throw new Error(`Decoded ${assetKey} audio is unavailable`);
+                const source = context.createBufferSource();
+                const gain = context.createGain();
+                source.buffer = buffer;
+                gain.gain.value = gainValue;
+                source.connect(gain).connect(context.destination);
+                if (duration === undefined) source.start(when, offset);
+                else source.start(when, offset, duration);
+                return { source, gain };
             };
 
             const showControls = () => {
                 window.clearTimeout(controlsTimer);
                 singalong.dataset.controlsVisible = 'true';
-                if (!audio.paused) {
+                if (mainPlaying) {
                     controlsTimer = window.setTimeout(() => {
-                        if (!audio.paused && !singalong.matches(':focus-within')) {
-                            singalong.dataset.controlsVisible = 'false';
-                        }
+                        if (mainPlaying && !singalong.matches(':focus-within')) singalong.dataset.controlsVisible = 'false';
                     }, 3200);
                 }
             };
@@ -241,12 +521,6 @@ const petalMotion = [
             const clearRollingTransition = () => {
                 rollingAnimations.forEach((animation) => animation.cancel());
                 rollingAnimations = [];
-            };
-
-            type LyricRects = {
-                previous: DOMRect;
-                current: DOMRect;
-                next: DOMRect;
             };
 
             const captureLyricRects = (): LyricRects => ({
@@ -266,54 +540,22 @@ const petalMotion = [
 
             const animateLyricRoll = (direction: 1 | -1, before: LyricRects) => {
                 clearRollingTransition();
-
                 const after = captureLyricRects();
                 const movingToContext = direction > 0 ? previousLine : nextLine;
-                const movingToCurrent = currentWrap;
                 const arrivingContext = direction > 0 ? nextLine : previousLine;
-                const contextSource = before.current;
-                const currentSource = direction > 0 ? before.next : before.previous;
-
                 const contextMovement = movingToContext.animate([
-                    {
-                        transform: invertTransform(contextSource, direction > 0 ? after.previous : after.next),
-                        color: '#fffdf9',
-                        opacity: 0.96,
-                    },
-                    {
-                        transform: 'translate(0, 0) scale(1)',
-                        color: 'rgba(255, 250, 242, 0.46)',
-                        opacity: 1,
-                    },
-                ], {
-                    duration: 880,
-                    easing: 'cubic-bezier(0.2, 0.72, 0.2, 1)',
-                });
-
-                const currentMovement = movingToCurrent.animate([
-                    {
-                        opacity: 0.68,
-                        transform: invertTransform(currentSource, after.current),
-                    },
+                    { transform: invertTransform(before.current, direction > 0 ? after.previous : after.next), color: '#fffdf9', opacity: 0.96 },
+                    { transform: 'translate(0, 0) scale(1)', color: 'rgba(255, 250, 242, 0.46)', opacity: 1 },
+                ], { duration: 880, easing: 'cubic-bezier(0.2, 0.72, 0.2, 1)' });
+                const currentMovement = currentWrap.animate([
+                    { opacity: 0.68, transform: invertTransform(direction > 0 ? before.next : before.previous, after.current) },
                     { offset: 0.82, opacity: 1, transform: 'translate(0, -0.1rem) scale(1.003)' },
                     { opacity: 1, transform: 'translate(0, 0) scale(1)' },
-                ], {
-                    duration: 940,
-                    easing: 'cubic-bezier(0.2, 0.72, 0.2, 1)',
-                });
-
+                ], { duration: 940, easing: 'cubic-bezier(0.2, 0.72, 0.2, 1)' });
                 const contextArrival = arrivingContext.animate([
-                    {
-                        opacity: 0,
-                        transform: `translateY(${direction > 0 ? '1.65rem' : '-1.65rem'})`,
-                    },
+                    { opacity: 0, transform: `translateY(${direction > 0 ? '1.65rem' : '-1.65rem'})` },
                     { opacity: 1, transform: 'translateY(0)' },
-                ], {
-                    duration: 820,
-                    delay: 80,
-                    easing: 'cubic-bezier(0.2, 0.72, 0.2, 1)',
-                });
-
+                ], { duration: 820, delay: 80, easing: 'cubic-bezier(0.2, 0.72, 0.2, 1)' });
                 rollingAnimations = [contextMovement, currentMovement, contextArrival];
                 Promise.all(rollingAnimations.map((animation) => animation.finished.catch(() => undefined))).then(() => {
                     rollingAnimations = [];
@@ -322,16 +564,13 @@ const petalMotion = [
 
             const setEntryCue = (time: number) => {
                 if (!entryCue) return;
-
                 const cueStart = lines[0].start - entryCueLead;
                 const cueEnd = lines[0].start - lyricPreviewLead;
                 let step = 0;
-
                 if (time >= cueStart && time < cueEnd) {
                     const cueProgress = (time - cueStart) / (cueEnd - cueStart);
                     step = Math.min(3, Math.floor(cueProgress * 3) + 1);
                 }
-
                 if (entryCue.dataset.step !== String(step)) entryCue.dataset.step = String(step);
             };
 
@@ -340,9 +579,7 @@ const petalMotion = [
                 const previousIndex = activeIndex;
                 const shouldAnimate = previousIndex >= 0 && index >= 0 && !reduceMotion.matches;
                 const beforeRects = shouldAnimate ? captureLyricRects() : null;
-
                 activeIndex = index;
-
                 if (index < 0) {
                     clearRollingTransition();
                     titleCard.dataset.visible = 'true';
@@ -352,45 +589,36 @@ const petalMotion = [
                     nextLine.textContent = lines[0]?.text || '';
                     return;
                 }
-
                 titleCard.dataset.visible = 'false';
                 lyricWindow.dataset.visible = 'true';
                 previousLine.textContent = index > 0 ? lines[index - 1].text : '';
                 renderCurrentLine(lines[index].text);
                 nextLine.textContent = lines[index + 1]?.text || '';
-
                 if (beforeRects) animateLyricRoll(index >= previousIndex ? 1 : -1, beforeRects);
             };
 
             const render = () => {
-                const duration = Number.isFinite(audio.duration) ? audio.duration : Number(progress.max);
-                const time = audio.currentTime;
+                const duration = getPlaybackDuration();
+                const time = getPlaybackTime();
                 let nextIndex = -1;
-
                 setEntryCue(time);
-                if (!audio.paused && !guideVocal.paused) syncGuideVocal();
-
                 for (let index = 0; index < lines.length; index += 1) {
                     if (time >= lines[index].start - lyricPreviewLead) nextIndex = index;
                     else break;
                 }
-
                 setLyricWindow(nextIndex);
                 progress.max = String(duration);
                 progress.value = String(time);
                 const audioPercent = duration > 0 ? (time / duration) * 100 : 0;
                 progress.style.setProperty('--audio-progress', `${audioPercent}%`);
                 timeOutput.textContent = `${formatTime(time)} / ${formatTime(Math.ceil(duration))}`;
+                singalong.dataset.playbackTime = time.toFixed(3);
                 singalong.dataset.outro = String(time >= lyricTimelineEnd);
-                if (!audio.paused && !audio.ended) {
-                    playbackState.textContent = time >= lyricTimelineEnd ? '尾奏' : '播放中';
-                }
+                if (mainPlaying) playbackState.textContent = time >= lyricTimelineEnd ? '尾奏' : '播放中';
 
                 if (nextIndex >= 0) {
                     const lineStart = lines[nextIndex].start;
-                    const nextPreviewStart = lines[nextIndex + 1]
-                        ? lines[nextIndex + 1].start - lyricPreviewLead
-                        : lyricTimelineEnd;
+                    const nextPreviewStart = lines[nextIndex + 1] ? lines[nextIndex + 1].start - lyricPreviewLead : lyricTimelineEnd;
                     const lineEnd = Math.max(lineStart, nextPreviewStart - lineProgressCompletionHold);
                     const linePercent = lineEnd > lineStart
                         ? Math.min(100, Math.max(0, ((time - lineStart) / (lineEnd - lineStart)) * 100))
@@ -401,37 +629,141 @@ const petalMotion = [
                     lyricWindow.style.setProperty('--line-progress', '0%');
                     singalong.dataset.linePreview = 'false';
                 }
-
-                if (!audio.paused && !audio.ended) animationFrame = window.requestAnimationFrame(render);
+                if (mainPlaying) animationFrame = window.requestAnimationFrame(render);
             };
 
             const updatePlaybackState = () => {
-                const playing = !audio.paused && !audio.ended;
-                singalong.dataset.playing = String(playing);
-                playToggle.setAttribute('aria-label', playing ? '暫停伴奏' : '播放伴奏');
-                playbackState.textContent = audio.ended ? '播放完畢' : playing ? '播放中' : audio.currentTime > 0 ? '已暫停' : '準備播放';
+                singalong.dataset.playing = String(mainPlaying);
+                playToggle.setAttribute('aria-label', mainPlaying ? '暫停伴奏' : assetsReady ? '播放伴奏' : '播放資源載入中');
+                playbackState.textContent = mainPlaying ? '播放中' : playbackOffset >= getPlaybackDuration() - 0.05 ? '播放完畢' : playbackOffset > 0 ? '已暫停' : assetsReady ? '準備播放' : assetsPreparing ? '載入中' : '尚未準備';
+                refreshSourceControls();
                 showControls();
             };
 
-            const togglePlayback = async () => {
-                if (audio.paused) {
-                    syncGuideVocal(true);
-                    const [instrumentalResult, guideVocalResult] = await Promise.allSettled([
-                        audio.play(),
-                        guideVocal.play(),
-                    ]);
+            const pausePlayback = () => {
+                if (mainPlaying) playbackOffset = getPlaybackTime();
+                mainPlaying = false;
+                stopMainSources();
+                window.cancelAnimationFrame(animationFrame);
+                updatePlaybackState();
+                render();
+            };
 
-                    if (instrumentalResult.status === 'rejected') {
-                        guideVocal.pause();
-                        playbackState.textContent = '無法播放，請再試一次';
-                    } else if (guideVocalResult.status === 'rejected') {
-                        guideVocalVolume.disabled = true;
-                        guideVocalOutput.textContent = '不可用';
+            const stopAssetTest = (stopSource = true) => {
+                if (testTimer) window.clearTimeout(testTimer);
+                testTimer = 0;
+                if (testSource) {
+                    testSource.onended = null;
+                    if (stopSource) {
+                        try { testSource.stop(); } catch { /* Test source may already have ended. */ }
                     }
-                } else {
-                    audio.pause();
-                    guideVocal.pause();
+                    testSource.disconnect();
                 }
+                testSource = null;
+                testingAssetKey = null;
+                refreshSourceControls();
+            };
+
+            const toggleAssetTest = async (assetKey: AudioAssetKey) => {
+                if (!assetsReady || assetsPreparing || resyncingAssetKey) return;
+                if (testingAssetKey === assetKey) {
+                    stopAssetTest();
+                    return;
+                }
+
+                stopAssetTest();
+                pausePlayback();
+                const asset = audioAssets.find(({ key }) => key === assetKey);
+                if (!asset) return;
+                const context = getAudioContext();
+                await context.resume();
+                testingAssetKey = assetKey;
+                const when = context.currentTime + 0.04;
+                testSource = createScheduledSource(assetKey, assetKey === 'guide-vocal' ? 0.7 : 1, when, asset.testOffset, 6).source;
+                testSource.onended = () => stopAssetTest(false);
+                testTimer = window.setTimeout(() => stopAssetTest(), 6200);
+                preflightLive.textContent = `正在單獨測試${assetKey === 'guide-vocal' ? '導唱' : '伴奏'}，6 秒後自動停止`;
+                refreshSourceControls();
+            };
+
+            const resyncAudioAsset = async (assetKey: AudioAssetKey) => {
+                if (!assetsReady || assetsPreparing || resyncingAssetKey || testingAssetKey) return;
+                const asset = audioAssets.find(({ key }) => key === assetKey);
+                if (!asset || !decodedAudio.has(assetKey)) return;
+
+                pausePlayback();
+                stopAssetTest();
+                resyncingAssetKey = assetKey;
+                setOpenAssetStatus(assetKey);
+                const previousOrigin = assetOrigins.get(assetKey);
+                updateDownloadProgress(assetKey, 0);
+                refreshSourceControls();
+
+                let cache: ConcertAudioStore | null = null;
+                let previousCachedResponse: Response | undefined;
+                try {
+                    cache = await openConcertAudioCache();
+                    previousCachedResponse = cache ? await cache.get(asset.source) : undefined;
+                    if (cache) await cache.delete(asset.source);
+                    const blob = await downloadAudioAsset(asset, cache, true);
+                    const buffer = await getAudioContext().decodeAudioData(await blob.arrayBuffer());
+                    const { previousObjectUrl } = installAudioBlob(asset, blob);
+                    decodedAudio.set(assetKey, buffer);
+                    releaseObjectUrl(previousObjectUrl);
+                    updateDownloadProgress(assetKey, asset.expectedBytes, true);
+                    preflightLive.textContent = `${assetKey === 'guide-vocal' ? '導唱' : '伴奏'}已重新同步完成`;
+                    playbackState.textContent = '重新同步完成';
+                } catch {
+                    if (cache && previousCachedResponse) await cache.put(asset.source, previousCachedResponse).catch(() => undefined);
+                    if (previousOrigin) assetOrigins.set(assetKey, previousOrigin);
+                    updateDownloadProgress(assetKey, asset.expectedBytes, true);
+                    preflightLive.textContent = `${assetKey === 'guide-vocal' ? '導唱' : '伴奏'}重新同步失敗，仍使用原本版本`;
+                    playbackState.textContent = '重新同步失敗，仍可播放';
+                } finally {
+                    resyncingAssetKey = null;
+                    refreshSourceControls();
+                }
+            };
+
+            const startPlayback = async () => {
+                if (!assetsReady || assetsPreparing) return;
+                try {
+                    stopAssetTest();
+                    const context = getAudioContext();
+                    await context.resume();
+                    const duration = getPlaybackDuration();
+                    if (playbackOffset >= duration - 0.05) playbackOffset = 0;
+                    const when = context.currentTime + 0.06;
+                    const instrumentalPlayback = createScheduledSource('instrumental', 1, when, playbackOffset);
+                    const guidePlayback = createScheduledSource('guide-vocal', Number(guideVocalVolume.value) / 100, when, playbackOffset);
+                    mainSources = [instrumentalPlayback.source, guidePlayback.source];
+                    mainGuideGain = guidePlayback.gain;
+                    playbackStartedAt = when;
+                    mainPlaying = true;
+                    instrumentalPlayback.source.onended = () => {
+                        if (!mainPlaying) return;
+                        playbackOffset = duration;
+                        mainPlaying = false;
+                        mainSources = [];
+                        mainGuideGain = null;
+                        window.cancelAnimationFrame(animationFrame);
+                        updatePlaybackState();
+                        render();
+                    };
+                    updatePlaybackState();
+                    window.cancelAnimationFrame(animationFrame);
+                    animationFrame = window.requestAnimationFrame(render);
+                } catch {
+                    mainPlaying = false;
+                    stopMainSources();
+                    playbackState.textContent = '無法播放，請再試一次';
+                }
+            };
+
+            const togglePlayback = async () => {
+                if (!assetsReady) return;
+                if (mainPlaying) pausePlayback();
+                else await startPlayback();
             };
 
             const toggleFullscreen = async () => {
@@ -445,44 +777,37 @@ const petalMotion = [
 
             playToggle.addEventListener('click', togglePlayback);
             fullscreenToggle.addEventListener('click', toggleFullscreen);
+            loadRetry.addEventListener('click', () => void prepareAudioAssets());
+            assetToggleButtons.forEach((button) => button.addEventListener('click', () => {
+                const assetKey = button.dataset.audioAssetToggle as AudioAssetKey;
+                setOpenAssetStatus(openAssetStatusKey === assetKey ? null : assetKey);
+                showControls();
+            }));
+            assetTestButtons.forEach((button) => button.addEventListener('click', () => {
+                void toggleAssetTest(button.dataset.audioAssetTest as AudioAssetKey);
+            }));
+            assetResyncButtons.forEach((button) => button.addEventListener('click', () => {
+                void resyncAudioAsset(button.dataset.audioAssetResync as AudioAssetKey);
+            }));
+            progress.addEventListener('pointerdown', () => {
+                resumeAfterSeek = mainPlaying;
+                if (mainPlaying) pausePlayback();
+            });
             progress.addEventListener('input', () => {
-                audio.currentTime = Number(progress.value);
-                syncGuideVocal(true);
+                playbackOffset = Number(progress.value);
                 render();
                 showControls();
             });
-
+            progress.addEventListener('change', () => {
+                if (resumeAfterSeek) void startPlayback();
+                resumeAfterSeek = false;
+            });
             guideVocalVolume.addEventListener('input', () => {
                 const nextVolume = Number(guideVocalVolume.value) / 100;
-                guideVocal.volume = nextVolume;
+                if (mainGuideGain && audioContext) mainGuideGain.gain.setTargetAtTime(nextVolume, audioContext.currentTime, 0.025);
                 guideVocalOutput.textContent = `${guideVocalVolume.value}%`;
                 window.localStorage.setItem(guideVocalStorageKey, String(nextVolume));
                 showControls();
-            });
-
-            audio.addEventListener('loadedmetadata', render);
-            guideVocal.addEventListener('loadedmetadata', () => syncGuideVocal(true));
-            audio.addEventListener('play', () => {
-                updatePlaybackState();
-                window.cancelAnimationFrame(animationFrame);
-                animationFrame = window.requestAnimationFrame(render);
-            });
-            audio.addEventListener('pause', () => {
-                guideVocal.pause();
-                updatePlaybackState();
-            });
-            audio.addEventListener('ended', () => {
-                guideVocal.pause();
-                updatePlaybackState();
-                render();
-            });
-            audio.addEventListener('error', () => {
-                playbackState.textContent = '伴奏載入失敗';
-                playToggle.disabled = true;
-            });
-            guideVocal.addEventListener('error', () => {
-                guideVocalVolume.disabled = true;
-                guideVocalOutput.textContent = '不可用';
             });
 
             document.addEventListener('fullscreenchange', () => {
@@ -492,31 +817,47 @@ const petalMotion = [
                 fullscreenToggle.querySelector('span')!.textContent = isFullscreen ? '離開全螢幕' : '全螢幕';
                 showControls();
             });
-
             document.addEventListener('pointermove', showControls, { passive: true });
-            document.addEventListener('pointerdown', showControls, { passive: true });
+            document.addEventListener('pointerdown', (event) => {
+                showControls();
+                if (openAssetStatusKey && !preflight.contains(event.target as Node)) setOpenAssetStatus(null);
+            }, { passive: true });
             document.addEventListener('keydown', (event) => {
+                if (event.key === 'Escape' && openAssetStatusKey) {
+                    const toggle = assetRows.get(openAssetStatusKey)?.toggle;
+                    setOpenAssetStatus(null);
+                    toggle?.focus();
+                    return;
+                }
                 if (event.target instanceof HTMLInputElement) return;
-
                 if (event.code === 'Space') {
                     event.preventDefault();
-                    togglePlayback();
+                    void togglePlayback();
                 } else if (event.key === 'ArrowLeft' || event.key === 'ArrowRight') {
                     event.preventDefault();
+                    const wasPlaying = mainPlaying;
+                    if (wasPlaying) pausePlayback();
                     const direction = event.key === 'ArrowLeft' ? -1 : 1;
-                    audio.currentTime = Math.min(audio.duration || Number(progress.max), Math.max(0, audio.currentTime + direction * 5));
-                    syncGuideVocal(true);
+                    playbackOffset = Math.min(getPlaybackDuration(), Math.max(0, playbackOffset + direction * 5));
                     render();
+                    if (wasPlaying) void startPlayback();
                 } else if (event.key.toLowerCase() === 'f') {
                     event.preventDefault();
-                    toggleFullscreen();
+                    void toggleFullscreen();
                 }
                 showControls();
+            });
+            window.addEventListener('pagehide', () => {
+                stopMainSources();
+                stopAssetTest();
+                objectUrls.forEach((url) => URL.revokeObjectURL(url));
+                void audioContext?.close();
             });
 
             updatePlaybackState();
             setLyricWindow(-1);
             render();
+            void prepareAudioAssets();
         }
     </script>
 </BaseLayout>

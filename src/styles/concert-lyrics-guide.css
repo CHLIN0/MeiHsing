@@ -6,6 +6,7 @@
     gap: 0.65rem;
     margin-top: 0.7rem;
     padding-top: 0.7rem;
+    padding-left: 3.35rem;
     border-top: 1px solid rgba(142, 101, 54, 0.16);
 }
 
@@ -134,6 +135,7 @@
 @media (max-width: 760px) {
     .concert-lyrics-player__guide-vocal {
         grid-template-columns: 3.6rem minmax(0, 1fr) 2.45rem;
+        padding-left: 3.35rem;
     }
 
     .concert-lyrics-player__guide-vocal > span {
