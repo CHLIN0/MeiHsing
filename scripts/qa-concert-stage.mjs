@@ -17,20 +17,20 @@ fs.writeFileSync(path.join(evidenceDir, 'design-decision.md'), `# 2026 concert S
 
 ## Concepts considered
 
-1. **Super-resolved local loop plus localized WebGL canopy wind — selected.** The repaired image-to-video result supplies organic grass, fabric, and branch motion. A feathered fragment shader adds independently phased deformation to the left foreground crown, distant grove, and right crown without moving the people, piano, or main trunk.
-2. **Layered CSS background translation.** Deterministic and light, but visual review showed the low-opacity translations were nearly imperceptible and could create ghosted edges.
-3. **Raw AI image-to-video loop.** More organic, but the unedited output introduced excessive petals, audio, a weaker loop boundary, and insufficient motion in surrounding trees.
+1. **Clean-plate Veo motion with a two-layer overlapping dissolve — selected.** The incoming copy starts one second before the outgoing copy ends and fades over a still-opaque outgoing layer, so the reset cannot expose a blank or poster frame.
+2. **Warm-light veil.** It hid the pose mismatch but produced a conspicuous bright flash every eight seconds.
+3. **WebGL canopy displacement.** It made otherwise static trees move, but the localized warping did not match the requested source-native wind and added sustained GPU work.
 
 ## Acceptance gates
 
 - Stage mode is query-controlled and normal website rendering is unchanged.
 - 16:9 stage mode fills one viewport with no navigation, footer, page scrolling, or horizontal overflow.
-- The local MP4 is muted, loops continuously, reaches a playable state, and advances during stage mode.
-- The WebGL scene reaches a ready state and renders independently phased canopy deformation.
+- Two muted copies of the local MP4 overlap for one second, reach a playable state, and advance continuously during stage mode.
+- No WebGL scene deformation is present; motion comes from the Veo source itself.
 - Video and browser motion can be paused together with Space or the visible control.
 - Controls disappear after inactivity and remain keyboard accessible.
 - Reduced-motion starts paused with all CSS animation disabled.
-- Canvas density is bounded and device pixel ratio is capped at 1.5.
+- Decorative canvas density is bounded and device pixel ratio is capped at 1.25.
 - The stage animation is a local asset with a poster fallback; no runtime third-party media request is introduced.
 `);
 
@@ -64,20 +64,22 @@ for (const viewport of [
   const response = await page.goto(stageUrl, { waitUntil: 'networkidle' });
   await page.evaluate(() => document.fonts.ready);
   await page.waitForFunction(() => {
-    const stageVideo = document.querySelector('[data-concert-stage-video]');
+    const stageVideos = Array.from(document.querySelectorAll('[data-concert-stage-video]'));
+    const stageVideo = stageVideos.find((candidate) => candidate.dataset.stageActive === 'true') ?? stageVideos[0];
     return stageVideo instanceof HTMLVideoElement && stageVideo.readyState >= HTMLMediaElement.HAVE_CURRENT_DATA;
   });
   record('stage-loaded', { url: page.url(), viewport });
   const introPath = path.join(evidenceDir, `${viewport.name}-intro-controls.png`);
   await page.screenshot({ path: introPath });
 
-  await page.waitForTimeout(5000);
+  await page.waitForTimeout(6000);
   const settledPath = path.join(evidenceDir, `${viewport.name}-settled.png`);
   await page.screenshot({ path: settledPath });
   const settled = await page.evaluate(() => {
     const hero = document.querySelector('.concert-hero')?.getBoundingClientRect();
     const canvas = document.querySelector('[data-concert-stage-canvas]');
-    const stageVideo = document.querySelector('[data-concert-stage-video]');
+    const stageVideos = Array.from(document.querySelectorAll('[data-concert-stage-video]'));
+    const stageVideo = stageVideos.find((candidate) => candidate.dataset.stageActive === 'true') ?? stageVideos[0];
     const ui = document.querySelector('[data-stage-ui]');
     return {
       stage: document.documentElement.dataset.concertStage,
@@ -97,16 +99,6 @@ for (const viewport of [
         petalCount: Number(canvas?.dataset.petalCount ?? 0),
         renderScale: Number(canvas?.dataset.renderScale ?? 0),
       },
-      scene: (() => {
-        const scene = document.querySelector('[data-concert-stage-scene]');
-        return {
-          ready: scene?.dataset.ready,
-          mode: scene?.dataset.mode,
-          width: scene?.width,
-          height: scene?.height,
-          renderScale: Number(scene?.dataset.renderScale ?? 0),
-        };
-      })(),
       video: stageVideo instanceof HTMLVideoElement ? {
         readyState: stageVideo.readyState,
         paused: stageVideo.paused,
@@ -118,6 +110,12 @@ for (const viewport of [
         width: stageVideo.videoWidth,
         height: stageVideo.videoHeight,
       } : null,
+      videoLayers: stageVideos.length,
+      crossfade: {
+        overlapSeconds: Number(document.documentElement.dataset.stageOverlapSeconds ?? 0),
+        progress: Number(document.documentElement.dataset.stageCrossfadeProgress ?? 0),
+        activeLayer: document.documentElement.dataset.stageActiveLayer ?? null,
+      },
       motion: { light: getComputedStyle(document.querySelector('.concert-stage-ambient')).animationName },
       ui: { active: ui?.dataset.active, opacity: getComputedStyle(ui).opacity },
       controls: document.querySelectorAll('.concert-stage-ui button, .concert-stage-ui a').length,
@@ -132,24 +130,34 @@ for (const viewport of [
     dataset: document.documentElement.dataset.stagePaused,
     buttonPressed: document.querySelector('[data-stage-pause]')?.getAttribute('aria-pressed'),
     buttonLabel: document.querySelector('[data-stage-pause] span')?.textContent?.trim(),
-    videoPaused: document.querySelector('[data-concert-stage-video]')?.paused,
-    sceneReady: document.querySelector('[data-concert-stage-scene]')?.dataset.ready,
+    videosPaused: Array.from(document.querySelectorAll('[data-concert-stage-video]')).every((video) => video.paused),
     uiOpacity: getComputedStyle(document.querySelector('[data-stage-ui]')).opacity,
   }));
   record('space-paused', paused);
   const pausedPath = path.join(evidenceDir, `${viewport.name}-paused.png`);
   await page.screenshot({ path: pausedPath });
   await page.keyboard.press('Space');
-  const loopBefore = await page.evaluate(() => document.querySelector('[data-concert-stage-video]')?.currentTime ?? null);
+  const loopBefore = await page.evaluate(() => {
+    const videos = Array.from(document.querySelectorAll('[data-concert-stage-video]'));
+    const active = videos.find((candidate) => candidate.dataset.stageActive === 'true') ?? videos[0];
+    return {
+      currentTime: active?.currentTime ?? null,
+      activeLayer: document.documentElement.dataset.stageActiveLayer ?? null,
+      loopCount: Number(document.documentElement.dataset.stageLoopCount ?? 0),
+    };
+  });
   record('space-resumed', { loopBefore });
 
   await page.waitForTimeout(2800);
   const loopBoundary = await page.evaluate(() => {
-    const stageVideo = document.querySelector('[data-concert-stage-video]');
+    const videos = Array.from(document.querySelectorAll('[data-concert-stage-video]'));
+    const stageVideo = videos.find((candidate) => candidate.dataset.stageActive === 'true') ?? videos[0];
     return stageVideo instanceof HTMLVideoElement ? {
       currentTime: stageVideo.currentTime,
       paused: stageVideo.paused,
       readyState: stageVideo.readyState,
+      activeLayer: document.documentElement.dataset.stageActiveLayer ?? null,
+      loopCount: Number(document.documentElement.dataset.stageLoopCount ?? 0),
     } : null;
   });
   record('loop-boundary-observed', loopBoundary ?? {});
@@ -166,8 +174,7 @@ const reducedState = await reducedPage.evaluate(() => ({
   stage: document.documentElement.dataset.concertStage,
   paused: document.documentElement.dataset.stagePaused,
   reduced: document.documentElement.dataset.stageReducedMotion,
-  videoPaused: document.querySelector('[data-concert-stage-video]')?.paused,
-  sceneReady: document.querySelector('[data-concert-stage-scene]')?.dataset.ready,
+  videosPaused: Array.from(document.querySelectorAll('[data-concert-stage-video]')).every((video) => video.paused),
   light: getComputedStyle(document.querySelector('.concert-stage-ambient')).animationName,
 }));
 await reducedContext.close();
@@ -195,19 +202,20 @@ for (const result of results) {
   if (result.settled.scroll.width !== width || result.settled.scroll.height !== height || result.settled.scroll.x || result.settled.scroll.y) failures.push(`${name}: stage scroll or overflow`);
   if (Object.values(result.settled.hidden).some((display) => display !== 'none')) failures.push(`${name}: website chrome remains visible`);
   if (result.settled.canvas.petalCount < 20 || result.settled.canvas.petalCount > 42 || result.settled.canvas.renderScale > 1.5) failures.push(`${name}: canvas density or render scale out of bounds`);
-  const expectedVideo = result.viewport.dpr === 2
-    ? { source: '/concert/2026/stage-sakura-loop-4k.mp4', width: 3840, height: 2160 }
-    : { source: '/concert/2026/stage-sakura-loop-1440.mp4', width: 2560, height: 1440 };
-  if (!result.settled.video || result.settled.video.readyState < 2 || result.settled.video.paused || result.settled.video.currentTime <= 0.25 || result.settled.video.duration !== 8 || !result.settled.video.loop || !result.settled.video.muted || result.settled.video.source !== expectedVideo.source || result.settled.video.width !== expectedVideo.width || result.settled.video.height !== expectedVideo.height) failures.push(`${name}: expected local loop variant is not continuously playable`);
-  if (result.settled.scene.ready !== 'true' || result.settled.scene.mode !== 'webgl-canopy-wind' || result.settled.scene.width < width || result.settled.scene.height < height || result.settled.scene.renderScale > 1.5 || result.settled.motion.light !== 'concert-stage-light') failures.push(`${name}: localized cherry-tree rendering missing`);
+  const expectedVideo = { source: '/concert/2026/stage-sakura-veo-clean.mp4', width: 1280, height: 720 };
+  if (!result.settled.video || result.settled.video.readyState < 2 || result.settled.video.paused || result.settled.video.duration !== 8 || result.settled.video.loop || !result.settled.video.muted || result.settled.video.source !== expectedVideo.source || result.settled.video.width !== expectedVideo.width || result.settled.video.height !== expectedVideo.height || result.settled.videoLayers !== 2 || result.settled.crossfade.overlapSeconds !== 1) failures.push(`${name}: expected two-layer local dissolve is not continuously playable`);
+  if (result.settled.motion.light !== 'concert-stage-light') failures.push(`${name}: ambient stage light missing`);
   if (result.settled.ui.active !== 'false' || Number(result.settled.ui.opacity) > 0.01 || result.settled.controls !== 3) failures.push(`${name}: idle controls did not hide cleanly`);
-  if (result.paused.dataset !== 'true' || result.paused.buttonPressed !== 'true' || result.paused.buttonLabel !== '繼續' || !result.paused.videoPaused || result.paused.sceneReady !== 'true' || Number(result.paused.uiOpacity) < 0.9) failures.push(`${name}: keyboard pause state failed`);
-  const loopAdvance = result.loopBoundary && result.settled.video
-    ? (result.loopBoundary.currentTime - result.loopBefore + result.settled.video.duration) % result.settled.video.duration
+  if (result.paused.dataset !== 'true' || result.paused.buttonPressed !== 'true' || result.paused.buttonLabel !== '繼續' || !result.paused.videosPaused || Number(result.paused.uiOpacity) < 0.9) failures.push(`${name}: keyboard pause state failed`);
+  const crossedDissolve = result.loopBoundary && result.loopBefore
+    ? result.loopBoundary.loopCount > result.loopBefore.loopCount
+    : false;
+  const activeAdvance = result.loopBoundary && result.loopBefore && result.loopBoundary.activeLayer === result.loopBefore.activeLayer
+    ? result.loopBoundary.currentTime - result.loopBefore.currentTime
     : 0;
-  if (!result.loopBoundary || loopAdvance < 2.2 || loopAdvance > 3.5 || result.loopBoundary.paused || result.loopBoundary.readyState < 2) failures.push(`${name}: loop did not advance continuously`);
+  if (!result.loopBoundary || (!crossedDissolve && (activeAdvance < 2.2 || activeAdvance > 3.5)) || result.loopBoundary.paused || result.loopBoundary.readyState < 2) failures.push(`${name}: overlapping loop did not advance continuously`);
 }
-if (reducedState.stage !== 'true' || reducedState.paused !== 'true' || reducedState.reduced !== 'true' || !reducedState.videoPaused || reducedState.sceneReady !== 'true' || reducedState.light !== 'none') failures.push('reduced-motion fallback failed');
+if (reducedState.stage !== 'true' || reducedState.paused !== 'true' || reducedState.reduced !== 'true' || !reducedState.videosPaused || reducedState.light !== 'none') failures.push('reduced-motion fallback failed');
 if (normalState.stage !== null || normalState.nav === 'none' || normalState.programme === 'none' || normalState.stageUi !== 'none' || normalState.stageMotion !== 'none') failures.push('normal website was altered by stage mode');
 
 const output = {
@@ -222,9 +230,9 @@ const output = {
   primaryVisualVerdict: 'pass',
   primaryVisualNotes: [
     'At 1920×1080 and 1280×720, the title remains inside the left safe area while the figures and piano stay unobstructed.',
-    'The repaired local loop supplies organic branch, grass, and fabric motion without embedding the generated petal burst or audio.',
-    'A feathered WebGL displacement field moves the left crown, distant grove, and right crown out of phase while excluding the people, piano, and main trunk.',
-    'The selected high-fidelity super-resolution model preserves the intentionally soft atmosphere without the brittle branch artifacts seen in the ultrasharp candidate.',
+    'The clean-plate Veo source supplies organic branch, grass, shadow, hair, and fabric motion without generated music notes or an audio track.',
+    'The browser presents the source directly with a one-second overlapping dissolve; no WebGL displacement, optical-flow warping, or blank transition frame is applied.',
+    'The current 1280×720 source is sufficient for loop evaluation but remains a resolution warning for a venue projector.',
   ],
   independentReviewVerdict: 'unavailable-no-independent-reviewer-in-this-run',
   overallVerdict: failures.length ? 'fail' : 'pass-with-warnings',

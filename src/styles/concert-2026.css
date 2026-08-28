@@ -2898,7 +2898,6 @@
 
 /* Stage mode: a presentation-safe, continuously animated 16:9 hero. */
 .concert-stage-motion,
-.concert-stage-scene,
 .concert-stage-ambient,
 .concert-stage-effects,
 .concert-stage-ui {
@@ -2975,7 +2974,7 @@ html[data-concert-stage='true'] .concert-stage-motion {
     z-index: -3;
     display: block;
     overflow: hidden;
-    background: #eaded3 url('/concert/2026/stage-sakura-poster-4k.webp') center / cover no-repeat;
+    background: #eaded3 url('/concert/2026/stage-sakura-poster-4k.webp?v=20260828') center / cover no-repeat;
 }
 
 html[data-concert-stage='true'] .concert-stage-video {
@@ -2987,32 +2986,12 @@ html[data-concert-stage='true'] .concert-stage-video {
     opacity: 0;
     object-fit: cover;
     object-position: center;
-    transition: opacity 700ms ease;
-}
-
-html[data-concert-stage='true'][data-stage-video-ready='true'] .concert-stage-video {
-    opacity: 1;
-}
-
-html[data-concert-stage='true'] .concert-stage-scene {
-    position: absolute;
-    inset: 0;
-    z-index: 1;
-    width: 100%;
-    height: 100%;
-    display: block;
-    opacity: 0;
-    transition: opacity 420ms ease;
-    pointer-events: none;
+    transition: none;
     will-change: opacity;
 }
 
-html[data-concert-stage='true'][data-stage-scene-ready='true'] .concert-stage-scene {
+html[data-concert-stage='true'][data-stage-video-ready='true'] .concert-stage-video--primary {
     opacity: 1;
-}
-
-html[data-concert-stage='true'][data-stage-scene-ready='true'] .concert-stage-video {
-    opacity: 0;
 }
 
 html[data-concert-stage='true'] .concert-hero__veil {
