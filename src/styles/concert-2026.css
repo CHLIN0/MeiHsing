@@ -2974,7 +2974,7 @@ html[data-concert-stage='true'] .concert-stage-motion {
     z-index: -3;
     display: block;
     overflow: hidden;
-    background: #eaded3 url('/concert/2026/stage-sakura-poster-4k.webp?v=20260828') center / cover no-repeat;
+    background: #eaded3 url('/concert/2026/stage-sakura-poster-4k.webp?v=20260828c') center / cover no-repeat;
 }
 
 html[data-concert-stage='true'] .concert-stage-video {
