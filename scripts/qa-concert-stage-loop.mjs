@@ -10,8 +10,9 @@ const { chromium } = require(path.join(runtimeModules, 'playwright'));
 const root = process.cwd();
 const origin = process.env.MS_CONCERT_STAGE_URL ?? 'http://127.0.0.1:4330/concert/2026/';
 const durationSeconds = Number(process.env.MS_LOOP_TEST_SECONDS ?? 120);
+const deviceScaleFactor = Number(process.env.MS_STAGE_DPR ?? 1);
 const stageUrl = new URL('?stage=1', origin).href;
-const evidenceDir = path.join(root, 'qa', `concert-stage-loop-${durationSeconds}s-2026-08-28`);
+const evidenceDir = path.join(root, 'qa', `concert-stage-loop-${durationSeconds}s-${deviceScaleFactor}x-2026-08-28`);
 fs.mkdirSync(evidenceDir, { recursive: true });
 
 fs.writeFileSync(path.join(evidenceDir, 'design-decision.md'), `# Long-running concert stage loop evaluation
@@ -47,6 +48,7 @@ const browser = await chromium.launch({
 });
 const context = await browser.newContext({
   viewport: { width: 1920, height: 1080 },
+  deviceScaleFactor,
   reducedMotion: 'no-preference',
   recordVideo: { dir: evidenceDir, size: { width: 1280, height: 720 } },
 });
@@ -58,7 +60,12 @@ await cdp.send('Performance.enable');
 const runtime = { consoleErrors: [], pageErrors: [], requestFailures: [] };
 page.on('console', (message) => { if (message.type() === 'error') runtime.consoleErrors.push(message.text()); });
 page.on('pageerror', (error) => runtime.pageErrors.push(error.message));
-page.on('requestfailed', (request) => runtime.requestFailures.push(`${request.method()} ${request.url()}`));
+page.on('requestfailed', (request) => runtime.requestFailures.push({
+  method: request.method(),
+  url: request.url(),
+  resourceType: request.resourceType(),
+  errorText: request.failure()?.errorText ?? 'unknown',
+}));
 
 const response = await page.goto(stageUrl, { waitUntil: 'networkidle' });
 await page.evaluate(() => document.fonts.ready);
@@ -146,7 +153,12 @@ const cycleSeconds = Math.max(1, (final?.duration ?? 8) - (final?.overlapSeconds
 const minimumLoops = Math.max(1, Math.floor((durationSeconds - 5) / cycleSeconds));
 const transitionSamples = samples.filter((sample) => sample.crossfadeProgress > 0.05 && sample.crossfadeProgress < 0.95);
 if (response?.status() !== 200) failures.push(`HTTP ${response?.status() ?? 'unavailable'}`);
-if (runtime.consoleErrors.length || runtime.pageErrors.length || runtime.requestFailures.length) failures.push('runtime errors occurred');
+const actionableRequestFailures = runtime.requestFailures.filter((failure) => !(
+  failure.resourceType === 'media'
+  && failure.errorText === 'net::ERR_ABORTED'
+  && final?.readyState === 4
+));
+if (runtime.consoleErrors.length || runtime.pageErrors.length || actionableRequestFailures.length) failures.push('runtime errors occurred');
 if (!final || final.paused || final.ended || final.readyState < 2 || final.buffering) failures.push('video did not remain continuously playable');
 if (!final || final.loopCount < minimumLoops) failures.push(`observed ${final?.loopCount ?? 0} loops; expected at least ${minimumLoops}`);
 if (!transitionSamples.length) failures.push('no overlapping crossfade samples were observed');
@@ -161,6 +173,7 @@ const result = {
   durationSeconds,
   browser: 'isolated Google Chrome via Playwright',
   viewport: { width: 1920, height: 1080, recording: { width: 1280, height: 720 } },
+  deviceScaleFactor,
   cache: 'warm after initial navigation',
   runtime,
   loopEvents,

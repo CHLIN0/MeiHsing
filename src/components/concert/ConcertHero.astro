@@ -13,7 +13,7 @@ import { concert2026 } from '../../data/concert-2026';
             fetchpriority="high"
         />
     </picture>
-    <div class="concert-stage-motion" aria-hidden="true">
+    <div id="concert-stage-motion" class="concert-stage-motion" aria-hidden="true">
         <video
             class="concert-stage-video concert-stage-video--primary"
             data-concert-stage-video
@@ -77,58 +77,49 @@ import { concert2026 } from '../../data/concert-2026';
         <span class="concert-hero__scroll-line" aria-hidden="true"></span>
     </a>
 
-    <div class="concert-stage-ui" data-stage-ui data-active="true" aria-label="舞台模式控制">
-        <p class="concert-stage-ui__hint"><kbd>F</kbd> 全螢幕　<kbd>Space</kbd> 暫停</p>
-        <div class="concert-stage-ui__controls">
-            <button type="button" data-stage-fullscreen>
-                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 3H3v5M16 3h5v5M8 21H3v-5M16 21h5v-5" /></svg>
-                <span>全螢幕</span>
-            </button>
-            <button type="button" data-stage-pause aria-pressed="false">
-                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14M16 5v14" /></svg>
-                <span>暫停</span>
-            </button>
-            <a href="/concert/2026/">離開舞台模式</a>
-        </div>
+    <div class="concert-hero__media-controls" data-hero-media-controls aria-label="主視覺控制">
+        <button type="button" data-stage-pause aria-pressed="false" aria-controls="concert-stage-motion">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path class="concert-media-icon--play" d="m9 7 8 5-8 5Z" />
+                <path class="concert-media-icon--pause" d="M9 7v10M15 7v10" />
+            </svg>
+            <span class="sr-only">播放背景</span>
+        </button>
+        <button type="button" data-stage-fullscreen aria-pressed="false">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 3H3v5M16 3h5v5M8 21H3v-5M16 21h5v-5" /></svg>
+            <span class="sr-only">全螢幕</span>
+        </button>
         <p class="sr-only" data-stage-status aria-live="polite"></p>
     </div>
 </section>
 
 <script>
     const html = document.documentElement;
-    if (html.dataset.concertStage === 'true') {
+    const legacyStage = html.dataset.concertStage === 'true';
+    {
         const canvas = document.querySelector<HTMLCanvasElement>('[data-concert-stage-canvas]');
         const hero = document.querySelector<HTMLElement>('.concert-hero');
         const stageVideos = Array.from(document.querySelectorAll<HTMLVideoElement>('[data-concert-stage-video]'));
         const stageVideo = stageVideos[0];
-        const stageUi = document.querySelector<HTMLElement>('[data-stage-ui]');
         const fullscreenButton = document.querySelector<HTMLButtonElement>('[data-stage-fullscreen]');
         const pauseButton = document.querySelector<HTMLButtonElement>('[data-stage-pause]');
         const status = document.querySelector<HTMLElement>('[data-stage-status]');
         const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
-        let paused = reducedMotion.matches;
+        let paused = !legacyStage || reducedMotion.matches;
+        let mediaInitialized = false;
         let frame = 0;
         let lastTime = performance.now();
         let lastPaint = 0;
-        let uiTimer = 0;
         let resumeStageVideos: (() => void) | null = null;
         let disposeStageCrossfade: (() => void) | null = null;
         let wakeLock: { release: () => Promise<void> } | null = null;
 
         html.dataset.stagePaused = String(paused);
+        html.dataset.heroMotion = paused ? 'paused' : 'playing';
         html.dataset.stageReducedMotion = String(reducedMotion.matches);
 
         const announce = (message: string) => {
             if (status) status.textContent = message;
-        };
-
-        const showUi = () => {
-            if (!stageUi) return;
-            stageUi.dataset.active = 'true';
-            window.clearTimeout(uiTimer);
-            uiTimer = window.setTimeout(() => {
-                if (!stageUi.matches(':focus-within')) stageUi.dataset.active = 'false';
-            }, 4200);
         };
 
         const smoothstep = (edgeStart: number, edgeEnd: number, value: number) => {
@@ -139,26 +130,36 @@ import { concert2026 } from '../../data/concert-2026';
         const setPaused = (nextPaused: boolean) => {
             paused = nextPaused;
             html.dataset.stagePaused = String(paused);
+            html.dataset.heroMotion = paused ? 'paused' : 'playing';
             if (paused) stageVideos.forEach((video) => video.pause());
-            else resumeStageVideos?.();
-            pauseButton?.setAttribute('aria-pressed', String(paused));
+            else {
+                initializeStageMedia();
+                resumeStageVideos?.();
+            }
+            pauseButton?.setAttribute('aria-pressed', String(!paused));
             const label = pauseButton?.querySelector('span');
-            if (label) label.textContent = paused ? '繼續' : '暫停';
-            announce(paused ? '舞台動畫已暫停' : '舞台動畫繼續播放');
-            showUi();
+            if (label) label.textContent = paused ? '播放背景' : '暫停背景';
+            announce(paused ? '背景影片已暫停，顯示靜態主視覺' : '背景影片開始播放');
         };
 
         const updateFullscreenLabel = () => {
             const label = fullscreenButton?.querySelector('span');
-            if (label) label.textContent = document.fullscreenElement ? '離開全螢幕' : '全螢幕';
+            const isHeroFullscreen = document.fullscreenElement === hero;
+            fullscreenButton?.setAttribute('aria-pressed', String(isHeroFullscreen));
+            html.dataset.heroFullscreen = String(isHeroFullscreen);
+            if (label) label.textContent = isHeroFullscreen ? '離開全螢幕' : '全螢幕';
+            if (!isHeroFullscreen && wakeLock) {
+                wakeLock.release().catch(() => undefined);
+                wakeLock = null;
+            }
         };
 
         const toggleFullscreen = async () => {
             try {
                 if (document.fullscreenElement) {
                     await document.exitFullscreen();
-                } else {
-                    await document.documentElement.requestFullscreen();
+                } else if (hero) {
+                    await hero.requestFullscreen();
                     if ('wakeLock' in navigator) {
                         wakeLock = await navigator.wakeLock.request('screen');
                     }
@@ -172,15 +173,15 @@ import { concert2026 } from '../../data/concert-2026';
         fullscreenButton?.addEventListener('click', toggleFullscreen);
         pauseButton?.addEventListener('click', () => setPaused(!paused));
         document.addEventListener('fullscreenchange', updateFullscreenLabel);
-        document.addEventListener('pointermove', showUi, { passive: true });
         document.addEventListener('keydown', (event) => {
             const target = event.target;
             if (target instanceof HTMLInputElement || target instanceof HTMLTextAreaElement || target instanceof HTMLSelectElement) return;
-            if (event.key.toLowerCase() === 'f') {
+            const controlsHero = document.fullscreenElement === hero || legacyStage;
+            if (controlsHero && event.key.toLowerCase() === 'f') {
                 event.preventDefault();
                 toggleFullscreen();
             }
-            if (event.code === 'Space') {
+            if (controlsHero && event.code === 'Space') {
                 event.preventDefault();
                 setPaused(!paused);
             }
@@ -188,10 +189,13 @@ import { concert2026 } from '../../data/concert-2026';
 
         reducedMotion.addEventListener('change', ({ matches }) => {
             html.dataset.stageReducedMotion = String(matches);
-            setPaused(matches);
+            if (matches) setPaused(true);
         });
 
-        if (stageVideo?.dataset.src && stageVideos.length === 2) {
+        const initializeStageMedia = () => {
+            if (mediaInitialized || !stageVideo?.dataset.src || stageVideos.length !== 2) return;
+            mediaInitialized = true;
+            html.dataset.heroMediaInitialized = 'true';
             if (stageVideo.dataset.poster) stageVideo.poster = stageVideo.dataset.poster;
             const overlapSeconds = 1;
             let activeIndex = 0;
@@ -234,7 +238,7 @@ import { concert2026 } from '../../data/concert-2026';
 
             const renderCrossfade = () => {
                 if (disposed) return;
-                if (!paused && !reducedMotion.matches) {
+                if (!paused) {
                     const outgoing = stageVideos[activeIndex];
                     const incomingIndex = activeIndex === 0 ? 1 : 0;
                     const incoming = stageVideos[incomingIndex];
@@ -325,7 +329,10 @@ import { concert2026 } from '../../data/concert-2026';
                 window.cancelAnimationFrame(crossfadeFrame);
                 stageVideos.forEach((video) => video.pause());
             };
-        }
+        };
+
+        if (legacyStage) setPaused(paused);
+        updateFullscreenLabel();
 
         type Petal = {
             x: number;
@@ -431,10 +438,11 @@ import { concert2026 } from '../../data/concert-2026';
             frame = window.requestAnimationFrame(render);
         };
 
-        resizeCanvas();
-        window.addEventListener('resize', resizeCanvas, { passive: true });
-        frame = window.requestAnimationFrame(render);
-        showUi();
+        if (legacyStage) {
+            resizeCanvas();
+            window.addEventListener('resize', resizeCanvas, { passive: true });
+            frame = window.requestAnimationFrame(render);
+        }
 
         window.addEventListener('pagehide', () => {
             window.cancelAnimationFrame(frame);

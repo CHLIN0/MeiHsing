@@ -4,6 +4,9 @@ export interface Props {
   description?: string;
   ogImage?: string;
   ogImageAlt?: string;
+  ogImageWidth?: number;
+  ogImageHeight?: number;
+  ogImageType?: string;
   ogType?: 'website' | 'article';
   includeReviewSchema?: boolean;
   structuredData?: Record<string, unknown>[];
@@ -37,6 +40,9 @@ const {
   description = siteDescription,
   ogImage = '/logo.webp',
   ogImageAlt = '林美杏音樂教室',
+  ogImageWidth,
+  ogImageHeight,
+  ogImageType,
   ogType = 'website',
   includeReviewSchema = true,
   structuredData = [],
@@ -161,6 +167,9 @@ const reviewSchema = {
     <meta property="og:url" content={canonicalUrl} />
     <meta property="og:image" content={`${siteUrl}${ogImage}`} />
     <meta property="og:image:alt" content={ogImageAlt} />
+    {ogImageWidth && <meta property="og:image:width" content={String(ogImageWidth)} />}
+    {ogImageHeight && <meta property="og:image:height" content={String(ogImageHeight)} />}
+    {ogImageType && <meta property="og:image:type" content={ogImageType} />}
     <meta property="og:locale" content="zh_TW" />
     <meta property="og:site_name" content="林美杏老師 | 鋼琴教師 · 音樂教育工作者" />
 

@@ -9,8 +9,9 @@
   },
   "scripts": {
     "dev": "astro dev",
-    "build": "astro build && npm run build:metadata && npm run qa:cloudflare",
+    "build": "npm run generate:og && astro build && npm run build:metadata && npm run qa:cloudflare",
     "build:metadata": "node scripts/write-deploy-metadata.mjs",
+    "generate:og": "node scripts/generate-concert-og.mjs",
     "preview": "astro preview",
     "qr:studio": "vite tools/piano-qr-studio --host 127.0.0.1",
     "qr:studio:build": "vite build tools/piano-qr-studio --outDir ../../.qr-studio-dist --emptyOutDir",
@@ -42,6 +43,7 @@
     "@types/react": "^19.2.14",
     "@types/react-dom": "^19.2.3",
     "tailwindcss": "^3.4.19",
+    "takumi-js": "^2.12.0",
     "wrangler": "4.127.0"
   }
 }

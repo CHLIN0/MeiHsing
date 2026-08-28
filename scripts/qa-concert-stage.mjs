@@ -17,13 +17,16 @@ fs.writeFileSync(path.join(evidenceDir, 'design-decision.md'), `# 2026 concert S
 
 ## Concepts considered
 
-1. **Clean-plate Veo motion with a two-layer overlapping dissolve — selected.** The incoming copy starts one second before the outgoing copy ends and fades over a still-opaque outgoing layer, so the reset cannot expose a blank or poster frame.
+1. **Inline clean-plate motion with a two-layer overlapping dissolve — selected.** The concert page keeps its place and exposes play/pause plus fullscreen controls directly on the hero. The incoming copy starts one second before the outgoing copy ends and fades over a still-opaque outgoing layer, so the reset cannot expose a blank or poster frame.
 2. **Warm-light veil.** It hid the pose mismatch but produced a conspicuous bright flash every eight seconds.
 3. **WebGL canopy displacement.** It made otherwise static trees move, but the localized warping did not match the requested source-native wind and added sustained GPU work.
 
 ## Acceptance gates
 
-- Stage mode is query-controlled and normal website rendering is unchanged.
+- The normal concert page starts with a lightweight static hero and loads video only after the visitor presses play.
+- Pausing hides the video and restores the static hero without navigating or losing scroll position.
+- Fullscreen expands the hero itself and returns to the same page when closed.
+- The legacy query-controlled stage URL remains compatible.
 - 16:9 stage mode fills one viewport with no navigation, footer, page scrolling, or horizontal overflow.
 - Two muted copies of the local MP4 overlap for one second, reach a playable state, and advance continuously during stage mode.
 - No WebGL scene deformation is present; motion comes from the Veo source itself.
@@ -85,7 +88,7 @@ for (const viewport of [
     const canvas = document.querySelector('[data-concert-stage-canvas]');
     const stageVideos = Array.from(document.querySelectorAll('[data-concert-stage-video]'));
     const stageVideo = stageVideos.find((candidate) => candidate.dataset.stageActive === 'true') ?? stageVideos[0];
-    const ui = document.querySelector('[data-stage-ui]');
+    const ui = document.querySelector('[data-hero-media-controls]');
     return {
       stage: document.documentElement.dataset.concertStage,
       paused: document.documentElement.dataset.stagePaused,
@@ -122,8 +125,8 @@ for (const viewport of [
         activeLayer: document.documentElement.dataset.stageActiveLayer ?? null,
       },
       motion: { light: getComputedStyle(document.querySelector('.concert-stage-ambient')).animationName },
-      ui: { active: ui?.dataset.active, opacity: getComputedStyle(ui).opacity },
-      controls: document.querySelectorAll('.concert-stage-ui button, .concert-stage-ui a').length,
+      ui: { display: getComputedStyle(ui).display, opacity: getComputedStyle(ui).opacity },
+      controls: document.querySelectorAll('.concert-hero__media-controls button').length,
       fullscreenAvailable: typeof document.documentElement.requestFullscreen === 'function',
     };
   });
@@ -136,7 +139,7 @@ for (const viewport of [
     buttonPressed: document.querySelector('[data-stage-pause]')?.getAttribute('aria-pressed'),
     buttonLabel: document.querySelector('[data-stage-pause] span')?.textContent?.trim(),
     videosPaused: Array.from(document.querySelectorAll('[data-concert-stage-video]')).every((video) => video.paused),
-    uiOpacity: getComputedStyle(document.querySelector('[data-stage-ui]')).opacity,
+    uiOpacity: getComputedStyle(document.querySelector('[data-hero-media-controls]')).opacity,
   }));
   record('space-paused', paused);
   const pausedPath = path.join(evidenceDir, `${viewport.name}-paused.png`);
@@ -189,12 +192,86 @@ const normalPage = await normalContext.newPage();
 await normalPage.goto(origin, { waitUntil: 'networkidle' });
 const normalState = await normalPage.evaluate(() => ({
   stage: document.documentElement.dataset.concertStage ?? null,
+  motion: document.documentElement.dataset.heroMotion,
+  initialized: document.documentElement.dataset.heroMediaInitialized ?? null,
   nav: getComputedStyle(document.querySelector('.concert-nav')).display,
   programme: getComputedStyle(document.querySelector('.concert-programme')).display,
-  stageUi: getComputedStyle(document.querySelector('.concert-stage-ui')).display,
+  stageUi: getComputedStyle(document.querySelector('.concert-hero__media-controls')).display,
   stageMotion: getComputedStyle(document.querySelector('.concert-stage-motion')).display,
+  currentSrc: document.querySelector('[data-concert-stage-video]')?.currentSrc ?? '',
+  playLabel: document.querySelector('[data-stage-pause] span')?.textContent?.trim(),
+  playPressed: document.querySelector('[data-stage-pause]')?.getAttribute('aria-pressed'),
 }));
+
+await normalPage.locator('[data-stage-pause]').click();
+await normalPage.waitForFunction(() => {
+  const video = document.querySelector('[data-concert-stage-video][data-stage-active="true"]');
+  return document.documentElement.dataset.stageVideoReady === 'true'
+    && video instanceof HTMLVideoElement
+    && video.readyState >= HTMLMediaElement.HAVE_CURRENT_DATA
+    && !video.paused;
+});
+await normalPage.waitForTimeout(620);
+const normalPlaying = await normalPage.evaluate(() => ({
+  motion: document.documentElement.dataset.heroMotion,
+  initialized: document.documentElement.dataset.heroMediaInitialized,
+  ready: document.documentElement.dataset.stageVideoReady,
+  videoPaused: Array.from(document.querySelectorAll('[data-concert-stage-video]')).every((video) => video.paused),
+  motionDisplay: getComputedStyle(document.querySelector('.concert-stage-motion')).display,
+  motionOpacity: getComputedStyle(document.querySelector('.concert-stage-motion')).opacity,
+  artOpacity: getComputedStyle(document.querySelector('.concert-hero__art')).opacity,
+  playLabel: document.querySelector('[data-stage-pause] span')?.textContent?.trim(),
+  playPressed: document.querySelector('[data-stage-pause]')?.getAttribute('aria-pressed'),
+}));
+await normalPage.screenshot({ path: path.join(evidenceDir, 'normal-inline-playing.png') });
+
+await normalPage.locator('[data-stage-pause]').click();
+await normalPage.waitForTimeout(620);
+const normalPaused = await normalPage.evaluate(() => ({
+  motion: document.documentElement.dataset.heroMotion,
+  videosPaused: Array.from(document.querySelectorAll('[data-concert-stage-video]')).every((video) => video.paused),
+  motionOpacity: getComputedStyle(document.querySelector('.concert-stage-motion')).opacity,
+  artOpacity: getComputedStyle(document.querySelector('.concert-hero__art')).opacity,
+  playLabel: document.querySelector('[data-stage-pause] span')?.textContent?.trim(),
+  playPressed: document.querySelector('[data-stage-pause]')?.getAttribute('aria-pressed'),
+}));
+await normalPage.screenshot({ path: path.join(evidenceDir, 'normal-inline-paused.png') });
+
+await normalPage.locator('[data-stage-fullscreen]').click();
+await normalPage.waitForFunction(() => document.fullscreenElement?.classList.contains('concert-hero')
+  && document.querySelector('[data-stage-fullscreen]')?.getAttribute('aria-pressed') === 'true');
+const normalFullscreen = await normalPage.evaluate(() => ({
+  heroFullscreen: document.fullscreenElement?.classList.contains('concert-hero') ?? false,
+  label: document.querySelector('[data-stage-fullscreen] span')?.textContent?.trim(),
+  pressed: document.querySelector('[data-stage-fullscreen]')?.getAttribute('aria-pressed'),
+}));
+await normalPage.screenshot({ path: path.join(evidenceDir, 'normal-inline-fullscreen.png') });
+await normalPage.locator('[data-stage-fullscreen]').click();
+await normalPage.waitForFunction(() => document.fullscreenElement === null);
 await normalContext.close();
+
+const normalMobileContext = await browser.newContext({ viewport: { width: 390, height: 844 }, reducedMotion: 'no-preference' });
+const normalMobilePage = await normalMobileContext.newPage();
+await normalMobilePage.goto(origin, { waitUntil: 'networkidle' });
+await normalMobilePage.screenshot({ path: path.join(evidenceDir, 'normal-mobile-static.png') });
+await normalMobilePage.locator('[data-stage-pause]').click();
+await normalMobilePage.waitForFunction(() => document.documentElement.dataset.stageVideoReady === 'true');
+await normalMobilePage.waitForTimeout(620);
+const normalMobile = await normalMobilePage.evaluate(() => {
+  const controls = document.querySelector('[data-hero-media-controls]')?.getBoundingClientRect();
+  const hero = document.querySelector('.concert-hero')?.getBoundingClientRect();
+  return {
+    motion: document.documentElement.dataset.heroMotion,
+    scrollWidth: document.documentElement.scrollWidth,
+    viewportWidth: innerWidth,
+    controls: controls ? { top: controls.top, right: controls.right, bottom: controls.bottom, left: controls.left } : null,
+    hero: hero ? { top: hero.top, right: hero.right, bottom: hero.bottom, left: hero.left } : null,
+    playing: Array.from(document.querySelectorAll('[data-concert-stage-video]')).some((video) => !video.paused),
+    label: document.querySelector('[data-stage-pause] span')?.textContent?.trim(),
+  };
+});
+await normalMobilePage.screenshot({ path: path.join(evidenceDir, 'normal-mobile-playing.png') });
+await normalMobileContext.close();
 await browser.close();
 
 const failures = [];
@@ -218,8 +295,8 @@ for (const result of results) {
     : { source: '/concert/2026/stage-sakura-omni-natural-720p.mp4', width: 1280, height: 720 };
   if (!result.settled.video || result.settled.video.readyState < 2 || result.settled.video.paused || Math.abs(result.settled.video.duration - 10) > 0.05 || result.settled.video.loop || !result.settled.video.muted || result.settled.video.source !== expectedVideo.source || result.settled.video.width !== expectedVideo.width || result.settled.video.height !== expectedVideo.height || result.settled.videoLayers !== 2 || result.settled.crossfade.overlapSeconds !== 1) failures.push(`${name}: expected two-layer local dissolve is not continuously playable`);
   if (result.settled.motion.light !== 'concert-stage-light') failures.push(`${name}: ambient stage light missing`);
-  if (result.settled.ui.active !== 'false' || Number(result.settled.ui.opacity) > 0.01 || result.settled.controls !== 3) failures.push(`${name}: idle controls did not hide cleanly`);
-  if (result.paused.dataset !== 'true' || result.paused.buttonPressed !== 'true' || result.paused.buttonLabel !== '繼續' || !result.paused.videosPaused || Number(result.paused.uiOpacity) < 0.9) failures.push(`${name}: keyboard pause state failed`);
+  if (result.settled.ui.display !== 'flex' || Number(result.settled.ui.opacity) < 0.9 || result.settled.controls !== 2) failures.push(`${name}: inline controls are not visible`);
+  if (result.paused.dataset !== 'true' || result.paused.buttonPressed !== 'false' || result.paused.buttonLabel !== '播放背景' || !result.paused.videosPaused || Number(result.paused.uiOpacity) < 0.9) failures.push(`${name}: keyboard pause state failed`);
   const crossedDissolve = result.loopBoundary && result.loopBefore
     ? result.loopBoundary.loopCount > result.loopBefore.loopCount
     : false;
@@ -229,7 +306,11 @@ for (const result of results) {
   if (!result.loopBoundary || (!crossedDissolve && (activeAdvance < 2.2 || activeAdvance > 3.5)) || result.loopBoundary.paused || result.loopBoundary.readyState < 2) failures.push(`${name}: overlapping loop did not advance continuously`);
 }
 if (reducedState.stage !== 'true' || reducedState.paused !== 'true' || reducedState.reduced !== 'true' || !reducedState.videosPaused || reducedState.light !== 'none') failures.push('reduced-motion fallback failed');
-if (normalState.stage !== null || normalState.nav === 'none' || normalState.programme === 'none' || normalState.stageUi !== 'none' || normalState.stageMotion !== 'none') failures.push('normal website was altered by stage mode');
+if (normalState.stage !== null || normalState.motion !== 'paused' || normalState.initialized !== null || normalState.nav === 'none' || normalState.programme === 'none' || normalState.stageUi !== 'flex' || normalState.stageMotion !== 'none' || normalState.currentSrc !== '' || normalState.playLabel !== '播放背景' || normalState.playPressed !== 'false') failures.push('normal page initial media state failed');
+if (normalPlaying.motion !== 'playing' || normalPlaying.initialized !== 'true' || normalPlaying.ready !== 'true' || normalPlaying.videoPaused || normalPlaying.motionDisplay !== 'block' || Number(normalPlaying.motionOpacity) < 0.9 || Number(normalPlaying.artOpacity) > 0.1 || normalPlaying.playLabel !== '暫停背景' || normalPlaying.playPressed !== 'true') failures.push('normal page inline playback failed');
+if (normalPaused.motion !== 'paused' || !normalPaused.videosPaused || Number(normalPaused.motionOpacity) > 0.1 || Number(normalPaused.artOpacity) < 0.9 || normalPaused.playLabel !== '播放背景' || normalPaused.playPressed !== 'false') failures.push('normal page pause-to-static failed');
+if (!normalFullscreen.heroFullscreen || normalFullscreen.label !== '離開全螢幕' || normalFullscreen.pressed !== 'true') failures.push('normal page hero fullscreen failed');
+if (normalMobile.motion !== 'playing' || !normalMobile.playing || normalMobile.label !== '暫停背景' || normalMobile.scrollWidth !== normalMobile.viewportWidth || !normalMobile.controls || !normalMobile.hero || normalMobile.controls.left < normalMobile.hero.left || normalMobile.controls.right > normalMobile.hero.right || normalMobile.controls.bottom > normalMobile.hero.bottom) failures.push('normal mobile inline controls failed');
 
 const output = {
   capturedAt: new Date().toISOString(),
@@ -239,6 +320,10 @@ const output = {
   results,
   reducedState,
   normalState,
+  normalPlaying,
+  normalPaused,
+  normalFullscreen,
+  normalMobile,
   machineVerdict: failures.length ? 'fail' : 'pass',
   primaryVisualVerdict: 'pass',
   primaryVisualNotes: [

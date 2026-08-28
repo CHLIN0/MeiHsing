@@ -89,6 +89,7 @@ npm run build
 ```
 建置完成的檔案會輸出至 `dist/`，並且自動：
 
+- 以 Takumi 從櫻花主視覺與音樂會文字重建 1200×630 的社群 OG 圖；單獨預覽可執行 `npm run generate:og`。
 - 產生 `deploy-meta.json`，供上線後確認實際服務中的 Git commit。
 - 驗證 Cloudflare `_headers`，避免未帶內容指紋的圖片、影片或字型被誤設為長效 `immutable` cache。
 - 確認主要靜態頁面與安全標頭仍存在。

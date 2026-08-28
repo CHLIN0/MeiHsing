@@ -2896,7 +2896,154 @@
     }
 }
 
-/* Stage mode: a presentation-safe, continuously animated 16:9 hero. */
+/* Hero media controls: the concert page can become the presentation without navigation. */
+.concert-hero__art {
+    transition: opacity 520ms ease;
+}
+
+.concert-hero__media-controls {
+    position: absolute;
+    right: clamp(2rem, 4vw, 4.5rem);
+    bottom: 8rem;
+    z-index: 5;
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+    padding: 0.35rem;
+    border: 1px solid rgba(255, 250, 242, 0.38);
+    border-radius: 999px;
+    background: rgba(48, 35, 31, 0.72);
+    box-shadow: 0 0.8rem 2.5rem rgba(39, 28, 24, 0.2);
+    backdrop-filter: blur(0.9rem);
+}
+
+.concert-hero__media-controls button {
+    width: 2.65rem;
+    min-height: 2.65rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    border: 0;
+    border-radius: 999px;
+    color: rgba(255, 250, 242, 0.9);
+    background: transparent;
+    cursor: pointer;
+    transition: color 160ms ease, background 160ms ease, transform 160ms ease;
+}
+
+.concert-hero__media-controls button:hover,
+.concert-hero__media-controls button:focus-visible,
+.concert-hero__media-controls button[aria-pressed='true'] {
+    color: #fff;
+    background: rgba(255, 250, 242, 0.14);
+}
+
+.concert-hero__media-controls button:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(229, 190, 145, 0.78);
+}
+
+.concert-hero__media-controls button:active {
+    transform: scale(0.97);
+}
+
+.concert-hero__media-controls svg {
+    width: 1.05rem;
+    height: 1.05rem;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.8;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+.concert-media-icon--play {
+    fill: currentColor;
+    stroke: none;
+}
+
+.concert-media-icon--pause {
+    display: none;
+}
+
+html[data-hero-motion='playing'] .concert-media-icon--play {
+    display: none;
+}
+
+html[data-hero-motion='playing'] .concert-media-icon--pause {
+    display: block;
+}
+
+html[data-hero-media-initialized='true'] .concert-stage-motion {
+    position: absolute;
+    inset: 0;
+    z-index: -3;
+    display: block;
+    overflow: hidden;
+    opacity: 0;
+    background: #eaded3 url('/concert/2026/stage-sakura-poster-4k.webp?v=20260828d') center / cover no-repeat;
+    transition: opacity 520ms ease;
+}
+
+html[data-hero-media-initialized='true'] .concert-stage-video {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    display: block;
+    opacity: 0;
+    object-fit: cover;
+    object-position: center;
+    will-change: opacity;
+}
+
+html[data-hero-motion='playing'][data-stage-video-ready='true'] .concert-stage-motion {
+    opacity: 1;
+}
+
+html[data-hero-motion='playing'][data-stage-video-ready='true'] .concert-hero__art {
+    opacity: 0;
+}
+
+.concert-hero:fullscreen {
+    width: 100%;
+    height: 100%;
+    min-height: 100%;
+    align-items: center;
+    background: #eaded3;
+}
+
+.concert-hero:fullscreen::backdrop {
+    background: #eaded3;
+}
+
+.concert-hero:fullscreen::after {
+    display: none;
+}
+
+.concert-hero:fullscreen .concert-hero__inner {
+    padding-block: clamp(3.5rem, 7vh, 6.5rem);
+}
+
+.concert-hero:fullscreen .concert-hero__copy {
+    width: min(48rem, 66%);
+}
+
+.concert-hero:fullscreen .concert-hero__actions,
+.concert-hero:fullscreen .concert-hero__scroll {
+    display: none;
+}
+
+.concert-hero:fullscreen .concert-hero__media-controls {
+    position: absolute;
+    right: auto;
+    bottom: 1rem;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+/* Stage mode: retained as a backwards-compatible presentation URL. */
 .concert-stage-motion,
 .concert-stage-ambient,
 .concert-stage-effects,
@@ -2958,7 +3105,7 @@ html[data-concert-stage='true'] .concert-hero__art {
     transition: opacity 700ms ease;
 }
 
-html[data-concert-stage='true'][data-stage-video-ready='true'] .concert-hero__art {
+html[data-concert-stage='true'][data-hero-motion='playing'][data-stage-video-ready='true'] .concert-hero__art {
     opacity: 0;
 }
 
@@ -2974,6 +3121,7 @@ html[data-concert-stage='true'] .concert-stage-motion {
     z-index: -3;
     display: block;
     overflow: hidden;
+    opacity: 0;
     background: #eaded3 url('/concert/2026/stage-sakura-poster-4k.webp?v=20260828c') center / cover no-repeat;
 }
 
@@ -2990,7 +3138,7 @@ html[data-concert-stage='true'] .concert-stage-video {
     will-change: opacity;
 }
 
-html[data-concert-stage='true'][data-stage-video-ready='true'] .concert-stage-video--primary {
+html[data-concert-stage='true'][data-hero-motion='playing'][data-stage-video-ready='true'] .concert-stage-video--primary {
     opacity: 1;
 }
 
@@ -3042,6 +3190,15 @@ html[data-concert-stage='true'] .concert-hero__scroll {
 
 html[data-concert-stage='true'] .concert-hero__facts {
     margin-top: clamp(1.6rem, 3.6vh, 2.7rem);
+}
+
+html[data-concert-stage='true'] .concert-hero__media-controls {
+    position: fixed;
+    right: auto;
+    bottom: 1rem;
+    left: 50%;
+    z-index: 20;
+    transform: translateX(-50%);
 }
 
 html[data-concert-stage='true'] .concert-stage-ui {
@@ -3162,6 +3319,42 @@ html[data-concert-stage='true'][data-stage-paused='true'] .concert-stage-ambient
 }
 
 @media (max-width: 760px) {
+    html[data-hero-media-initialized='true'] .concert-stage-video {
+        object-position: 72% center;
+    }
+
+    .concert-hero__media-controls {
+        right: 1.15rem;
+        bottom: 6.25rem;
+    }
+
+    .concert-hero__media-controls button {
+        min-width: 2.65rem;
+        padding-inline: 0.72rem;
+    }
+
+    .concert-hero__media-controls button span {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        padding: 0;
+        margin: -1px;
+        overflow: hidden;
+        clip: rect(0, 0, 0, 0);
+        white-space: nowrap;
+        border: 0;
+    }
+
+    .concert-hero:fullscreen .concert-hero__copy {
+        width: 100%;
+    }
+
+    .concert-hero:fullscreen .concert-hero__media-controls,
+    html[data-concert-stage='true'] .concert-hero__media-controls {
+        right: auto;
+        bottom: 0.65rem;
+    }
+
     html[data-concert-stage='true'] .concert-hero__inner {
         padding-block: 4.5rem 5rem;
     }
@@ -3185,6 +3378,12 @@ html[data-concert-stage='true'][data-stage-paused='true'] .concert-stage-ambient
 }
 
 @media (prefers-reduced-motion: reduce) {
+    .concert-hero__art,
+    .concert-stage-motion,
+    .concert-hero__media-controls button {
+        transition: none;
+    }
+
     html[data-concert-stage='true'] .concert-hero__art img,
     html[data-concert-stage='true'] .concert-stage-ambient,
     html[data-concert-stage='true'] .concert-hero__copy {
