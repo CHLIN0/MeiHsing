@@ -62,6 +62,14 @@ if (
                 <p>2026 林美杏老師師生音樂會</p>
                 <h1 id="singalong-title">明天會更好</h1>
                 <span>大合唱</span>
+                <div class="singalong__entry-cue" data-entry-cue data-step="0" aria-hidden="true">
+                    <small>預備</small>
+                    <span>
+                        <i></i>
+                        <i></i>
+                        <i></i>
+                    </span>
+                </div>
             </div>
 
             <div class="singalong__lyrics" data-singalong-lyrics aria-live="off">
@@ -124,6 +132,7 @@ if (
         const currentLine = singalong?.querySelector<HTMLElement>('[data-current-line]');
         const nextLine = singalong?.querySelector<HTMLElement>('[data-next-line]');
         const sourceLines = Array.from(singalong?.querySelectorAll<HTMLElement>('[data-singalong-source] span') || []);
+        const entryCue = singalong?.querySelector<HTMLElement>('[data-entry-cue]');
         const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
 
         if (
@@ -135,6 +144,7 @@ if (
                 start: Number(line.dataset.start),
             }));
             const lyricPreviewLead = 0.5;
+            const entryCueLead = 3.5;
             const lineProgressCompletionHold = 0.1;
             const lyricTimelineEnd = Number(singalong.dataset.lyricsEnd);
             let activeIndex = -2;
@@ -204,48 +214,61 @@ if (
                     {
                         transform: invertTransform(contextSource, direction > 0 ? after.previous : after.next),
                         color: '#fffdf9',
-                        filter: 'blur(0)',
+                        opacity: 0.96,
                     },
                     {
                         transform: 'translate(0, 0) scale(1)',
                         color: 'rgba(255, 250, 242, 0.46)',
-                        filter: 'blur(0)',
+                        opacity: 1,
                     },
                 ], {
-                    duration: 720,
-                    easing: 'cubic-bezier(0.16, 1, 0.3, 1)',
+                    duration: 880,
+                    easing: 'cubic-bezier(0.2, 0.72, 0.2, 1)',
                 });
 
                 const currentMovement = movingToCurrent.animate([
                     {
-                        opacity: 0.5,
+                        opacity: 0.68,
                         transform: invertTransform(currentSource, after.current),
-                        filter: 'blur(2.5px)',
                     },
-                    { offset: 0.76, opacity: 1, transform: 'translate(0, -0.2rem) scale(1.006)', filter: 'blur(0)' },
-                    { opacity: 1, transform: 'translate(0, 0) scale(1)', filter: 'blur(0)' },
+                    { offset: 0.82, opacity: 1, transform: 'translate(0, -0.1rem) scale(1.003)' },
+                    { opacity: 1, transform: 'translate(0, 0) scale(1)' },
                 ], {
-                    duration: 760,
-                    easing: 'cubic-bezier(0.16, 1, 0.3, 1)',
+                    duration: 940,
+                    easing: 'cubic-bezier(0.2, 0.72, 0.2, 1)',
                 });
 
                 const contextArrival = arrivingContext.animate([
                     {
                         opacity: 0,
-                        transform: `translateY(${direction > 0 ? '2.2rem' : '-2.2rem'})`,
-                        filter: 'blur(5px)',
+                        transform: `translateY(${direction > 0 ? '1.65rem' : '-1.65rem'})`,
                     },
-                    { opacity: 1, transform: 'translateY(0)', filter: 'blur(0)' },
+                    { opacity: 1, transform: 'translateY(0)' },
                 ], {
-                    duration: 640,
-                    delay: 90,
-                    easing: 'cubic-bezier(0.16, 1, 0.3, 1)',
+                    duration: 820,
+                    delay: 80,
+                    easing: 'cubic-bezier(0.2, 0.72, 0.2, 1)',
                 });
 
                 rollingAnimations = [contextMovement, currentMovement, contextArrival];
                 Promise.all(rollingAnimations.map((animation) => animation.finished.catch(() => undefined))).then(() => {
                     rollingAnimations = [];
                 });
+            };
+
+            const setEntryCue = (time: number) => {
+                if (!entryCue) return;
+
+                const cueStart = lines[0].start - entryCueLead;
+                const cueEnd = lines[0].start - lyricPreviewLead;
+                let step = 0;
+
+                if (time >= cueStart && time < cueEnd) {
+                    const cueProgress = (time - cueStart) / (cueEnd - cueStart);
+                    step = Math.min(3, Math.floor(cueProgress * 3) + 1);
+                }
+
+                if (entryCue.dataset.step !== String(step)) entryCue.dataset.step = String(step);
             };
 
             const setLyricWindow = (index: number) => {
@@ -279,6 +302,8 @@ if (
                 const duration = Number.isFinite(audio.duration) ? audio.duration : Number(progress.max);
                 const time = audio.currentTime;
                 let nextIndex = -1;
+
+                setEntryCue(time);
 
                 for (let index = 0; index < lines.length; index += 1) {
                     if (time >= lines[index].start - lyricPreviewLead) nextIndex = index;
