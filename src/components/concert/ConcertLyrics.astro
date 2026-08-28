@@ -131,7 +131,8 @@ let lyricLineIndex = 0;
                         id="concert-audio-status-panel"
                         class="concert-audio-status__panel"
                         data-audio-status-panel
-                        role="status"
+                        role="group"
+                        aria-label="播放資源狀態與維護"
                     >
                         <div class="concert-audio-status__summary">
                             <div>
@@ -141,53 +142,83 @@ let lyricLineIndex = 0;
                             <output data-audio-preflight-percent>0%</output>
                         </div>
                         <div class="concert-audio-status__tracks" aria-label="各音軌載入進度">
-                            <div
-                                class="concert-audio-track-status"
-                                data-audio-asset-status="instrumental"
-                                data-state="waiting"
-                                role="progressbar"
-                                aria-label="伴奏載入進度"
-                                aria-valuemin="0"
-                                aria-valuemax="100"
-                                aria-valuenow="0"
-                            >
-                                <span class="concert-audio-track-status__indicator" aria-hidden="true">
-                                    <svg class="is-ring" viewBox="0 0 24 24">
-                                        <circle class="is-track" cx="12" cy="12" r="9" pathLength="100"></circle>
-                                        <circle class="is-progress" cx="12" cy="12" r="9" pathLength="100"></circle>
-                                    </svg>
-                                    <svg class="is-check" viewBox="0 0 24 24"><path d="m7 12.5 3.2 3.2L17.5 8"></path></svg>
-                                    <span data-audio-asset-icon-text>0</span>
-                                </span>
-                                <span class="concert-audio-track-status__copy">
-                                    <strong>伴奏</strong>
-                                    <small data-audio-asset-label>等待載入</small>
-                                </span>
-                                <output data-audio-asset-percent>0%</output>
+                            <div class="concert-audio-track" data-audio-asset-control="instrumental">
+                                <div
+                                    class="concert-audio-track-status"
+                                    data-audio-asset-status="instrumental"
+                                    data-state="waiting"
+                                    role="progressbar"
+                                    aria-label="伴奏載入進度"
+                                    aria-valuemin="0"
+                                    aria-valuemax="100"
+                                    aria-valuenow="0"
+                                >
+                                    <span class="concert-audio-track-status__indicator" aria-hidden="true">
+                                        <svg class="is-ring" viewBox="0 0 24 24">
+                                            <circle class="is-track" cx="12" cy="12" r="9" pathLength="100"></circle>
+                                            <circle class="is-progress" cx="12" cy="12" r="9" pathLength="100"></circle>
+                                        </svg>
+                                        <svg class="is-check" viewBox="0 0 24 24"><path d="m7 12.5 3.2 3.2L17.5 8"></path></svg>
+                                        <span data-audio-asset-icon-text>0</span>
+                                    </span>
+                                    <span class="concert-audio-track-status__copy">
+                                        <strong>伴奏</strong>
+                                        <small data-audio-asset-label>等待載入</small>
+                                    </span>
+                                    <output data-audio-asset-percent>0%</output>
+                                </div>
+                                <div class="concert-audio-track__actions">
+                                    <button type="button" data-audio-asset-test="instrumental" aria-label="測試播放伴奏">
+                                        <svg class="is-play" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 7 8 5-8 5z"></path></svg>
+                                        <svg class="is-stop" viewBox="0 0 24 24" aria-hidden="true"><rect x="8" y="8" width="8" height="8" rx="1"></rect></svg>
+                                        <span data-audio-asset-test-label>測試播放</span>
+                                    </button>
+                                    <button type="button" data-audio-asset-resync="instrumental" aria-label="清除並重新同步伴奏">
+                                        <svg class="is-sync" viewBox="0 0 24 24" aria-hidden="true">
+                                            <path d="M19 8a7 7 0 1 0 1 6"></path><path d="M19 3v5h-5"></path>
+                                        </svg>
+                                        <span data-audio-asset-resync-label>重新同步</span>
+                                    </button>
+                                </div>
                             </div>
-                            <div
-                                class="concert-audio-track-status"
-                                data-audio-asset-status="guide-vocal"
-                                data-state="waiting"
-                                role="progressbar"
-                                aria-label="導唱 Vocal 載入進度"
-                                aria-valuemin="0"
-                                aria-valuemax="100"
-                                aria-valuenow="0"
-                            >
-                                <span class="concert-audio-track-status__indicator" aria-hidden="true">
-                                    <svg class="is-ring" viewBox="0 0 24 24">
-                                        <circle class="is-track" cx="12" cy="12" r="9" pathLength="100"></circle>
-                                        <circle class="is-progress" cx="12" cy="12" r="9" pathLength="100"></circle>
-                                    </svg>
-                                    <svg class="is-check" viewBox="0 0 24 24"><path d="m7 12.5 3.2 3.2L17.5 8"></path></svg>
-                                    <span data-audio-asset-icon-text>0</span>
-                                </span>
-                                <span class="concert-audio-track-status__copy">
-                                    <strong>導唱</strong>
-                                    <small data-audio-asset-label>Vocal · 等待載入</small>
-                                </span>
-                                <output data-audio-asset-percent>0%</output>
+                            <div class="concert-audio-track" data-audio-asset-control="guide-vocal">
+                                <div
+                                    class="concert-audio-track-status"
+                                    data-audio-asset-status="guide-vocal"
+                                    data-state="waiting"
+                                    role="progressbar"
+                                    aria-label="導唱 Vocal 載入進度"
+                                    aria-valuemin="0"
+                                    aria-valuemax="100"
+                                    aria-valuenow="0"
+                                >
+                                    <span class="concert-audio-track-status__indicator" aria-hidden="true">
+                                        <svg class="is-ring" viewBox="0 0 24 24">
+                                            <circle class="is-track" cx="12" cy="12" r="9" pathLength="100"></circle>
+                                            <circle class="is-progress" cx="12" cy="12" r="9" pathLength="100"></circle>
+                                        </svg>
+                                        <svg class="is-check" viewBox="0 0 24 24"><path d="m7 12.5 3.2 3.2L17.5 8"></path></svg>
+                                        <span data-audio-asset-icon-text>0</span>
+                                    </span>
+                                    <span class="concert-audio-track-status__copy">
+                                        <strong>導唱</strong>
+                                        <small data-audio-asset-label>Vocal · 等待載入</small>
+                                    </span>
+                                    <output data-audio-asset-percent>0%</output>
+                                </div>
+                                <div class="concert-audio-track__actions">
+                                    <button type="button" data-audio-asset-test="guide-vocal" aria-label="測試播放導唱">
+                                        <svg class="is-play" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 7 8 5-8 5z"></path></svg>
+                                        <svg class="is-stop" viewBox="0 0 24 24" aria-hidden="true"><rect x="8" y="8" width="8" height="8" rx="1"></rect></svg>
+                                        <span data-audio-asset-test-label>測試播放</span>
+                                    </button>
+                                    <button type="button" data-audio-asset-resync="guide-vocal" aria-label="清除並重新同步導唱">
+                                        <svg class="is-sync" viewBox="0 0 24 24" aria-hidden="true">
+                                            <path d="M19 8a7 7 0 1 0 1 6"></path><path d="M19 3v5h-5"></path>
+                                        </svg>
+                                        <span data-audio-asset-resync-label>重新同步</span>
+                                    </button>
+                                </div>
                             </div>
                         </div>
                         <div
@@ -201,13 +232,6 @@ let lyricLineIndex = 0;
                         >
                             <span></span>
                         </div>
-                        <button class="concert-audio-status__resync" type="button" data-audio-resync>
-                            <svg viewBox="0 0 24 24" aria-hidden="true">
-                                <path d="M19 8a7 7 0 1 0 1 6"></path>
-                                <path d="M19 3v5h-5"></path>
-                            </svg>
-                            <span data-audio-resync-label>清除快取並重新同步</span>
-                        </button>
                         <button type="button" data-audio-load-retry hidden>重新載入</button>
                         <p class="sr-only" data-audio-preflight-status aria-live="polite">開始準備播放資源</p>
                     </div>
@@ -316,8 +340,12 @@ let lyricLineIndex = 0;
     const audioPreflightProgress = audioPreflight?.querySelector<HTMLElement>('[data-audio-preflight-progress]');
     const audioPreflightStatus = audioPreflight?.querySelector<HTMLElement>('[data-audio-preflight-status]');
     const audioLoadRetry = audioPreflight?.querySelector<HTMLButtonElement>('[data-audio-load-retry]');
-    const audioResync = audioPreflight?.querySelector<HTMLButtonElement>('[data-audio-resync]');
-    const audioResyncLabel = audioPreflight?.querySelector<HTMLElement>('[data-audio-resync-label]');
+    const audioAssetTestButtons = audioPreflight
+        ? Array.from(audioPreflight.querySelectorAll<HTMLButtonElement>('[data-audio-asset-test]'))
+        : [];
+    const audioAssetResyncButtons = audioPreflight
+        ? Array.from(audioPreflight.querySelectorAll<HTMLButtonElement>('[data-audio-asset-resync]'))
+        : [];
     const audioAssetStatusElements = audioPreflight
         ? Array.from(audioPreflight.querySelectorAll<HTMLElement>('[data-audio-asset-status]'))
         : [];
@@ -330,7 +358,8 @@ let lyricLineIndex = 0;
         && guideVocalVolume && guideVocalOutput && timeOutput && currentLyric && audioLoadLabel && audioLoadStatus
         && audioPreflight && audioStatusToggle && audioStatusIconText && audioPreflightLabel && audioPreflightDetail
         && audioPreflightPercent && audioPreflightProgress && audioPreflightStatus
-        && audioLoadRetry && audioResync && audioResyncLabel && audioAssetStatusElements.length === 2 && lyricLines.length
+        && audioLoadRetry && audioAssetStatusElements.length === 2
+        && audioAssetTestButtons.length === 2 && audioAssetResyncButtons.length === 2 && lyricLines.length
     ) {
         let following = true;
         let lyricsInView = false;
@@ -341,31 +370,43 @@ let lyricLineIndex = 0;
         let assetsReady = false;
         let resourceStatusOpen = true;
         let playWhenReady = false;
-        let forceNetworkRefresh = false;
-        let resyncing = false;
+        let resyncingAssetKey: AudioAssetKey | null = null;
+        let testingAssetKey: AudioAssetKey | null = null;
+        let testSource: AudioBufferSourceNode | null = null;
+        let testTimer = 0;
         let preparationPromise: Promise<void> | null = null;
-        let lastGuideSyncAt = 0;
         let loadPercent = 0;
         let lastAnnouncedMilestone = -1;
+        let playbackOffset = 0;
+        let playbackStartedAt = 0;
+        let mainPlaying = false;
+        let resumeAfterSeek = false;
+        let audioContext: AudioContext | null = null;
+        let mainSources: AudioBufferSourceNode[] = [];
+        let mainGuideGain: GainNode | null = null;
         const tapFeedbackTimers = new WeakMap<HTMLElement, number>();
         const guideVocalStorageKey = 'concert-2026-guide-vocal-volume';
         const audioCacheName = 'concert-2026-audio-v3';
         const audioCachePrefix = 'concert-2026-audio-';
         const objectUrls: string[] = [];
         const assetProgress = new Map<string, number>();
+        const decodedAudio = new Map<AudioAssetKey, AudioBuffer>();
         const mobilePlayer = window.matchMedia('(max-width: 760px)');
+        type AudioAssetKey = 'instrumental' | 'guide-vocal';
         const audioAssets = [
             {
-                key: 'instrumental',
+                key: 'instrumental' as const,
                 source: audio.src,
                 expectedBytes: Number(audio.dataset.downloadBytes || 0),
                 element: audio,
+                testOffset: 2,
             },
             {
-                key: 'guide-vocal',
+                key: 'guide-vocal' as const,
                 source: guideVocal.src,
                 expectedBytes: Number(guideVocal.dataset.downloadBytes || 0),
                 element: guideVocal,
+                testOffset: 6,
             },
         ];
         const totalExpectedBytes = audioAssets.reduce((total, asset) => total + asset.expectedBytes, 0);
@@ -378,6 +419,14 @@ let lyricLineIndex = 0;
                 iconText: element.querySelector<HTMLElement>('[data-audio-asset-icon-text]'),
             },
         ]));
+        const audioAssetControls = new Map(audioAssets.map((asset) => {
+            const control = audioPreflight.querySelector<HTMLElement>(`[data-audio-asset-control="${asset.key}"]`);
+            const testButton = audioPreflight.querySelector<HTMLButtonElement>(`[data-audio-asset-test="${asset.key}"]`);
+            const testLabel = testButton?.querySelector<HTMLElement>('[data-audio-asset-test-label]');
+            const resyncButton = audioPreflight.querySelector<HTMLButtonElement>(`[data-audio-asset-resync="${asset.key}"]`);
+            const resyncLabel = resyncButton?.querySelector<HTMLElement>('[data-audio-asset-resync-label]');
+            return [asset.key, { control, testButton, testLabel, resyncButton, resyncLabel }];
+        }));
 
         const setPlayerCollapsed = (nextCollapsed: boolean) => {
             const collapsed = mobilePlayer.matches && nextCollapsed;
@@ -398,19 +447,31 @@ let lyricLineIndex = 0;
         guideVocalVolume.style.setProperty('--guide-vocal-volume', `${guideVocalVolume.value}%`);
 
         const refreshBusyState = () => {
-            const busy = loading || assetsPreparing;
+            const resyncing = resyncingAssetKey !== null;
+            const busy = loading || assetsPreparing || resyncing;
             player.dataset.loading = String(busy);
             player.dataset.preparing = String(assetsPreparing);
             player.dataset.audioReady = String(assetsReady);
             player.dataset.resyncing = String(resyncing);
+            if (resyncingAssetKey) player.dataset.resyncingAsset = resyncingAssetKey;
+            else delete player.dataset.resyncingAsset;
             playToggle.setAttribute('aria-busy', String(busy));
             playToggle.setAttribute(
                 'aria-label',
-                assetsPreparing ? `正在準備伴奏 ${loadPercent}%` : loading ? '伴奏載入中' : audio.paused ? '播放伴奏' : '暫停伴奏',
+                assetsPreparing ? `正在準備伴奏 ${loadPercent}%` : loading ? '伴奏載入中' : mainPlaying ? '暫停伴奏' : '播放伴奏',
             );
-            playToggle.disabled = assetsPreparing || loading;
-            audioResync.disabled = assetsPreparing || loading || resyncing;
-            audioResyncLabel.textContent = resyncing ? '正在重新同步' : '清除快取並重新同步';
+            playToggle.disabled = busy || testingAssetKey !== null;
+            audioAssetControls.forEach((control, assetKey) => {
+                if (control.control) control.control.dataset.testing = String(testingAssetKey === assetKey);
+                if (control.control) control.control.dataset.resyncing = String(resyncingAssetKey === assetKey);
+                if (control.testButton) {
+                    control.testButton.disabled = !assetsReady || busy || (testingAssetKey !== null && testingAssetKey !== assetKey);
+                    control.testButton.setAttribute('aria-pressed', String(testingAssetKey === assetKey));
+                }
+                if (control.testLabel) control.testLabel.textContent = testingAssetKey === assetKey ? '停止測試' : '測試播放';
+                if (control.resyncButton) control.resyncButton.disabled = !assetsReady || busy || testingAssetKey !== null;
+                if (control.resyncLabel) control.resyncLabel.textContent = resyncingAssetKey === assetKey ? '同步中' : '重新同步';
+            });
         };
 
         const setLoading = (nextLoading: boolean) => {
@@ -490,12 +551,35 @@ let lyricLineIndex = 0;
             }
         };
 
-        const clearAudioCaches = async () => {
-            if (!window.isSecureContext || !('caches' in window)) return;
-            const cacheNames = await window.caches.keys();
-            await Promise.all(cacheNames
-                .filter((name) => name.startsWith(audioCachePrefix))
-                .map((name) => window.caches.delete(name)));
+        const getAudioContext = () => {
+            if (audioContext) return audioContext;
+            const AudioContextConstructor = window.AudioContext
+                ?? (window as typeof window & { webkitAudioContext?: typeof AudioContext }).webkitAudioContext;
+            if (!AudioContextConstructor) throw new Error('Web Audio API is unavailable');
+            audioContext = new AudioContextConstructor({ latencyHint: 'playback' });
+            return audioContext;
+        };
+
+        const decodeAudioBlob = async (blob: Blob) => {
+            const context = getAudioContext();
+            return context.decodeAudioData(await blob.arrayBuffer());
+        };
+
+        const installAudioBlob = (asset: (typeof audioAssets)[number], blob: Blob) => {
+            const previousObjectUrl = asset.element.src.startsWith('blob:') ? asset.element.src : null;
+            const objectUrl = URL.createObjectURL(blob);
+            objectUrls.push(objectUrl);
+            asset.element.src = objectUrl;
+            asset.element.preload = 'metadata';
+            asset.element.load();
+            return { objectUrl, previousObjectUrl };
+        };
+
+        const releaseObjectUrl = (objectUrl: string | null) => {
+            if (!objectUrl) return;
+            const index = objectUrls.indexOf(objectUrl);
+            if (index >= 0) objectUrls.splice(index, 1);
+            URL.revokeObjectURL(objectUrl);
         };
 
         const readAudioResponse = async (
@@ -531,14 +615,15 @@ let lyricLineIndex = 0;
         const downloadAudioAsset = async (
             asset: (typeof audioAssets)[number],
             cache: Cache | null,
+            forceNetwork = false,
         ) => {
             let lastError: unknown = new Error('Audio download failed');
 
             for (let attempt = 0; attempt < 2; attempt += 1) {
                 try {
-                    const cachedResponse = cache && !forceNetworkRefresh ? await cache.match(asset.source) : undefined;
+                    const cachedResponse = cache && !forceNetwork ? await cache.match(asset.source) : undefined;
                     const response = cachedResponse ?? await fetch(asset.source, {
-                        cache: forceNetworkRefresh ? 'reload' : 'force-cache',
+                        cache: forceNetwork ? 'reload' : 'force-cache',
                     });
                     if (!response.ok) throw new Error(`Audio request failed with ${response.status}`);
 
@@ -557,28 +642,6 @@ let lyricLineIndex = 0;
 
             throw lastError;
         };
-
-        const attachCompleteAudio = (element: HTMLMediaElement, blob: Blob) => new Promise<void>((resolve, reject) => {
-            const objectUrl = URL.createObjectURL(blob);
-            objectUrls.push(objectUrl);
-            const cleanup = () => {
-                element.removeEventListener('loadedmetadata', handleLoadedMetadata);
-                element.removeEventListener('error', handleError);
-            };
-            const handleLoadedMetadata = () => {
-                cleanup();
-                resolve();
-            };
-            const handleError = () => {
-                cleanup();
-                reject(new Error('Downloaded audio could not be decoded'));
-            };
-            element.addEventListener('loadedmetadata', handleLoadedMetadata, { once: true });
-            element.addEventListener('error', handleError, { once: true });
-            element.src = objectUrl;
-            element.preload = 'auto';
-            element.load();
-        });
 
         const showAudioReadyState = (statusMessage = '伴奏與導唱已完整載入，播放時不再依賴網路') => {
             assetsReady = true;
@@ -627,7 +690,12 @@ let lyricLineIndex = 0;
             preparationPromise = (async () => {
                 const cache = await openAudioCache();
                 const blobs = await Promise.all(audioAssets.map((asset) => downloadAudioAsset(asset, cache)));
-                await Promise.all(audioAssets.map((asset, index) => attachCompleteAudio(asset.element, blobs[index])));
+                audioPreflightDetail.textContent = '下載完成，正在建立同步播放時鐘';
+                const buffers = await Promise.all(blobs.map((blob) => decodeAudioBlob(blob)));
+                audioAssets.forEach((asset, index) => {
+                    decodedAudio.set(asset.key, buffers[index]);
+                    installAudioBlob(asset, blobs[index]);
+                });
                 showAudioReadyState();
                 currentLyric.textContent = '準備播放';
             })().catch((error) => {
@@ -657,43 +725,43 @@ let lyricLineIndex = 0;
             return preparationPromise;
         };
 
-        const resyncAudioAssets = async () => {
-            if (assetsPreparing || loading || resyncing) return;
+        const resyncAudioAsset = async (assetKey: AudioAssetKey) => {
+            if (assetsPreparing || loading || resyncingAssetKey || testingAssetKey) return;
+            const asset = audioAssets.find(({ key }) => key === assetKey);
+            if (!asset || !decodedAudio.has(assetKey)) return;
 
-            const hadReadyAssets = assetsReady;
-            const previousSources = audioAssets.map((asset) => asset.element.src);
-            const previousObjectUrls = objectUrls.splice(0);
-
-            audio.pause();
-            guideVocal.pause();
-            resyncing = true;
-            forceNetworkRefresh = true;
+            pausePlayback();
+            stopAssetTest();
+            resyncingAssetKey = assetKey;
             resourceStatusOpen = true;
-            assetsReady = false;
+            assetProgress.set(assetKey, 0);
+            updateAudioAssetStatus(assetKey, 0, 'preparing');
+            audioPreflight.dataset.state = 'preparing';
+            audioPreflightLabel.textContent = assetKey === 'guide-vocal' ? '正在重新同步導唱' : '正在重新同步伴奏';
+            audioPreflightDetail.textContent = '只更新這一軌，另一軌保持原狀';
             refreshBusyState();
             updatePlayerVisibility();
 
+            let cache: Cache | null = null;
+            let previousCachedResponse: Response | undefined;
             try {
-                await clearAudioCaches();
-                await prepareAudioAssets();
-                previousObjectUrls.forEach((objectUrl) => URL.revokeObjectURL(objectUrl));
-                currentLyric.textContent = '重新同步完成，準備播放';
-                audioPreflightStatus.textContent = '播放資源已清除快取並重新同步完成';
+                cache = await openAudioCache();
+                previousCachedResponse = cache ? await cache.match(asset.source) : undefined;
+                if (cache) await cache.delete(asset.source);
+                const blob = await downloadAudioAsset(asset, cache, true);
+                audioPreflightDetail.textContent = '下載完成，正在驗證並建立同步播放資料';
+                const buffer = await decodeAudioBlob(blob);
+                const { previousObjectUrl } = installAudioBlob(asset, blob);
+                decodedAudio.set(assetKey, buffer);
+                releaseObjectUrl(previousObjectUrl);
+                showAudioReadyState(`${assetKey === 'guide-vocal' ? '導唱' : '伴奏'}已清除快取並重新同步完成`);
+                currentLyric.textContent = '單軌重新同步完成，準備播放';
             } catch {
-                if (hadReadyAssets) {
-                    const failedObjectUrls = objectUrls.splice(0);
-                    failedObjectUrls.forEach((objectUrl) => URL.revokeObjectURL(objectUrl));
-                    audioAssets.forEach((asset, index) => {
-                        asset.element.src = previousSources[index];
-                        asset.element.load();
-                    });
-                    objectUrls.push(...previousObjectUrls);
-                    showAudioReadyState('重新同步失敗，仍使用本頁原本已完整載入的版本');
-                    currentLyric.textContent = '重新同步失敗，仍可使用原本版本';
-                }
+                if (cache && previousCachedResponse) await cache.put(asset.source, previousCachedResponse).catch(() => undefined);
+                showAudioReadyState(`${assetKey === 'guide-vocal' ? '導唱' : '伴奏'}重新同步失敗，仍使用本頁原本已完整載入的版本`);
+                currentLyric.textContent = '單軌重新同步失敗，仍可使用原本版本';
             } finally {
-                resyncing = false;
-                forceNetworkRefresh = false;
+                resyncingAssetKey = null;
                 refreshBusyState();
                 updatePlayerVisibility();
             }
@@ -734,21 +802,98 @@ let lyricLineIndex = 0;
             return `${Math.floor(safeSeconds / 60)}:${String(safeSeconds % 60).padStart(2, '0')}`;
         };
 
-        const syncGuideVocal = (force = false) => {
-            if (guideVocal.readyState < HTMLMediaElement.HAVE_METADATA) return;
-            const now = performance.now();
-            if (!force && now - lastGuideSyncAt < 1000) return;
-            lastGuideSyncAt = now;
-            const drift = Math.abs(guideVocal.currentTime - audio.currentTime);
-            if (force || drift > 0.35) guideVocal.currentTime = audio.currentTime;
+        const getPlaybackDuration = () => decodedAudio.get('instrumental')?.duration ?? Number(progress.max);
+
+        const getPlaybackTime = () => {
+            if (!mainPlaying || !audioContext) return playbackOffset;
+            return Math.min(getPlaybackDuration(), playbackOffset + Math.max(0, audioContext.currentTime - playbackStartedAt));
+        };
+
+        const stopMainSources = () => {
+            mainSources.forEach((source) => {
+                source.onended = null;
+                try { source.stop(); } catch { /* The source may already have ended. */ }
+                source.disconnect();
+            });
+            mainSources = [];
+            mainGuideGain = null;
+        };
+
+        const createScheduledSource = (
+            assetKey: AudioAssetKey,
+            gainValue: number,
+            when: number,
+            offset: number,
+            duration?: number,
+        ) => {
+            const context = getAudioContext();
+            const buffer = decodedAudio.get(assetKey);
+            if (!buffer) throw new Error(`Decoded ${assetKey} audio is unavailable`);
+            const source = context.createBufferSource();
+            const gain = context.createGain();
+            source.buffer = buffer;
+            gain.gain.value = gainValue;
+            source.connect(gain).connect(context.destination);
+            if (duration === undefined) source.start(when, offset);
+            else source.start(when, offset, duration);
+            return { source, gain };
+        };
+
+        const pausePlayback = () => {
+            if (mainPlaying) playbackOffset = getPlaybackTime();
+            mainPlaying = false;
+            stopMainSources();
+            window.cancelAnimationFrame(animationFrame);
+            updatePlaybackState();
+            renderProgress();
+        };
+
+        const stopAssetTest = (stopSource = true) => {
+            if (testTimer) window.clearTimeout(testTimer);
+            testTimer = 0;
+            if (testSource) {
+                testSource.onended = null;
+                if (stopSource) {
+                    try { testSource.stop(); } catch { /* The test source may already have ended. */ }
+                }
+                testSource.disconnect();
+            }
+            testSource = null;
+            testingAssetKey = null;
+            audioPreflightStatus.textContent = '單軌測試已停止，兩軌仍保持完整載入';
+            refreshBusyState();
+            updatePlayerVisibility();
+        };
+
+        const toggleAssetTest = async (assetKey: AudioAssetKey) => {
+            if (!assetsReady || assetsPreparing || resyncingAssetKey || loading) return;
+            if (testingAssetKey === assetKey) {
+                stopAssetTest();
+                return;
+            }
+
+            stopAssetTest();
+            pausePlayback();
+            const context = getAudioContext();
+            await context.resume();
+            const asset = audioAssets.find(({ key }) => key === assetKey);
+            if (!asset) return;
+            testingAssetKey = assetKey;
+            const when = context.currentTime + 0.04;
+            testSource = createScheduledSource(assetKey, assetKey === 'guide-vocal' ? 0.7 : 1, when, asset.testOffset, 6).source;
+            testSource.onended = () => stopAssetTest(false);
+            testTimer = window.setTimeout(() => stopAssetTest(), 6200);
+            audioPreflightStatus.textContent = `正在單獨測試${assetKey === 'guide-vocal' ? '導唱' : '伴奏'}，6 秒後自動停止`;
+            refreshBusyState();
+            updatePlayerVisibility();
         };
 
         const updatePlayerVisibility = () => {
             const statusAvailable = assetsPreparing || assetsReady || audioPreflight.dataset.state === 'failed';
-            const resourceOnly = statusAvailable && !resourceStatusOpen && !lyricsInView && audio.paused;
+            const resourceOnly = statusAvailable && !resourceStatusOpen && !lyricsInView && !mainPlaying && !testingAssetKey;
             player.dataset.resourceStatusOpen = String(resourceStatusOpen);
             player.dataset.resourceOnly = String(resourceOnly);
-            player.dataset.visible = String(statusAvailable || lyricsInView || !audio.paused);
+            player.dataset.visible = String(statusAvailable || lyricsInView || mainPlaying || testingAssetKey);
             audioStatusToggle.setAttribute('aria-expanded', String(resourceStatusOpen));
         };
 
@@ -773,7 +918,7 @@ let lyricLineIndex = 0;
         };
 
         const updateActiveLine = () => {
-            const time = audio.currentTime;
+            const time = getPlaybackTime();
             let nextIndex = time >= lyricTimelineEnd ? -2 : -1;
 
             if (nextIndex !== -2) {
@@ -795,7 +940,7 @@ let lyricLineIndex = 0;
             lyricLines.forEach((lyricLine, index) => {
                 lyricLine.classList.toggle('is-near', nextIndex >= 0 && Math.abs(index - nextIndex) === 1);
             });
-            lyricsSection.dataset.playback = nextIndex >= 0 && !audio.paused ? 'active' : 'idle';
+            lyricsSection.dataset.playback = nextIndex >= 0 && mainPlaying ? 'active' : 'idle';
 
             if (nextIndex === -2) {
                 currentLyric.textContent = '尾奏';
@@ -803,7 +948,7 @@ let lyricLineIndex = 0;
             }
 
             if (nextIndex < 0) {
-                currentLyric.textContent = audio.currentTime > 0 ? '前奏' : '準備播放';
+                currentLyric.textContent = time > 0 ? '前奏' : '準備播放';
                 return;
             }
 
@@ -812,57 +957,73 @@ let lyricLineIndex = 0;
             line.setAttribute('aria-current', 'true');
             currentLyric.textContent = line.textContent?.trim() || '播放中';
 
-            if (following && !audio.paused) followLine(line);
+            if (following && mainPlaying) followLine(line);
         };
 
         const renderProgress = () => {
-            const duration = Number.isFinite(audio.duration) ? audio.duration : Number(progress.max);
-            if (!audio.paused && !guideVocal.paused) syncGuideVocal();
+            const duration = getPlaybackDuration();
+            const currentTime = getPlaybackTime();
             progress.max = String(duration);
-            progress.value = String(audio.currentTime);
-            const percent = duration > 0 ? (audio.currentTime / duration) * 100 : 0;
+            progress.value = String(currentTime);
+            const percent = duration > 0 ? (currentTime / duration) * 100 : 0;
             progress.style.setProperty('--audio-progress', `${percent}%`);
-            timeOutput.textContent = `${formatTime(audio.currentTime)} / ${formatTime(Math.ceil(duration))}`;
+            timeOutput.textContent = `${formatTime(currentTime)} / ${formatTime(Math.ceil(duration))}`;
+            player.dataset.playbackTime = currentTime.toFixed(3);
             updateActiveLine();
 
-            if (!audio.paused && !audio.ended) animationFrame = window.requestAnimationFrame(renderProgress);
+            if (mainPlaying) animationFrame = window.requestAnimationFrame(renderProgress);
         };
 
         const updatePlaybackState = () => {
-            const playing = !audio.paused && !audio.ended;
-            player.dataset.playing = String(playing);
+            player.dataset.playing = String(mainPlaying);
             refreshBusyState();
-            lyricsSection.dataset.playback = playing && activeLineIndex >= 0 ? 'active' : 'idle';
+            lyricsSection.dataset.playback = mainPlaying && activeLineIndex >= 0 ? 'active' : 'idle';
             updatePlayerVisibility();
         };
 
         const pauseFollowingForManualNavigation = (event: Event) => {
-            if (!following || audio.paused || player.contains(event.target as Node)) return;
+            if (!following || !mainPlaying || player.contains(event.target as Node)) return;
             setFollowing(false);
         };
 
         const startPlayback = async () => {
             setLoading(true);
-            syncGuideVocal(true);
-            const [instrumentalResult, guideVocalResult] = await Promise.allSettled([
-                audio.play(),
-                guideVocal.play(),
-            ]);
-
-            if (instrumentalResult.status === 'rejected') {
+            try {
+                stopAssetTest();
+                const context = getAudioContext();
+                await context.resume();
+                const duration = getPlaybackDuration();
+                if (playbackOffset >= duration - 0.05) playbackOffset = 0;
+                const when = context.currentTime + 0.06;
+                const guideGain = Number(guideVocalVolume.value) / 100;
+                const instrumentalPlayback = createScheduledSource('instrumental', 1, when, playbackOffset);
+                const guidePlayback = createScheduledSource('guide-vocal', guideGain, when, playbackOffset);
+                mainSources = [instrumentalPlayback.source, guidePlayback.source];
+                mainGuideGain = guidePlayback.gain;
+                playbackStartedAt = when;
+                mainPlaying = true;
+                instrumentalPlayback.source.onended = () => {
+                    if (!mainPlaying) return;
+                    playbackOffset = getPlaybackDuration();
+                    mainPlaying = false;
+                    mainSources = [];
+                    mainGuideGain = null;
+                    window.cancelAnimationFrame(animationFrame);
+                    updatePlaybackState();
+                    renderProgress();
+                    currentLyric.textContent = '播放完畢';
+                };
                 setLoading(false);
-                guideVocal.pause();
-                currentLyric.textContent = instrumentalResult.reason instanceof DOMException
-                    && instrumentalResult.reason.name === 'NotAllowedError'
+                updatePlaybackState();
+                window.cancelAnimationFrame(animationFrame);
+                animationFrame = window.requestAnimationFrame(renderProgress);
+            } catch (error) {
+                mainPlaying = false;
+                stopMainSources();
+                setLoading(false);
+                currentLyric.textContent = error instanceof DOMException && error.name === 'NotAllowedError'
                     ? '伴奏已準備完成，請再按一次播放'
                     : '無法播放，請再試一次';
-                return;
-            }
-
-            setLoading(false);
-            if (guideVocalResult.status === 'rejected') {
-                guideVocalVolume.disabled = true;
-                guideVocalOutput.textContent = '不可用';
             }
         };
 
@@ -883,11 +1044,8 @@ let lyricLineIndex = 0;
 
             if (loading) return;
 
-            if (audio.paused) await startPlayback();
-            else {
-                audio.pause();
-                guideVocal.pause();
-            }
+            if (!mainPlaying) await startPlayback();
+            else pausePlayback();
         });
 
         followToggle.addEventListener('click', () => {
@@ -921,51 +1079,36 @@ let lyricLineIndex = 0;
             setPlayerCollapsed(matches);
         });
 
+        progress.addEventListener('pointerdown', () => {
+            resumeAfterSeek = mainPlaying;
+            if (mainPlaying) pausePlayback();
+        });
+
         progress.addEventListener('input', () => {
-            audio.currentTime = Number(progress.value);
-            syncGuideVocal(true);
+            const requestedTime = Number(progress.value);
+            if (mainPlaying) {
+                resumeAfterSeek = true;
+                pausePlayback();
+            }
+            playbackOffset = Math.min(getPlaybackDuration(), Math.max(0, requestedTime));
             updateActiveLine();
             renderProgress();
         });
 
+        progress.addEventListener('change', () => {
+            if (!resumeAfterSeek) return;
+            resumeAfterSeek = false;
+            void startPlayback();
+        });
+
         guideVocalVolume.addEventListener('input', () => {
             const nextVolume = Number(guideVocalVolume.value) / 100;
-            guideVocal.volume = nextVolume;
+            if (mainGuideGain && audioContext) {
+                mainGuideGain.gain.setTargetAtTime(nextVolume, audioContext.currentTime, 0.015);
+            }
             guideVocalOutput.textContent = `${guideVocalVolume.value}%`;
             guideVocalVolume.style.setProperty('--guide-vocal-volume', `${guideVocalVolume.value}%`);
             window.localStorage.setItem(guideVocalStorageKey, String(nextVolume));
-        });
-
-        audio.addEventListener('loadedmetadata', renderProgress);
-        guideVocal.addEventListener('loadedmetadata', () => syncGuideVocal(true));
-        audio.addEventListener('play', () => {
-            updatePlaybackState();
-            window.cancelAnimationFrame(animationFrame);
-            animationFrame = window.requestAnimationFrame(renderProgress);
-        });
-        audio.addEventListener('playing', () => setLoading(false));
-        audio.addEventListener('waiting', () => {
-            if (!audio.paused) setLoading(true);
-        });
-        audio.addEventListener('pause', () => {
-            setLoading(false);
-            guideVocal.pause();
-            updatePlaybackState();
-        });
-        audio.addEventListener('ended', () => {
-            setLoading(false);
-            guideVocal.pause();
-            updatePlaybackState();
-            currentLyric.textContent = '播放完畢';
-        });
-        audio.addEventListener('error', () => {
-            setLoading(false);
-            currentLyric.textContent = '伴奏載入失敗';
-            playToggle.disabled = true;
-        });
-        guideVocal.addEventListener('error', () => {
-            guideVocalVolume.disabled = true;
-            guideVocalOutput.textContent = '不可用';
         });
 
         document.addEventListener('wheel', pauseFollowingForManualNavigation, { passive: true });
@@ -982,14 +1125,28 @@ let lyricLineIndex = 0;
         };
 
         audioLoadRetry.addEventListener('click', requestAudioPreparation);
-        audioResync.addEventListener('click', () => {
-            replayTapFeedback(audioResync);
-            void resyncAudioAssets();
+        audioAssetTestButtons.forEach((button) => {
+            button.addEventListener('click', () => {
+                const assetKey = button.dataset.audioAssetTest as AudioAssetKey;
+                replayTapFeedback(button);
+                void toggleAssetTest(assetKey);
+            });
+        });
+        audioAssetResyncButtons.forEach((button) => {
+            button.addEventListener('click', () => {
+                const assetKey = button.dataset.audioAssetResync as AudioAssetKey;
+                replayTapFeedback(button);
+                void resyncAudioAsset(assetKey);
+            });
         });
         requestAudioPreparation();
 
         window.addEventListener('pagehide', (event) => {
             if (event.persisted) return;
+            mainPlaying = false;
+            stopMainSources();
+            stopAssetTest();
+            void audioContext?.close();
             objectUrls.forEach((objectUrl) => URL.revokeObjectURL(objectUrl));
         });
 

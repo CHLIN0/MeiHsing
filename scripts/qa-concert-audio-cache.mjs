@@ -23,6 +23,16 @@ const context = await browser.newContext({
   deviceScaleFactor: 3,
   recordVideo: { dir: videoDir, size: { width: 390, height: 844 } },
 });
+await context.addInitScript(() => {
+  window.__concertScheduledStarts = [];
+  const originalStart = AudioBufferSourceNode.prototype.start;
+  AudioBufferSourceNode.prototype.start = function patchedStart(when = 0, offset = 0, duration) {
+    window.__concertScheduledStarts.push({ when, offset, duration: duration ?? null });
+    return duration === undefined
+      ? originalStart.call(this, when, offset)
+      : originalStart.call(this, when, offset, duration);
+  };
+});
 
 const failures = [];
 const consoleErrors = [];
@@ -172,29 +182,13 @@ await setNetwork(coldCdp, { offline: true });
 const pausedBeforeOfflinePlayback = await coldPage.locator('[data-lyrics-audio]').evaluate((audio) => audio.paused);
 if (pausedBeforeOfflinePlayback) await coldPage.locator('[data-play-toggle]').tap();
 try {
-  await coldPage.waitForFunction(() => document.querySelector('[data-lyrics-audio]')?.currentTime > 1, null, { timeout: 10000 });
+  await coldPage.waitForFunction(() => Number(document.querySelector('[data-lyrics-player]')?.dataset.playbackTime) > 1, null, { timeout: 10000 });
 } catch (error) {
   const playbackStartState = await coldPage.evaluate(() => {
-    const instrumental = document.querySelector('[data-lyrics-audio]');
-    const guide = document.querySelector('[data-guide-vocal-audio]');
     const player = document.querySelector('[data-lyrics-player]');
     return {
-      instrumental: {
-        paused: instrumental?.paused,
-        currentTime: instrumental?.currentTime,
-        readyState: instrumental?.readyState,
-        networkState: instrumental?.networkState,
-        error: instrumental?.error?.message,
-        currentSrc: instrumental?.currentSrc,
-      },
-      guide: {
-        paused: guide?.paused,
-        currentTime: guide?.currentTime,
-        readyState: guide?.readyState,
-        networkState: guide?.networkState,
-        error: guide?.error?.message,
-      },
       player: { ...player?.dataset },
+      scheduledStarts: window.__concertScheduledStarts,
       playDisabled: document.querySelector('[data-play-toggle]')?.disabled,
       currentLyric: document.querySelector('[data-current-lyric]')?.textContent?.trim(),
       preflightVisibility: getComputedStyle(document.querySelector('[data-audio-status-panel]')).visibility,
@@ -202,48 +196,33 @@ try {
   });
   throw new Error(`Offline playback did not start: ${JSON.stringify(playbackStartState)}`, { cause: error });
 }
-const offlineStartTime = await coldPage.locator('[data-lyrics-audio]').evaluate((audio) => audio.currentTime);
+const offlineStartTime = await coldPage.locator('[data-lyrics-player]').evaluate((player) => Number(player.dataset.playbackTime));
 await coldPage.waitForTimeout(1800);
 const offlinePlayback = await coldPage.evaluate(() => {
-  const instrumental = document.querySelector('[data-lyrics-audio]');
-  const guide = document.querySelector('[data-guide-vocal-audio]');
+  const starts = window.__concertScheduledStarts.slice(-2);
   return {
-    instrumentalTime: instrumental.currentTime,
-    guideTime: guide.currentTime,
-    drift: Math.abs(instrumental.currentTime - guide.currentTime),
-    paused: instrumental.paused,
+    playbackTime: Number(document.querySelector('[data-lyrics-player]')?.dataset.playbackTime),
+    playing: document.querySelector('[data-lyrics-player]')?.dataset.playing,
+    scheduledStarts: starts,
+    scheduleDelta: starts.length === 2 ? Math.abs(starts[0].when - starts[1].when) : null,
+    offsetDelta: starts.length === 2 ? Math.abs(starts[0].offset - starts[1].offset) : null,
   };
 });
 
 await coldPage.evaluate(() => {
-  const instrumental = document.querySelector('[data-lyrics-audio]');
-  window.__concertAudioWaitingCount = 0;
-  window.__concertAudioWaitingStartedAt = 0;
-  window.__concertAudioMaxWaitingMs = 0;
-  instrumental.addEventListener('waiting', () => {
-    window.__concertAudioWaitingCount += 1;
-    window.__concertAudioWaitingStartedAt = performance.now();
-  });
-  const finishWaiting = () => {
-    if (!window.__concertAudioWaitingStartedAt) return;
-    window.__concertAudioMaxWaitingMs = Math.max(
-      window.__concertAudioMaxWaitingMs,
-      performance.now() - window.__concertAudioWaitingStartedAt,
-    );
-    window.__concertAudioWaitingStartedAt = 0;
-  };
-  instrumental.addEventListener('playing', finishWaiting);
-  instrumental.addEventListener('ended', finishWaiting);
-  instrumental.currentTime = 145;
-  document.querySelector('[data-guide-vocal-audio]').currentTime = 145;
+  const progress = document.querySelector('[data-audio-progress]');
+  progress.value = '145';
+  progress.dispatchEvent(new Event('input', { bubbles: true }));
+  progress.dispatchEvent(new Event('change', { bubbles: true }));
 });
-await coldPage.waitForFunction(() => document.querySelector('[data-lyrics-audio]')?.ended === true, null, { timeout: 20000 });
+await coldPage.waitForFunction(() => {
+  const player = document.querySelector('[data-lyrics-player]');
+  return player?.dataset.playing === 'false' && Number(player.dataset.playbackTime) > 154;
+}, null, { timeout: 20000 });
 const offlineTailPlayback = await coldPage.evaluate(() => ({
-  ended: document.querySelector('[data-lyrics-audio]')?.ended,
-  currentTime: document.querySelector('[data-lyrics-audio]')?.currentTime,
-  guideTime: document.querySelector('[data-guide-vocal-audio]')?.currentTime,
-  waitingCount: window.__concertAudioWaitingCount,
-  maxWaitingMs: window.__concertAudioMaxWaitingMs,
+  ended: document.querySelector('[data-lyrics-player]')?.dataset.playing === 'false',
+  playbackTime: Number(document.querySelector('[data-lyrics-player]')?.dataset.playbackTime),
+  scheduledStarts: window.__concertScheduledStarts.slice(-2),
 }));
 
 await setNetwork(coldCdp, { offline: false });
@@ -269,6 +248,16 @@ const retryContext = await browser.newContext({
   hasTouch: true,
   deviceScaleFactor: 3,
 });
+await retryContext.addInitScript(() => {
+  window.__concertScheduledStarts = [];
+  const originalStart = AudioBufferSourceNode.prototype.start;
+  AudioBufferSourceNode.prototype.start = function patchedStart(when = 0, offset = 0, duration) {
+    window.__concertScheduledStarts.push({ when, offset, duration: duration ?? null });
+    return duration === undefined
+      ? originalStart.call(this, when, offset)
+      : originalStart.call(this, when, offset, duration);
+  };
+});
 let guideRequestAttempts = 0;
 await retryContext.route('**/mingtian-hui-geng-hao-guide-vocal-v3.mp4', async (route) => {
   guideRequestAttempts += 1;
@@ -288,11 +277,32 @@ const retryState = await retryPage.evaluate(() => ({
   guideSource: document.querySelector('[data-guide-vocal-audio]')?.currentSrc,
 }));
 
+await retryPage.locator('[data-audio-asset-test="instrumental"]').click();
+await retryPage.waitForFunction(() => document.querySelector('[data-audio-asset-control="instrumental"]')?.dataset.testing === 'true');
+const instrumentalTestState = await retryPage.evaluate(() => ({
+  controlState: document.querySelector('[data-audio-asset-control="instrumental"]')?.dataset.testing,
+  buttonLabel: document.querySelector('[data-audio-asset-test="instrumental"] [data-audio-asset-test-label]')?.textContent?.trim(),
+  scheduledStart: window.__concertScheduledStarts.at(-1),
+}));
+await retryPage.locator('[data-audio-asset-test="instrumental"]').click();
+await retryPage.waitForFunction(() => document.querySelector('[data-audio-asset-control="instrumental"]')?.dataset.testing === 'false');
+
+await retryPage.locator('[data-audio-asset-test="guide-vocal"]').click();
+await retryPage.waitForFunction(() => document.querySelector('[data-audio-asset-control="guide-vocal"]')?.dataset.testing === 'true');
+const guideTestState = await retryPage.evaluate(() => ({
+  controlState: document.querySelector('[data-audio-asset-control="guide-vocal"]')?.dataset.testing,
+  buttonLabel: document.querySelector('[data-audio-asset-test="guide-vocal"] [data-audio-asset-test-label]')?.textContent?.trim(),
+  scheduledStart: window.__concertScheduledStarts.at(-1),
+}));
+await retryPage.screenshot({ path: path.join(evidenceDir, 'mobile-guide-test-playing.png') });
+await retryPage.locator('[data-audio-asset-test="guide-vocal"]').click();
+await retryPage.waitForFunction(() => document.querySelector('[data-audio-asset-control="guide-vocal"]')?.dataset.testing === 'false');
+
 const resyncRequests = [];
 retryPage.on('request', (request) => {
   if (/mingtian-hui-geng-hao.*\.mp4/.test(request.url())) resyncRequests.push(request.url());
 });
-await retryPage.locator('[data-audio-resync]').click();
+await retryPage.locator('[data-audio-asset-resync="guide-vocal"]').click();
 await retryPage.waitForFunction((previousSources) => {
   const player = document.querySelector('[data-lyrics-player]');
   const instrumentalSource = document.querySelector('[data-lyrics-audio]')?.currentSrc;
@@ -301,9 +311,24 @@ await retryPage.waitForFunction((previousSources) => {
     && player?.dataset.resyncing === 'false'
     && instrumentalSource?.startsWith('blob:')
     && guideSource?.startsWith('blob:')
-    && instrumentalSource !== previousSources.instrumentalSource
+    && instrumentalSource === previousSources.instrumentalSource
     && guideSource !== previousSources.guideSource;
 }, retryState, { timeout: 20000 });
+const afterGuideResync = await retryPage.evaluate(() => ({
+  instrumentalSource: document.querySelector('[data-lyrics-audio]')?.currentSrc,
+  guideSource: document.querySelector('[data-guide-vocal-audio]')?.currentSrc,
+}));
+
+await retryPage.locator('[data-audio-asset-resync="instrumental"]').click();
+await retryPage.waitForFunction((previousSources) => {
+  const player = document.querySelector('[data-lyrics-player]');
+  const instrumentalSource = document.querySelector('[data-lyrics-audio]')?.currentSrc;
+  const guideSource = document.querySelector('[data-guide-vocal-audio]')?.currentSrc;
+  return player?.dataset.audioReady === 'true'
+    && player?.dataset.resyncing === 'false'
+    && instrumentalSource !== previousSources.instrumentalSource
+    && guideSource === previousSources.guideSource;
+}, afterGuideResync, { timeout: 20000 });
 const resyncState = await retryPage.evaluate(async () => {
   const cache = await window.caches.open('concert-2026-audio-v3');
   return {
@@ -312,8 +337,11 @@ const resyncState = await retryPage.evaluate(async () => {
     instrumentalSource: document.querySelector('[data-lyrics-audio]')?.currentSrc,
     guideSource: document.querySelector('[data-guide-vocal-audio]')?.currentSrc,
     status: document.querySelector('[data-audio-preflight-status]')?.textContent?.trim(),
-    buttonDisabled: document.querySelector('[data-audio-resync]')?.disabled,
-    buttonLabel: document.querySelector('[data-audio-resync-label]')?.textContent?.trim(),
+    buttonStates: Array.from(document.querySelectorAll('[data-audio-asset-resync]')).map((button) => ({
+      key: button.dataset.audioAssetResync,
+      disabled: button.disabled,
+      label: button.querySelector('[data-audio-asset-resync-label]')?.textContent?.trim(),
+    })),
     cacheKeys: (await cache.keys()).map((request) => request.url),
     trackProgress: Array.from(document.querySelectorAll('[data-audio-asset-status]')).map((row) => ({
       key: row.dataset.audioAssetStatus,
@@ -328,9 +356,13 @@ if (coldReadyState.ready !== 'true' || !coldReadyState.instrumentalSource.starts
   failures.push('Cold preparation did not replace both network sources with complete Blob URLs.');
 }
 if (coldReadyState.cacheKeys.length !== 2) failures.push(`Expected 2 Cache Storage entries, received ${coldReadyState.cacheKeys.length}.`);
-if (offlinePlayback.paused || offlinePlayback.instrumentalTime <= offlineStartTime + 1) failures.push('Offline playback did not continue after the network was disabled.');
-if (offlinePlayback.drift > 0.4) failures.push(`Guide vocal drift is too high: ${offlinePlayback.drift.toFixed(3)}s.`);
-if (!offlineTailPlayback.ended || offlineTailPlayback.maxWaitingMs > 500) {
+if (offlinePlayback.playing !== 'true' || offlinePlayback.playbackTime <= offlineStartTime + 1) {
+  failures.push('Offline Web Audio playback did not continue after the network was disabled.');
+}
+if (offlinePlayback.scheduleDelta !== 0 || offlinePlayback.offsetDelta !== 0) {
+  failures.push(`The two AudioBufferSourceNodes were not scheduled on the same clock position: ${JSON.stringify(offlinePlayback)}.`);
+}
+if (!offlineTailPlayback.ended || offlineTailPlayback.playbackTime <= 154) {
   failures.push(`Offline tail playback did not finish cleanly: ${JSON.stringify(offlineTailPlayback)}.`);
 }
 if (warmReadyMs > 2000 || !warmState.instrumentalSource.startsWith('blob:') || !warmState.guideSource.startsWith('blob:')) {
@@ -360,10 +392,22 @@ if (
   || resyncState.instrumentalSource === retryState.instrumentalSource
   || resyncState.guideSource === retryState.guideSource
   || resyncState.cacheKeys.length !== 2
-  || resyncState.buttonDisabled
+  || resyncState.buttonStates.some((button) => button.disabled || button.label !== '重新同步')
   || resyncState.trackProgress.some((track) => track.state !== 'ready' || track.ariaValue !== '100')
 ) {
-  failures.push(`Cache clear and resync did not replace both complete audio assets: requests=${resyncRequests.length}, state=${JSON.stringify(resyncState)}.`);
+  failures.push(`Per-track cache clear and resync did not independently replace both audio assets: requests=${resyncRequests.length}, state=${JSON.stringify(resyncState)}.`);
+}
+if (
+  instrumentalTestState.controlState !== 'true'
+  || instrumentalTestState.buttonLabel !== '停止測試'
+  || instrumentalTestState.scheduledStart?.offset !== 2
+  || instrumentalTestState.scheduledStart?.duration !== 6
+  || guideTestState.controlState !== 'true'
+  || guideTestState.buttonLabel !== '停止測試'
+  || guideTestState.scheduledStart?.offset !== 6
+  || guideTestState.scheduledStart?.duration !== 6
+) {
+  failures.push(`Independent track tests were not scheduled at audible cues: ${JSON.stringify({ instrumentalTestState, guideTestState })}.`);
 }
 const expectedOfflineConsoleErrors = consoleErrors.filter((message) => message.includes('net::ERR_INTERNET_DISCONNECTED'));
 const unexpectedConsoleErrors = consoleErrors.filter((message) => !message.includes('net::ERR_INTERNET_DISCONNECTED'));
@@ -398,7 +442,12 @@ const result = {
   },
   resync: {
     requests: resyncRequests,
+    afterGuideResync,
     state: resyncState,
+  },
+  trackTests: {
+    instrumental: instrumentalTestState,
+    guideVocal: guideTestState,
   },
   audioResponses,
   progressHistory,
