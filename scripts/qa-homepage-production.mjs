@@ -19,7 +19,9 @@ const browser = await chromium.launch({
 });
 
 const viewports = [
+    { name: 'laptop', width: 1366, height: 768 },
     { name: 'desktop', width: 1440, height: 1000 },
+    { name: 'full-hd', width: 1920, height: 1080 },
     { name: 'mobile', width: 390, height: 844 },
     { name: 'narrow', width: 320, height: 800 },
 ];
@@ -54,6 +56,8 @@ for (const viewport of viewports) {
     for (const [name, selector] of [['hero', '.home-hero'], ['about', '.home-about'], ['practice', '.home-practice__columns'], ['field', '.home-field'], ['journey', '.home-journey']]) {
         await page.locator(selector).screenshot({ path: path.join(evidenceDir, `${viewport.name}-${name}.png`) });
     }
+    await page.evaluate(() => window.scrollTo(0, 0));
+    await page.waitForTimeout(80);
 
     const initial = await page.evaluate(() => {
         const visible = (element) => {
@@ -63,9 +67,15 @@ for (const viewport of viewports) {
         };
         const fontSize = (selector) => Number.parseFloat(getComputedStyle(document.querySelector(selector)).fontSize);
         const ids = [...document.querySelectorAll('[id]')].map((element) => element.id);
+        const heroRect = document.querySelector('.home-hero').getBoundingClientRect();
+        const aboutRect = document.querySelector('.home-about').getBoundingClientRect();
         return {
             title: document.title,
             overflow: document.documentElement.scrollWidth - innerWidth,
+            viewportHeight: innerHeight,
+            heroHeight: heroRect.height,
+            aboutTop: aboutRect.top,
+            scrollCueHref: document.querySelector('.home-scroll-cue')?.getAttribute('href'),
             bodyFontPx: fontSize('body'),
             courseFontPx: fontSize('.home-course p'),
             roleMetaFontPx: fontSize('.home-role span'),
@@ -91,6 +101,15 @@ for (const viewport of viewports) {
         };
     });
 
+    await page.locator('.home-scroll-cue').click();
+    await page.waitForTimeout(80);
+    const scrollCue = await page.evaluate(() => ({
+        hash: window.location.hash,
+        scrollY: window.scrollY,
+        aboutTop: document.querySelector('.home-about').getBoundingClientRect().top,
+    }));
+    await page.evaluate(() => window.scrollTo(0, 0));
+
     const tabs = page.getByRole('tab');
     await tabs.first().focus();
     await tabs.first().press('ArrowRight');
@@ -105,7 +124,7 @@ for (const viewport of viewports) {
     const lightboxClosed = await page.locator('.home-lightbox').evaluate((dialog) => !dialog.open);
     await page.getByRole('tab', { name: /^全部/ }).click();
 
-    if (viewport.name !== 'desktop') {
+    if (viewport.width < 768) {
         await page.getByRole('button', { name: '開啟選單' }).click();
         await page.getByRole('link', { name: '教學與服務' }).click();
         await page.waitForTimeout(120);
@@ -127,7 +146,7 @@ for (const viewport of viewports) {
         status: response?.status() ?? null,
         runtime,
         initial,
-        interactions: { keyboardTab, visibleBeforeMore, visibleAfterMore, lightboxOpen, lightboxClosed, contactStatus },
+        interactions: { scrollCue, keyboardTab, visibleBeforeMore, visibleAfterMore, lightboxOpen, lightboxClosed, contactStatus },
         videoPath,
     });
 }
@@ -140,11 +159,12 @@ for (const result of results) {
     if (result.status !== 200) failures.push(`${label}: HTTP ${result.status}`);
     if (result.runtime.consoleErrors.length || result.runtime.pageErrors.length || result.runtime.requestFailures.length || result.runtime.badResponses.length) failures.push(`${label}: runtime errors`);
     if (result.initial.overflow > 0) failures.push(`${label}: horizontal overflow ${result.initial.overflow}px`);
+    if (result.initial.heroHeight < result.initial.viewportHeight - 1 || result.initial.aboutTop < result.initial.viewportHeight - 1 || result.initial.scrollCueHref !== '#about') failures.push(`${label}: hero viewport or scroll cue failure`);
     if (result.initial.visibleBrokenImages.length || result.initial.missingAlt || result.initial.unnamedButtons || result.initial.duplicateIds.length) failures.push(`${label}: image or accessibility markup failure`);
     if (result.initial.bodyFontPx < 17 || result.initial.courseFontPx < 16 || result.initial.roleMetaFontPx < 15 || result.initial.themeFontPx < 16 || result.initial.milestoneFontPx < 17 || result.initial.faqFontPx < 16) failures.push(`${label}: typography floor regression`);
     if (result.initial.concertQuoteLeak || !result.initial.philosophyPresent || !result.initial.xinyiChoirPresent || result.initial.medicalProfessionLanguage) failures.push(`${label}: content guardrail failure`);
     if (result.initial.groupPhoto !== '/gallery/concert/concert-12.webp' || result.initial.tabCount !== 6 || result.initial.selectedTab !== 'all' || result.initial.themeCount !== 5) failures.push(`${label}: approved overview mismatch`);
-    if (result.interactions.keyboardTab !== 'concert' || result.interactions.visibleBeforeMore !== 6 || result.interactions.visibleAfterMore !== 13 || !result.interactions.lightboxOpen || !result.interactions.lightboxClosed || result.interactions.contactStatus !== '洽詢內容已複製。') failures.push(`${label}: interaction failure`);
+    if (result.interactions.scrollCue.hash !== '#about' || result.interactions.scrollCue.scrollY <= 0 || Math.abs(result.interactions.scrollCue.aboutTop - 86) > 2 || result.interactions.keyboardTab !== 'concert' || result.interactions.visibleBeforeMore !== 6 || result.interactions.visibleAfterMore !== 13 || !result.interactions.lightboxOpen || !result.interactions.lightboxClosed || result.interactions.contactStatus !== '洽詢內容已複製。') failures.push(`${label}: interaction failure`);
 }
 
 const output = {

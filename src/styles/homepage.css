@@ -65,7 +65,8 @@
 .home-hero {
   position: relative;
   display: grid;
-  min-height: 860px;
+  min-height: 100vh;
+  min-height: 100svh;
   align-items: center;
   overflow: hidden;
   color: #fff;
@@ -205,6 +206,39 @@
   color: rgba(234, 215, 170, 0.18);
   font-family: 'Cormorant', serif;
   font-size: 86px;
+}
+
+.home-scroll-cue {
+  position: absolute;
+  z-index: 4;
+  bottom: 66px;
+  left: 50%;
+  display: grid;
+  justify-items: center;
+  gap: 3px;
+  color: rgba(234, 215, 170, 0.76);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  line-height: 1.2;
+  text-decoration: none;
+  transform: translateX(-50%);
+  transition: color 180ms ease;
+}
+
+.home-scroll-cue svg {
+  width: 24px;
+  height: 24px;
+  fill: none;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 1.5;
+}
+
+.home-scroll-cue:hover,
+.home-scroll-cue:focus-visible {
+  color: #fff;
 }
 
 .home-about {
@@ -998,10 +1032,6 @@
 }
 
 @media (max-width: 920px) {
-  .home-hero {
-    min-height: auto;
-  }
-
   .home-hero__inner {
     grid-template-columns: 1fr;
     gap: 36px;
@@ -1091,6 +1121,10 @@
     min-height: 46px;
     padding: 0 18px;
     font-size: 15px;
+  }
+
+  .home-scroll-cue {
+    bottom: 60px;
   }
 
   .home-about,
