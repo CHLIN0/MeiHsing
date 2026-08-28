@@ -83,7 +83,13 @@ let lyricLineIndex = 0;
         </div>
     </div>
 
-    <aside class="concert-lyrics-player" data-lyrics-player data-visible="false" aria-label="明天會更好伴奏播放器">
+    <aside
+        class="concert-lyrics-player"
+        data-lyrics-player
+        data-visible="false"
+        data-collapsed="true"
+        aria-label="明天會更好伴奏播放器"
+    >
         <audio
             data-lyrics-audio
             src={concert2026Instrumental.src}
@@ -100,57 +106,75 @@ let lyricLineIndex = 0;
                 <span>大合唱伴奏</span>
                 <strong>明天會更好</strong>
             </div>
-            <button
-                class="concert-lyrics-player__follow"
-                type="button"
-                data-follow-toggle
-                aria-pressed="true"
-                title="自動跟隨目前歌詞"
-            >
-                <svg viewBox="0 0 24 24" aria-hidden="true">
-                    <circle cx="12" cy="12" r="7"></circle>
-                    <circle cx="12" cy="12" r="2"></circle>
-                    <path d="M12 2v3M12 19v3M2 12h3M19 12h3"></path>
-                </svg>
-                <span>跟隨</span>
-            </button>
+            <div class="concert-lyrics-player__heading-actions">
+                <button
+                    class="concert-lyrics-player__follow"
+                    type="button"
+                    data-follow-toggle
+                    aria-pressed="true"
+                    title="自動跟隨目前歌詞"
+                >
+                    <svg viewBox="0 0 24 24" aria-hidden="true">
+                        <circle cx="12" cy="12" r="7"></circle>
+                        <circle cx="12" cy="12" r="2"></circle>
+                        <path d="M12 2v3M12 19v3M2 12h3M19 12h3"></path>
+                    </svg>
+                    <span>跟隨</span>
+                </button>
+                <button
+                    class="concert-lyrics-player__size-toggle"
+                    type="button"
+                    data-player-size-toggle
+                    aria-controls="concert-lyrics-player-details"
+                    aria-expanded="false"
+                    title="展開播放器"
+                >
+                    <svg viewBox="0 0 24 24" aria-hidden="true">
+                        <path class="is-expand" d="m7 15 5-5 5 5"></path>
+                        <path class="is-collapse" d="m7 9 5 5 5-5"></path>
+                    </svg>
+                    <span class="sr-only" data-player-size-label>展開播放器</span>
+                </button>
+            </div>
         </div>
 
-        <p class="concert-lyrics-player__current" data-current-lyric>準備播放</p>
+        <div id="concert-lyrics-player-details" class="concert-lyrics-player__details">
+            <p class="concert-lyrics-player__current" data-current-lyric>準備播放</p>
 
-        <div class="concert-lyrics-player__controls">
-            <button class="concert-lyrics-player__play" type="button" data-play-toggle aria-label="播放伴奏">
-                <svg class="is-play" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 7 8 5-8 5z"></path></svg>
-                <svg class="is-pause" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 7v10M15 7v10"></path></svg>
-            </button>
-            <input
-                type="range"
-                min="0"
-                max={concert2026Instrumental.duration}
-                step="0.1"
-                value="0"
-                data-audio-progress
-                aria-label="伴奏播放進度"
-            />
-            <output data-audio-time>0:00 / 2:35</output>
+            <div class="concert-lyrics-player__controls">
+                <button class="concert-lyrics-player__play" type="button" data-play-toggle aria-label="播放伴奏">
+                    <svg class="is-play" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 7 8 5-8 5z"></path></svg>
+                    <svg class="is-pause" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 7v10M15 7v10"></path></svg>
+                </button>
+                <input
+                    type="range"
+                    min="0"
+                    max={concert2026Instrumental.duration}
+                    step="0.1"
+                    value="0"
+                    data-audio-progress
+                    aria-label="伴奏播放進度"
+                />
+                <output data-audio-time>0:00 / 2:35</output>
+            </div>
+
+            <label class="concert-lyrics-player__guide-vocal">
+                <span>
+                    <strong>導唱</strong>
+                    <small>Vocal</small>
+                </span>
+                <input
+                    type="range"
+                    min="0"
+                    max="100"
+                    step="1"
+                    value={Math.round(concert2026GuideVocal.defaultVolume * 100)}
+                    data-guide-vocal-volume
+                    aria-label="導唱音量"
+                />
+                <output data-guide-vocal-output>{Math.round(concert2026GuideVocal.defaultVolume * 100)}%</output>
+            </label>
         </div>
-
-        <label class="concert-lyrics-player__guide-vocal">
-            <span>
-                <strong>導唱</strong>
-                <small>Vocal</small>
-            </span>
-            <input
-                type="range"
-                min="0"
-                max="100"
-                step="1"
-                value={Math.round(concert2026GuideVocal.defaultVolume * 100)}
-                data-guide-vocal-volume
-                aria-label="導唱音量"
-            />
-            <output data-guide-vocal-output>{Math.round(concert2026GuideVocal.defaultVolume * 100)}%</output>
-        </label>
     </aside>
 </section>
 
@@ -161,6 +185,8 @@ let lyricLineIndex = 0;
     const guideVocal = player?.querySelector<HTMLAudioElement>('[data-guide-vocal-audio]');
     const playToggle = player?.querySelector<HTMLButtonElement>('[data-play-toggle]');
     const followToggle = player?.querySelector<HTMLButtonElement>('[data-follow-toggle]');
+    const playerSizeToggle = player?.querySelector<HTMLButtonElement>('[data-player-size-toggle]');
+    const playerSizeLabel = player?.querySelector<HTMLElement>('[data-player-size-label]');
     const progress = player?.querySelector<HTMLInputElement>('[data-audio-progress]');
     const guideVocalVolume = player?.querySelector<HTMLInputElement>('[data-guide-vocal-volume]');
     const guideVocalOutput = player?.querySelector<HTMLOutputElement>('[data-guide-vocal-output]');
@@ -171,7 +197,7 @@ let lyricLineIndex = 0;
     const lyricTimelineEnd = Number(lyricsSection?.dataset.lyricsEnd || 0);
 
     if (
-        lyricsSection && player && audio && guideVocal && playToggle && followToggle && progress
+        lyricsSection && player && audio && guideVocal && playToggle && followToggle && playerSizeToggle && playerSizeLabel && progress
         && guideVocalVolume && guideVocalOutput && timeOutput && currentLyric && lyricLines.length
     ) {
         let following = true;
@@ -179,6 +205,15 @@ let lyricLineIndex = 0;
         let activeLineIndex = -1;
         let animationFrame = 0;
         const guideVocalStorageKey = 'concert-2026-guide-vocal-volume';
+        const mobilePlayer = window.matchMedia('(max-width: 760px)');
+
+        const setPlayerCollapsed = (nextCollapsed: boolean) => {
+            const collapsed = mobilePlayer.matches && nextCollapsed;
+            player.dataset.collapsed = String(collapsed);
+            playerSizeToggle.setAttribute('aria-expanded', String(!collapsed));
+            playerSizeToggle.title = collapsed ? '展開播放器' : '收合播放器';
+            playerSizeLabel.textContent = playerSizeToggle.title;
+        };
 
         const storedGuideVocalPreference = window.localStorage.getItem(guideVocalStorageKey);
         const storedGuideVocalVolume = storedGuideVocalPreference === null ? Number.NaN : Number(storedGuideVocalPreference);
@@ -314,6 +349,14 @@ let lyricLineIndex = 0;
             if (following && activeLineIndex >= 0) followLine(lyricLines[activeLineIndex]);
         });
 
+        playerSizeToggle.addEventListener('click', () => {
+            setPlayerCollapsed(player.dataset.collapsed !== 'true');
+        });
+
+        mobilePlayer.addEventListener('change', ({ matches }) => {
+            setPlayerCollapsed(matches);
+        });
+
         progress.addEventListener('input', () => {
             audio.currentTime = Number(progress.value);
             syncGuideVocal(true);
@@ -368,6 +411,7 @@ let lyricLineIndex = 0;
         }, { rootMargin: '-12% 0px -12%' });
 
         sectionObserver.observe(lyricsSection);
+        setPlayerCollapsed(mobilePlayer.matches);
         updatePlaybackState();
         renderProgress();
     }

@@ -112,7 +112,7 @@ const breadcrumbSchema = {
     <script>
         const concertReduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
 
-        document.querySelectorAll<HTMLAnchorElement>('.concert-nav__links a[href^="#"]').forEach((link) => {
+        document.querySelectorAll<HTMLAnchorElement>('.concert-nav__links a[href^="#"], .concert-hero__actions a[href^="#"]').forEach((link) => {
             link.addEventListener('click', (event) => {
                 const target = document.querySelector<HTMLElement>(link.hash);
                 if (!target) return;
