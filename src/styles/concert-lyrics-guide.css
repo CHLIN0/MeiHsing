@@ -1,0 +1,111 @@
+.concert-lyrics-player__guide-vocal {
+    min-width: 0;
+    display: grid;
+    grid-template-columns: 2.8rem minmax(0, 1fr) 2.45rem;
+    align-items: center;
+    gap: 0.65rem;
+    margin-top: 0.7rem;
+    padding-top: 0.7rem;
+    border-top: 1px solid rgba(142, 101, 54, 0.16);
+}
+
+.concert-lyrics-player__guide-vocal > span {
+    display: grid;
+    gap: 0.04rem;
+}
+
+.concert-lyrics-player__guide-vocal strong {
+    color: var(--concert-ink);
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    white-space: nowrap;
+}
+
+.concert-lyrics-player__guide-vocal small {
+    color: var(--concert-gold);
+    font-family: 'Montserrat', sans-serif;
+    font-size: 0.48rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+
+.concert-lyrics-player__guide-vocal input[type='range'] {
+    width: 100%;
+    height: 1.65rem;
+    margin: 0;
+    padding: 0;
+    outline: none;
+    background: transparent;
+    cursor: pointer;
+    appearance: none;
+}
+
+.concert-lyrics-player__guide-vocal input[type='range']::-webkit-slider-runnable-track {
+    height: 0.22rem;
+    border-radius: 999px;
+    background: rgba(142, 101, 54, 0.2);
+}
+
+.concert-lyrics-player__guide-vocal input[type='range']::-webkit-slider-thumb {
+    width: 0.86rem;
+    height: 0.86rem;
+    margin-top: -0.32rem;
+    border: 2px solid var(--concert-ivory);
+    border-radius: 50%;
+    background: var(--concert-gold);
+    box-shadow: 0 0.12rem 0.45rem rgba(67, 51, 46, 0.28);
+    appearance: none;
+}
+
+.concert-lyrics-player__guide-vocal input[type='range']::-moz-range-track {
+    height: 0.22rem;
+    border-radius: 999px;
+    background: rgba(142, 101, 54, 0.2);
+}
+
+.concert-lyrics-player__guide-vocal input[type='range']::-moz-range-thumb {
+    width: 0.74rem;
+    height: 0.74rem;
+    border: 2px solid var(--concert-ivory);
+    border-radius: 50%;
+    background: var(--concert-gold);
+}
+
+.concert-lyrics-player__guide-vocal input:focus-visible {
+    border-radius: 999px;
+    box-shadow: 0 0 0 3px rgba(201, 165, 116, 0.28);
+}
+
+.concert-lyrics-player__guide-vocal input:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+
+.concert-lyrics-player__guide-vocal output {
+    color: var(--concert-muted);
+    font-family: 'Montserrat', sans-serif;
+    font-size: 0.62rem;
+    font-variant-numeric: tabular-nums;
+    text-align: right;
+}
+
+@media (min-width: 1240px) {
+    .concert-lyrics-player__guide-vocal {
+        grid-template-columns: 2.65rem minmax(0, 1fr) 2.25rem;
+        gap: 0.5rem;
+    }
+}
+
+@media (max-width: 760px) {
+    .concert-lyrics-player__guide-vocal {
+        grid-template-columns: 3.6rem minmax(0, 1fr) 2.45rem;
+    }
+
+    .concert-lyrics-player__guide-vocal > span {
+        display: flex;
+        align-items: baseline;
+        gap: 0.3rem;
+    }
+}

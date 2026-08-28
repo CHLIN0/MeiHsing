@@ -2,6 +2,7 @@
 import BaseLayout from '../../../layouts/BaseLayout.astro';
 import lyricsText from '../../../data/concert-2026-lyrics.txt?raw';
 import {
+    concert2026GuideVocal,
     concert2026Instrumental,
     concert2026LyricStartTimes,
 } from '../../../data/concert-2026-lyrics-timing';
@@ -19,6 +20,21 @@ if (
 ) {
     throw new Error('Sing-along lyrics and timing data must contain the same number of ordered entries.');
 }
+
+const petalMotion = [
+    ['6%', '9rem', '15s', '-3s', '0.72', '18deg'],
+    ['14%', '-7rem', '18s', '-11s', '0.55', '-24deg'],
+    ['25%', '11rem', '20s', '-7s', '0.82', '42deg'],
+    ['34%', '-9rem', '16s', '-14s', '0.62', '8deg'],
+    ['45%', '6rem', '22s', '-18s', '0.9', '-35deg'],
+    ['56%', '-12rem', '19s', '-5s', '0.68', '26deg'],
+    ['64%', '8rem', '17s', '-12s', '0.76', '-12deg'],
+    ['72%', '-6rem', '21s', '-2s', '0.58', '37deg'],
+    ['81%', '10rem', '18s', '-16s', '0.86', '-28deg'],
+    ['89%', '-8rem', '23s', '-9s', '0.64', '14deg'],
+    ['95%', '5rem', '20s', '-20s', '0.74', '-42deg'],
+    ['51%', '-5rem', '24s', '-13s', '0.5', '31deg'],
+] as const;
 ---
 
 <BaseLayout
@@ -42,7 +58,11 @@ if (
             <img src="/concert/2026/stage-sakura-poster-4k.webp?v=20260828c" alt="" />
         </div>
         <div class="singalong__veil" aria-hidden="true"></div>
-        <div class="singalong__petals" aria-hidden="true"></div>
+        <div class="singalong__petals" aria-hidden="true">
+            {petalMotion.map(([x, drift, duration, delay, scale, rotation]) => (
+                <i style={`--petal-x:${x};--petal-drift:${drift};--petal-duration:${duration};--petal-delay:${delay};--petal-scale:${scale};--petal-rotation:${rotation}`}></i>
+            ))}
+        </div>
 
         <header class="singalong__topbar" data-singalong-chrome>
             <a class="singalong__back" href="/concert/2026/#lyrics">
@@ -94,6 +114,11 @@ if (
                 src={concert2026Instrumental.src}
                 preload="metadata"
             ></audio>
+            <audio
+                data-guide-vocal-audio
+                src={concert2026GuideVocal.src}
+                preload="metadata"
+            ></audio>
             <button class="singalong__play" type="button" data-play-toggle aria-label="播放伴奏">
                 <svg class="is-play" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 7 8 5-8 5z"></path></svg>
                 <svg class="is-pause" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 7v10M15 7v10"></path></svg>
@@ -113,6 +138,22 @@ if (
                     <output data-audio-time>0:00 / 2:35</output>
                 </div>
             </div>
+            <label class="singalong__guide-vocal">
+                <span>
+                    <strong>導唱</strong>
+                    <small>Vocal</small>
+                </span>
+                <input
+                    type="range"
+                    min="0"
+                    max="100"
+                    step="1"
+                    value={Math.round(concert2026GuideVocal.defaultVolume * 100)}
+                    data-guide-vocal-volume
+                    aria-label="導唱音量"
+                />
+                <output data-guide-vocal-output>{Math.round(concert2026GuideVocal.defaultVolume * 100)}%</output>
+            </label>
             <p class="singalong__shortcuts"><kbd>Space</kbd> 播放　<kbd>←</kbd><kbd>→</kbd> 快轉　<kbd>F</kbd> 全螢幕</p>
         </aside>
     </main>
@@ -120,9 +161,12 @@ if (
     <script>
         const singalong = document.querySelector<HTMLElement>('[data-singalong]');
         const audio = singalong?.querySelector<HTMLAudioElement>('[data-singalong-audio]');
+        const guideVocal = singalong?.querySelector<HTMLAudioElement>('[data-guide-vocal-audio]');
         const playToggle = singalong?.querySelector<HTMLButtonElement>('[data-play-toggle]');
         const fullscreenToggle = singalong?.querySelector<HTMLButtonElement>('[data-fullscreen-toggle]');
         const progress = singalong?.querySelector<HTMLInputElement>('[data-audio-progress]');
+        const guideVocalVolume = singalong?.querySelector<HTMLInputElement>('[data-guide-vocal-volume]');
+        const guideVocalOutput = singalong?.querySelector<HTMLOutputElement>('[data-guide-vocal-output]');
         const timeOutput = singalong?.querySelector<HTMLOutputElement>('[data-audio-time]');
         const playbackState = singalong?.querySelector<HTMLElement>('[data-playback-state]');
         const titleCard = singalong?.querySelector<HTMLElement>('[data-singalong-title]');
@@ -136,7 +180,8 @@ if (
         const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
 
         if (
-            singalong && audio && playToggle && fullscreenToggle && progress && timeOutput && playbackState
+            singalong && audio && guideVocal && playToggle && fullscreenToggle && progress
+            && guideVocalVolume && guideVocalOutput && timeOutput && playbackState
             && titleCard && lyricWindow && previousLine && currentWrap && currentLine && nextLine && sourceLines.length
         ) {
             const lines = sourceLines.map((line) => ({
@@ -151,10 +196,26 @@ if (
             let animationFrame = 0;
             let controlsTimer = 0;
             let rollingAnimations: Animation[] = [];
+            const guideVocalStorageKey = 'concert-2026-guide-vocal-volume';
+
+            const storedGuideVocalPreference = window.localStorage.getItem(guideVocalStorageKey);
+            const storedGuideVocalVolume = storedGuideVocalPreference === null ? Number.NaN : Number(storedGuideVocalPreference);
+            const initialGuideVocalVolume = Number.isFinite(storedGuideVocalVolume)
+                ? Math.min(1, Math.max(0, storedGuideVocalVolume))
+                : Number(guideVocalVolume.value) / 100;
+            guideVocal.volume = initialGuideVocalVolume;
+            guideVocalVolume.value = String(Math.round(initialGuideVocalVolume * 100));
+            guideVocalOutput.value = `${guideVocalVolume.value}%`;
 
             const formatTime = (seconds: number) => {
                 const safeSeconds = Number.isFinite(seconds) ? Math.max(0, Math.floor(seconds)) : 0;
                 return `${Math.floor(safeSeconds / 60)}:${String(safeSeconds % 60).padStart(2, '0')}`;
+            };
+
+            const syncGuideVocal = (force = false) => {
+                if (guideVocal.readyState < HTMLMediaElement.HAVE_METADATA) return;
+                const drift = Math.abs(guideVocal.currentTime - audio.currentTime);
+                if (force || drift > 0.08) guideVocal.currentTime = audio.currentTime;
             };
 
             const showControls = () => {
@@ -304,6 +365,7 @@ if (
                 let nextIndex = -1;
 
                 setEntryCue(time);
+                if (!audio.paused && !guideVocal.paused) syncGuideVocal();
 
                 for (let index = 0; index < lines.length; index += 1) {
                     if (time >= lines[index].start - lyricPreviewLead) nextIndex = index;
@@ -350,13 +412,22 @@ if (
 
             const togglePlayback = async () => {
                 if (audio.paused) {
-                    try {
-                        await audio.play();
-                    } catch {
+                    syncGuideVocal(true);
+                    const [instrumentalResult, guideVocalResult] = await Promise.allSettled([
+                        audio.play(),
+                        guideVocal.play(),
+                    ]);
+
+                    if (instrumentalResult.status === 'rejected') {
+                        guideVocal.pause();
                         playbackState.textContent = '無法播放，請再試一次';
+                    } else if (guideVocalResult.status === 'rejected') {
+                        guideVocalVolume.disabled = true;
+                        guideVocalOutput.textContent = '不可用';
                     }
                 } else {
                     audio.pause();
+                    guideVocal.pause();
                 }
             };
 
@@ -373,24 +444,42 @@ if (
             fullscreenToggle.addEventListener('click', toggleFullscreen);
             progress.addEventListener('input', () => {
                 audio.currentTime = Number(progress.value);
+                syncGuideVocal(true);
                 render();
                 showControls();
             });
 
+            guideVocalVolume.addEventListener('input', () => {
+                const nextVolume = Number(guideVocalVolume.value) / 100;
+                guideVocal.volume = nextVolume;
+                guideVocalOutput.textContent = `${guideVocalVolume.value}%`;
+                window.localStorage.setItem(guideVocalStorageKey, String(nextVolume));
+                showControls();
+            });
+
             audio.addEventListener('loadedmetadata', render);
+            guideVocal.addEventListener('loadedmetadata', () => syncGuideVocal(true));
             audio.addEventListener('play', () => {
                 updatePlaybackState();
                 window.cancelAnimationFrame(animationFrame);
                 animationFrame = window.requestAnimationFrame(render);
             });
-            audio.addEventListener('pause', updatePlaybackState);
+            audio.addEventListener('pause', () => {
+                guideVocal.pause();
+                updatePlaybackState();
+            });
             audio.addEventListener('ended', () => {
+                guideVocal.pause();
                 updatePlaybackState();
                 render();
             });
             audio.addEventListener('error', () => {
                 playbackState.textContent = '伴奏載入失敗';
                 playToggle.disabled = true;
+            });
+            guideVocal.addEventListener('error', () => {
+                guideVocalVolume.disabled = true;
+                guideVocalOutput.textContent = '不可用';
             });
 
             document.addEventListener('fullscreenchange', () => {
@@ -413,6 +502,7 @@ if (
                     event.preventDefault();
                     const direction = event.key === 'ArrowLeft' ? -1 : 1;
                     audio.currentTime = Math.min(audio.duration || Number(progress.max), Math.max(0, audio.currentTime + direction * 5));
+                    syncGuideVocal(true);
                     render();
                 } else if (event.key.toLowerCase() === 'f') {
                     event.preventDefault();

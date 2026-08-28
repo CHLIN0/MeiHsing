@@ -1,9 +1,11 @@
 ---
 import lyricsText from '../../data/concert-2026-lyrics.txt?raw';
 import {
+    concert2026GuideVocal,
     concert2026Instrumental,
     concert2026LyricStartTimes,
 } from '../../data/concert-2026-lyrics-timing';
+import '../../styles/concert-lyrics-guide.css';
 
 const stanzaMeta = [
     { label: '第一段' },
@@ -87,6 +89,11 @@ let lyricLineIndex = 0;
             src={concert2026Instrumental.src}
             preload="none"
         ></audio>
+        <audio
+            data-guide-vocal-audio
+            src={concert2026GuideVocal.src}
+            preload="none"
+        ></audio>
 
         <div class="concert-lyrics-player__heading">
             <div>
@@ -127,6 +134,23 @@ let lyricLineIndex = 0;
             />
             <output data-audio-time>0:00 / 2:35</output>
         </div>
+
+        <label class="concert-lyrics-player__guide-vocal">
+            <span>
+                <strong>導唱</strong>
+                <small>Vocal</small>
+            </span>
+            <input
+                type="range"
+                min="0"
+                max="100"
+                step="1"
+                value={Math.round(concert2026GuideVocal.defaultVolume * 100)}
+                data-guide-vocal-volume
+                aria-label="導唱音量"
+            />
+            <output data-guide-vocal-output>{Math.round(concert2026GuideVocal.defaultVolume * 100)}%</output>
+        </label>
     </aside>
 </section>
 
@@ -134,24 +158,46 @@ let lyricLineIndex = 0;
     const lyricsSection = document.querySelector<HTMLElement>('.concert-lyrics');
     const player = document.querySelector<HTMLElement>('[data-lyrics-player]');
     const audio = player?.querySelector<HTMLAudioElement>('[data-lyrics-audio]');
+    const guideVocal = player?.querySelector<HTMLAudioElement>('[data-guide-vocal-audio]');
     const playToggle = player?.querySelector<HTMLButtonElement>('[data-play-toggle]');
     const followToggle = player?.querySelector<HTMLButtonElement>('[data-follow-toggle]');
     const progress = player?.querySelector<HTMLInputElement>('[data-audio-progress]');
+    const guideVocalVolume = player?.querySelector<HTMLInputElement>('[data-guide-vocal-volume]');
+    const guideVocalOutput = player?.querySelector<HTMLOutputElement>('[data-guide-vocal-output]');
     const timeOutput = player?.querySelector<HTMLOutputElement>('[data-audio-time]');
     const currentLyric = player?.querySelector<HTMLElement>('[data-current-lyric]');
     const lyricLines = Array.from(document.querySelectorAll<HTMLElement>('[data-lyric-line]'));
     const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
     const lyricTimelineEnd = Number(lyricsSection?.dataset.lyricsEnd || 0);
 
-    if (lyricsSection && player && audio && playToggle && followToggle && progress && timeOutput && currentLyric && lyricLines.length) {
+    if (
+        lyricsSection && player && audio && guideVocal && playToggle && followToggle && progress
+        && guideVocalVolume && guideVocalOutput && timeOutput && currentLyric && lyricLines.length
+    ) {
         let following = true;
         let lyricsInView = false;
         let activeLineIndex = -1;
         let animationFrame = 0;
+        const guideVocalStorageKey = 'concert-2026-guide-vocal-volume';
+
+        const storedGuideVocalPreference = window.localStorage.getItem(guideVocalStorageKey);
+        const storedGuideVocalVolume = storedGuideVocalPreference === null ? Number.NaN : Number(storedGuideVocalPreference);
+        const initialGuideVocalVolume = Number.isFinite(storedGuideVocalVolume)
+            ? Math.min(1, Math.max(0, storedGuideVocalVolume))
+            : Number(guideVocalVolume.value) / 100;
+        guideVocal.volume = initialGuideVocalVolume;
+        guideVocalVolume.value = String(Math.round(initialGuideVocalVolume * 100));
+        guideVocalOutput.value = `${guideVocalVolume.value}%`;
 
         const formatTime = (seconds: number) => {
             const safeSeconds = Number.isFinite(seconds) ? Math.max(0, Math.floor(seconds)) : 0;
             return `${Math.floor(safeSeconds / 60)}:${String(safeSeconds % 60).padStart(2, '0')}`;
+        };
+
+        const syncGuideVocal = (force = false) => {
+            if (guideVocal.readyState < HTMLMediaElement.HAVE_METADATA) return;
+            const drift = Math.abs(guideVocal.currentTime - audio.currentTime);
+            if (force || drift > 0.08) guideVocal.currentTime = audio.currentTime;
         };
 
         const updatePlayerVisibility = () => {
@@ -218,6 +264,7 @@ let lyricLineIndex = 0;
 
         const renderProgress = () => {
             const duration = Number.isFinite(audio.duration) ? audio.duration : Number(progress.max);
+            if (!audio.paused && !guideVocal.paused) syncGuideVocal();
             progress.max = String(duration);
             progress.value = String(audio.currentTime);
             const percent = duration > 0 ? (audio.currentTime / duration) * 100 : 0;
@@ -243,13 +290,22 @@ let lyricLineIndex = 0;
 
         playToggle.addEventListener('click', async () => {
             if (audio.paused) {
-                try {
-                    await audio.play();
-                } catch {
+                syncGuideVocal(true);
+                const [instrumentalResult, guideVocalResult] = await Promise.allSettled([
+                    audio.play(),
+                    guideVocal.play(),
+                ]);
+
+                if (instrumentalResult.status === 'rejected') {
+                    guideVocal.pause();
                     currentLyric.textContent = '無法播放，請再試一次';
+                } else if (guideVocalResult.status === 'rejected') {
+                    guideVocalVolume.disabled = true;
+                    guideVocalOutput.textContent = '不可用';
                 }
             } else {
                 audio.pause();
+                guideVocal.pause();
             }
         });
 
@@ -260,24 +316,41 @@ let lyricLineIndex = 0;
 
         progress.addEventListener('input', () => {
             audio.currentTime = Number(progress.value);
+            syncGuideVocal(true);
             updateActiveLine();
             renderProgress();
         });
 
+        guideVocalVolume.addEventListener('input', () => {
+            const nextVolume = Number(guideVocalVolume.value) / 100;
+            guideVocal.volume = nextVolume;
+            guideVocalOutput.textContent = `${guideVocalVolume.value}%`;
+            window.localStorage.setItem(guideVocalStorageKey, String(nextVolume));
+        });
+
         audio.addEventListener('loadedmetadata', renderProgress);
+        guideVocal.addEventListener('loadedmetadata', () => syncGuideVocal(true));
         audio.addEventListener('play', () => {
             updatePlaybackState();
             window.cancelAnimationFrame(animationFrame);
             animationFrame = window.requestAnimationFrame(renderProgress);
         });
-        audio.addEventListener('pause', updatePlaybackState);
+        audio.addEventListener('pause', () => {
+            guideVocal.pause();
+            updatePlaybackState();
+        });
         audio.addEventListener('ended', () => {
+            guideVocal.pause();
             updatePlaybackState();
             currentLyric.textContent = '播放完畢';
         });
         audio.addEventListener('error', () => {
             currentLyric.textContent = '伴奏載入失敗';
             playToggle.disabled = true;
+        });
+        guideVocal.addEventListener('error', () => {
+            guideVocalVolume.disabled = true;
+            guideVocalOutput.textContent = '不可用';
         });
 
         document.addEventListener('wheel', pauseFollowingForManualNavigation, { passive: true });

@@ -53,3 +53,8 @@ export const concert2026Instrumental = {
     duration: 154.965,
     lyricsEnd: 139.5,
 } as const;
+
+export const concert2026GuideVocal = {
+    src: '/audio/separation-review/04-mdx23c-vocals.m4a',
+    defaultVolume: 0.18,
+} as const;
