@@ -3,8 +3,11 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 import Footer from '../../components/Footer';
 import ConcertHero from '../../components/concert/ConcertHero.astro';
 import ConcertProgramme from '../../components/concert/ConcertProgramme.astro';
+import ConcertLyrics from '../../components/concert/ConcertLyrics.astro';
 import ConcertAcknowledgements from '../../components/concert/ConcertAcknowledgements.astro';
+import OfficialLinksPopover from '../../components/OfficialLinksPopover';
 import { concert2026 } from '../../data/concert-2026';
+import lyricsText from '../../data/concert-2026-lyrics.txt?raw';
 import '../../styles/concert-2026.css';
 
 const title = `2026 ${concert2026.title}｜${concert2026.theme}，${concert2026.themeLine}`;
@@ -60,6 +63,12 @@ const breadcrumbSchema = {
     includeReviewSchema={false}
     structuredData={[eventSchema, breadcrumbSchema]}
 >
+    <script is:inline>
+        (() => {
+            const stageMode = new URLSearchParams(window.location.search).get('stage') === '1';
+            if (stageMode) document.documentElement.dataset.concertStage = 'true';
+        })();
+    </script>
     <div class="concert-page">
         <header class="concert-nav">
             <nav class="concert-shell concert-nav__inner" aria-label="2026 音樂會導覽">
@@ -73,8 +82,15 @@ const breadcrumbSchema = {
 
                 <div class="concert-nav__links">
                     <a href="#programme">節目表</a>
+                    <a href="#lyrics">大合唱</a>
                     <a href="#gratitude">致謝</a>
-                    <a class="concert-nav__home" href="/">老師網站</a>
+                    <OfficialLinksPopover
+                        client:load
+                        fallbackUrl="https://ms.linho.me/concert/2026/"
+                        pageName="2026 師生音樂會"
+                        lyrics={{ title: '明天會更好', text: lyricsText }}
+                    />
+                    <a class="concert-nav__home" href="/"><span aria-hidden="true">←</span>回到主頁</a>
                 </div>
             </nav>
         </header>
@@ -83,9 +99,30 @@ const breadcrumbSchema = {
             <ConcertHero />
 
             <ConcertProgramme />
+            <ConcertLyrics />
             <ConcertAcknowledgements />
         </main>
 
         <Footer />
     </div>
+
+    <script>
+        const concertReduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+
+        document.querySelectorAll<HTMLAnchorElement>('.concert-nav__links a[href^="#"]').forEach((link) => {
+            link.addEventListener('click', (event) => {
+                const target = document.querySelector<HTMLElement>(link.hash);
+                if (!target) return;
+
+                event.preventDefault();
+                const nextUrl = new URL(window.location.href);
+                nextUrl.hash = link.hash;
+                window.history.pushState(null, '', nextUrl);
+                target.scrollIntoView({
+                    behavior: concertReduceMotion.matches ? 'auto' : 'smooth',
+                    block: 'start',
+                });
+            });
+        });
+    </script>
 </BaseLayout>

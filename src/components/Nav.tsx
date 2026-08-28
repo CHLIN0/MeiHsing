@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import OfficialLinksPopover from './OfficialLinksPopover';
 
 const navLinks = [
     { href: '#about', label: '關於' },
@@ -7,7 +8,6 @@ const navLinks = [
     { href: '#gallery', label: '相簿' },
     { href: '#video', label: '影音' },
     { href: '#contact', label: '聯繫' },
-    { href: '/links', label: '分享' },
 ];
 
 export default function Nav() {
@@ -68,6 +68,12 @@ export default function Nav() {
                             </a>
                         </li>
                     ))}
+                    <li className={scrolled ? 'text-warm-600 hover:text-gold' : 'text-warm-100 hover:text-gold-light'}>
+                        <OfficialLinksPopover
+                            fallbackUrl="https://ms.linho.me/"
+                            pageName="林美杏老師官方網站"
+                        />
+                    </li>
                     <li>
                         <a href="#contact" className="btn-cta text-sm py-2 px-5 cursor-pointer">
                             預約試聽
@@ -133,6 +139,12 @@ export default function Nav() {
                                     {label}
                                 </motion.a>
                             ))}
+                            <div className="py-3 text-piano border-b border-gold-muted">
+                                <OfficialLinksPopover
+                                    fallbackUrl="https://ms.linho.me/"
+                                    pageName="林美杏老師官方網站"
+                                />
+                            </div>
                             <a
                                 href="#contact"
                                 onClick={() => setMobileOpen(false)}

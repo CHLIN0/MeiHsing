@@ -7,11 +7,15 @@
 @layer base {
   html {
     scroll-behavior: smooth;
+    max-width: 100%;
+    overflow-x: hidden;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
   }
 
   body {
+    max-width: 100%;
+    overflow-x: hidden;
     font-family: 'Montserrat', 'Noto Sans TC', sans-serif;
     background-color: #FAF7F2;
     color: #3D2B1F;

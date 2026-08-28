@@ -92,13 +92,16 @@ export function parseConcertProgramme(csv: string): ConcertProgrammeEntry[] {
 
     const item = (number: number) => entries.find((entry) => entry.number === number)!;
     assert(item(6).performer === '荊永謙', 'item 6 performer must be 荊永謙');
-    assert(item(14).work === '蕭邦夜曲' && item(14).performer === '蔡宜澄', 'item 14 must be 蕭邦夜曲｜蔡宜澄');
-    assert(item(15).isMasked && item(15).work === '' && item(15).performer === '林承漢', 'item 15 must remain masked for 林承漢');
+    assert(item(12).work === '崖上的波妞' && item(12).performer === '陳綩妤、林美杏老師', 'item 12 must match the latest master');
+    assert(item(14).work === '降E大調夜曲［Op.9 No.2］' && item(14).performer === '蔡宜澄', 'item 14 must be the verified Chopin nocturne');
+    assert(item(15).work === 'Crying for Rain' && item(15).performer === '顏均丞' && !item(15).isMasked, 'item 15 must be Crying for Rain');
     assert(item(16).work === '相思河畔・城裡的月光' && !item(16).details.includes('王宏恩'), 'item 16 contains stale data');
     assert(item(26).performer === '荊永蘅', 'item 26 performer must be 荊永蘅');
-    assert(item(27).work === '世界的約定' && item(27).format === '四手聯彈', 'item 27 title or format is incorrect');
-    assert(!item(27).work.includes('霍爾的移動城堡'), 'item 27 must not show the film annotation');
+    assert(item(22).work === '世界的約定' && item(22).format === '四手聯彈', 'item 22 title or format is incorrect');
+    assert(!item(22).work.includes('霍爾的移動城堡'), 'item 22 must not show the film annotation');
+    assert(item(27).work === '殘酷天使的行動綱領' && item(27).format === '四手聯彈', 'item 27 must be the Evangelion theme');
     assert(item(28).performer === '荊永蘅、荊永謙', 'item 28 performers must be 荊永蘅、荊永謙');
+    assert(item(29).isMasked && item(29).work === '' && item(29).performer === '林承漢', 'item 29 must remain masked for 林承漢');
 
     const serialized = entries.map((entry) => `${entry.work}\n${entry.performer}\n${entry.details}`).join('\n');
     assert(!/荊泳[蘅謙]|蔡怡成|曾文惠|曾文慧|鍵盤｜王宏恩/.test(serialized), 'stale spelling or accompaniment data detected');

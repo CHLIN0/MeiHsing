@@ -16,6 +16,10 @@ export const concert2026 = {
     choirs: [
         {
             name: '興毅忠區合唱團',
+            leadership: [
+                { role: '團長', names: ['劉育鳴'] },
+                { role: '副團長', names: ['蘇麗靜', '黃進興', '梁佳芬'] },
+            ],
             members: [
                 '黃進興', '王柏達', '蘇麗靜', '梁佳芬', '呂美容', '吳家慧',
                 '黃麗娥', '鄧麗文', '趙美華', '翁瑞榮', '謝王姵君', '葉秋桃',
@@ -25,6 +29,9 @@ export const concert2026 = {
         },
         {
             name: '興毅信三區合唱團',
+            leadership: [
+                { role: '團長', names: ['陳栢宏'] },
+            ],
             members: [
                 '陳栢宏', '林麗琴', '洪碧玲', '王姿云', '劉安誠', '黃玉全',
                 '王世明', '吳榮華', '王琴薈', '劉麗娟', '蔡佩縈', '陳淑娥',
@@ -34,6 +41,9 @@ export const concert2026 = {
 } as const;
 
 const choirNames = concert2026.choirs.flatMap((choir) => choir.members);
+const choirLeadership = concert2026.choirs.flatMap((choir) =>
+    choir.leadership.flatMap((entry) => entry.names.map((name) => `${choir.name}｜${entry.role}｜${name}`)),
+);
 
 if (
     !choirNames.includes('翁瑞榮')
@@ -45,4 +55,14 @@ if (
 
 if (concert2026.choirs[0].members.length !== 22 || concert2026.choirs[1].members.length !== 12) {
     throw new Error('2026 concert choir roster counts must match the latest Canva programme.');
+}
+
+if (
+    !choirLeadership.includes('興毅忠區合唱團｜團長｜劉育鳴')
+    || !choirLeadership.includes('興毅忠區合唱團｜副團長｜蘇麗靜')
+    || !choirLeadership.includes('興毅忠區合唱團｜副團長｜黃進興')
+    || !choirLeadership.includes('興毅忠區合唱團｜副團長｜梁佳芬')
+    || !choirLeadership.includes('興毅信三區合唱團｜團長｜陳栢宏')
+) {
+    throw new Error('2026 concert choir leadership must match the final programme credits.');
 }

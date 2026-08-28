@@ -14,6 +14,7 @@ pnpm-debug.log*
 
 # generated visual QA evidence
 qa/
+.qr-studio-dist/
 
 
 # environment variables

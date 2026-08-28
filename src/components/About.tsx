@@ -3,7 +3,7 @@ import { fadeInLeft, fadeInRight, staggerContainer, viewportOnce } from '../anim
 
 export default function About() {
     return (
-        <section id="about" className="bg-cream section-padding" aria-labelledby="about-heading">
+        <section id="about" className="bg-cream section-padding overflow-x-hidden" aria-labelledby="about-heading">
             <div className="max-w-6xl mx-auto px-6">
                 <motion.div
                     className="flex flex-col lg:flex-row items-center gap-12 lg:gap-20"

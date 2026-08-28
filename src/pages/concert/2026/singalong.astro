@@ -1,0 +1,296 @@
+---
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+import lyricsText from '../../../data/concert-2026-lyrics.txt?raw';
+import {
+    concert2026Instrumental,
+    concert2026LyricStartTimes,
+} from '../../../data/concert-2026-lyrics-timing';
+import '../../../styles/concert-singalong.css';
+
+const lyricLines = lyricsText
+    .trim()
+    .split('\n')
+    .map((line) => line.trim())
+    .filter(Boolean);
+
+if (
+    lyricLines.length !== concert2026LyricStartTimes.length
+    || concert2026LyricStartTimes.some((time, index) => index > 0 && time <= concert2026LyricStartTimes[index - 1])
+) {
+    throw new Error('Sing-along lyrics and timing data must contain the same number of ordered entries.');
+}
+---
+
+<BaseLayout
+    title="明天會更好｜2026 師生音樂會大合唱投影"
+    description="2026 林美杏老師師生音樂會《明天會更好》大合唱投影畫面。"
+    ogImage="/concert/2026/og-2026-concert.jpg"
+    ogImageAlt="2026 林美杏老師師生音樂會櫻花主視覺"
+    includeReviewSchema={false}
+    robots="noindex, nofollow"
+>
+    <main class="singalong" data-singalong data-playing="false" data-controls-visible="true" id="main-content">
+        <div class="singalong__art" aria-hidden="true">
+            <img src="/concert/2026/stage-sakura-poster-4k.webp" alt="" />
+        </div>
+        <div class="singalong__veil" aria-hidden="true"></div>
+        <div class="singalong__petals" aria-hidden="true"></div>
+
+        <header class="singalong__topbar" data-singalong-chrome>
+            <a class="singalong__back" href="/concert/2026/#lyrics">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m15 18-6-6 6-6"></path></svg>
+                <span>返回大合唱</span>
+            </a>
+            <p><span>2026 師生音樂會</span><strong>大合唱</strong></p>
+            <button class="singalong__fullscreen" type="button" data-fullscreen-toggle aria-label="進入全螢幕">
+                <svg class="is-enter" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 3H3v5M16 3h5v5M8 21H3v-5M16 21h5v-5"></path></svg>
+                <svg class="is-exit" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 8h5V3M21 8h-5V3M3 16h5v5M21 16h-5v5"></path></svg>
+                <span>全螢幕</span>
+            </button>
+        </header>
+
+        <section class="singalong__stage" aria-labelledby="singalong-title">
+            <div class="singalong__title" data-singalong-title>
+                <p>2026 林美杏老師師生音樂會</p>
+                <h1 id="singalong-title">明天會更好</h1>
+                <span>大合唱</span>
+            </div>
+
+            <div class="singalong__lyrics" data-singalong-lyrics aria-live="off">
+                <p class="singalong__line singalong__line--previous" data-previous-line aria-hidden="true"></p>
+                <div class="singalong__current-wrap">
+                    <p class="singalong__line singalong__line--current" data-current-line>準備開始</p>
+                    <span class="singalong__line-progress" aria-hidden="true"></span>
+                </div>
+                <p class="singalong__line singalong__line--next" data-next-line>輕輕敲醒沉睡的心靈</p>
+            </div>
+        </section>
+
+        <div class="singalong__source" data-singalong-source hidden>
+            {lyricLines.map((line, index) => (
+                <span data-start={concert2026LyricStartTimes[index]}>{line}</span>
+            ))}
+        </div>
+
+        <aside class="singalong__controls" data-singalong-chrome aria-label="伴奏播放控制">
+            <audio
+                data-singalong-audio
+                src={concert2026Instrumental.src}
+                preload="metadata"
+            ></audio>
+            <button class="singalong__play" type="button" data-play-toggle aria-label="播放伴奏">
+                <svg class="is-play" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 7 8 5-8 5z"></path></svg>
+                <svg class="is-pause" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 7v10M15 7v10"></path></svg>
+            </button>
+            <div class="singalong__timeline">
+                <input
+                    type="range"
+                    min="0"
+                    max={concert2026Instrumental.duration}
+                    step="0.1"
+                    value="0"
+                    data-audio-progress
+                    aria-label="伴奏播放進度"
+                />
+                <div>
+                    <span data-playback-state>準備播放</span>
+                    <output data-audio-time>0:00 / 2:20</output>
+                </div>
+            </div>
+            <p class="singalong__shortcuts"><kbd>Space</kbd> 播放　<kbd>←</kbd><kbd>→</kbd> 快轉　<kbd>F</kbd> 全螢幕</p>
+        </aside>
+    </main>
+
+    <script>
+        const singalong = document.querySelector<HTMLElement>('[data-singalong]');
+        const audio = singalong?.querySelector<HTMLAudioElement>('[data-singalong-audio]');
+        const playToggle = singalong?.querySelector<HTMLButtonElement>('[data-play-toggle]');
+        const fullscreenToggle = singalong?.querySelector<HTMLButtonElement>('[data-fullscreen-toggle]');
+        const progress = singalong?.querySelector<HTMLInputElement>('[data-audio-progress]');
+        const timeOutput = singalong?.querySelector<HTMLOutputElement>('[data-audio-time]');
+        const playbackState = singalong?.querySelector<HTMLElement>('[data-playback-state]');
+        const titleCard = singalong?.querySelector<HTMLElement>('[data-singalong-title]');
+        const lyricWindow = singalong?.querySelector<HTMLElement>('[data-singalong-lyrics]');
+        const previousLine = singalong?.querySelector<HTMLElement>('[data-previous-line]');
+        const currentLine = singalong?.querySelector<HTMLElement>('[data-current-line]');
+        const nextLine = singalong?.querySelector<HTMLElement>('[data-next-line]');
+        const sourceLines = Array.from(singalong?.querySelectorAll<HTMLElement>('[data-singalong-source] span') || []);
+        const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+
+        if (
+            singalong && audio && playToggle && fullscreenToggle && progress && timeOutput && playbackState
+            && titleCard && lyricWindow && previousLine && currentLine && nextLine && sourceLines.length
+        ) {
+            const lines = sourceLines.map((line) => ({
+                text: line.textContent?.trim() || '',
+                start: Number(line.dataset.start),
+            }));
+            let activeIndex = -2;
+            let animationFrame = 0;
+            let controlsTimer = 0;
+
+            const formatTime = (seconds: number) => {
+                const safeSeconds = Number.isFinite(seconds) ? Math.max(0, Math.floor(seconds)) : 0;
+                return `${Math.floor(safeSeconds / 60)}:${String(safeSeconds % 60).padStart(2, '0')}`;
+            };
+
+            const showControls = () => {
+                window.clearTimeout(controlsTimer);
+                singalong.dataset.controlsVisible = 'true';
+                if (!audio.paused) {
+                    controlsTimer = window.setTimeout(() => {
+                        if (!audio.paused && !singalong.matches(':focus-within')) {
+                            singalong.dataset.controlsVisible = 'false';
+                        }
+                    }, 3200);
+                }
+            };
+
+            const setLyricWindow = (index: number) => {
+                if (index === activeIndex) return;
+                activeIndex = index;
+
+                if (index < 0) {
+                    titleCard.dataset.visible = 'true';
+                    lyricWindow.dataset.visible = 'false';
+                    previousLine.textContent = '';
+                    currentLine.textContent = '準備開始';
+                    nextLine.textContent = lines[0]?.text || '';
+                    return;
+                }
+
+                titleCard.dataset.visible = 'false';
+                lyricWindow.dataset.visible = 'true';
+                previousLine.textContent = index > 0 ? lines[index - 1].text : '';
+                currentLine.textContent = lines[index].text;
+                nextLine.textContent = lines[index + 1]?.text || '';
+
+                if (!reduceMotion.matches) {
+                    lyricWindow.animate([
+                        { opacity: 0.46, transform: 'translateY(1.4rem)' },
+                        { opacity: 1, transform: 'translateY(0)' },
+                    ], {
+                        duration: 460,
+                        easing: 'cubic-bezier(0.22, 1, 0.36, 1)',
+                    });
+                }
+            };
+
+            const render = () => {
+                const duration = Number.isFinite(audio.duration) ? audio.duration : Number(progress.max);
+                const time = audio.currentTime;
+                let nextIndex = -1;
+
+                for (let index = 0; index < lines.length; index += 1) {
+                    if (time >= lines[index].start) nextIndex = index;
+                    else break;
+                }
+
+                setLyricWindow(nextIndex);
+                progress.max = String(duration);
+                progress.value = String(time);
+                const audioPercent = duration > 0 ? (time / duration) * 100 : 0;
+                progress.style.setProperty('--audio-progress', `${audioPercent}%`);
+                timeOutput.textContent = `${formatTime(time)} / ${formatTime(duration)}`;
+
+                if (nextIndex >= 0) {
+                    const lineStart = lines[nextIndex].start;
+                    const lineEnd = lines[nextIndex + 1]?.start ?? duration;
+                    const linePercent = lineEnd > lineStart
+                        ? Math.min(100, Math.max(0, ((time - lineStart) / (lineEnd - lineStart)) * 100))
+                        : 100;
+                    lyricWindow.style.setProperty('--line-progress', `${linePercent}%`);
+                } else {
+                    lyricWindow.style.setProperty('--line-progress', '0%');
+                }
+
+                if (!audio.paused && !audio.ended) animationFrame = window.requestAnimationFrame(render);
+            };
+
+            const updatePlaybackState = () => {
+                const playing = !audio.paused && !audio.ended;
+                singalong.dataset.playing = String(playing);
+                playToggle.setAttribute('aria-label', playing ? '暫停伴奏' : '播放伴奏');
+                playbackState.textContent = audio.ended ? '播放完畢' : playing ? '播放中' : audio.currentTime > 0 ? '已暫停' : '準備播放';
+                showControls();
+            };
+
+            const togglePlayback = async () => {
+                if (audio.paused) {
+                    try {
+                        await audio.play();
+                    } catch {
+                        playbackState.textContent = '無法播放，請再試一次';
+                    }
+                } else {
+                    audio.pause();
+                }
+            };
+
+            const toggleFullscreen = async () => {
+                try {
+                    if (document.fullscreenElement) await document.exitFullscreen();
+                    else await document.documentElement.requestFullscreen();
+                } catch {
+                    playbackState.textContent = '此瀏覽器無法進入全螢幕';
+                }
+            };
+
+            playToggle.addEventListener('click', togglePlayback);
+            fullscreenToggle.addEventListener('click', toggleFullscreen);
+            progress.addEventListener('input', () => {
+                audio.currentTime = Number(progress.value);
+                render();
+                showControls();
+            });
+
+            audio.addEventListener('loadedmetadata', render);
+            audio.addEventListener('play', () => {
+                updatePlaybackState();
+                window.cancelAnimationFrame(animationFrame);
+                animationFrame = window.requestAnimationFrame(render);
+            });
+            audio.addEventListener('pause', updatePlaybackState);
+            audio.addEventListener('ended', () => {
+                updatePlaybackState();
+                render();
+            });
+            audio.addEventListener('error', () => {
+                playbackState.textContent = '伴奏載入失敗';
+                playToggle.disabled = true;
+            });
+
+            document.addEventListener('fullscreenchange', () => {
+                const isFullscreen = Boolean(document.fullscreenElement);
+                singalong.dataset.fullscreen = String(isFullscreen);
+                fullscreenToggle.setAttribute('aria-label', isFullscreen ? '離開全螢幕' : '進入全螢幕');
+                fullscreenToggle.querySelector('span')!.textContent = isFullscreen ? '離開全螢幕' : '全螢幕';
+                showControls();
+            });
+
+            document.addEventListener('pointermove', showControls, { passive: true });
+            document.addEventListener('pointerdown', showControls, { passive: true });
+            document.addEventListener('keydown', (event) => {
+                if (event.target instanceof HTMLInputElement) return;
+
+                if (event.code === 'Space') {
+                    event.preventDefault();
+                    togglePlayback();
+                } else if (event.key === 'ArrowLeft' || event.key === 'ArrowRight') {
+                    event.preventDefault();
+                    const direction = event.key === 'ArrowLeft' ? -1 : 1;
+                    audio.currentTime = Math.min(audio.duration || Number(progress.max), Math.max(0, audio.currentTime + direction * 5));
+                    render();
+                } else if (event.key.toLowerCase() === 'f') {
+                    event.preventDefault();
+                    toggleFullscreen();
+                }
+                showControls();
+            });
+
+            updatePlaybackState();
+            setLyricWindow(-1);
+            render();
+        }
+    </script>
+</BaseLayout>

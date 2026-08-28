@@ -5,7 +5,14 @@ import sitemap from '@astrojs/sitemap';
 
 export default defineConfig({
     site: 'https://ms.linho.me',
-    integrations: [react(), tailwind(), sitemap()],
+    integrations: [
+        react(),
+        tailwind(),
+        sitemap({
+            filter: (page) => !page.includes('/tools/audio-separation-review/')
+                && !page.includes('/concert/2026/guide/'),
+        }),
+    ],
     output: 'static',
     redirects: {
         '/2026-concert': '/concert/2026/',

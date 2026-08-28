@@ -9,6 +9,18 @@ export interface PianoQrModel {
   viewBoxSize: number;
 }
 
+export type PianoQrSurface = 'website' | 'light-panel' | 'transparent';
+
+export interface PianoQrRenderOptions {
+  surface?: PianoQrSurface;
+}
+
+export interface PianoQrSvgOptions extends PianoQrRenderOptions {
+  label?: string;
+  padding?: number;
+  quietZone?: number;
+}
+
 const escapeXml = (value: string) => value
   .replaceAll('&', '&amp;')
   .replaceAll('<', '&lt;')
@@ -70,8 +82,14 @@ export const createPianoQrModel = (value: string): PianoQrModel => {
   };
 };
 
-export const renderPianoQrContent = (model: PianoQrModel, label: string, value: string) => {
+export const renderPianoQrContent = (
+  model: PianoQrModel,
+  label: string,
+  value: string,
+  options: PianoQrRenderOptions = {},
+) => {
   const { finderOrigins, mark, moduleCount, modules, quietZone, viewBoxSize } = model;
+  const surface = options.surface ?? 'website';
   const safeLabel = escapeXml(label);
   const safeValue = escapeXml(value);
   const depths = modules.map(({ x, y }) => `<rect x="${x + 0.21}" y="${y + 0.2}" width="0.68" height="0.78" rx="0.2" />`).join('');
@@ -101,8 +119,8 @@ export const renderPianoQrContent = (model: PianoQrModel, label: string, value: 
         <path d="M0 7.72H2.35" stroke="#8c633a" stroke-width="0.07" opacity="0.28" />
       </pattern>
     </defs>
-    <rect width="${viewBoxSize}" height="${viewBoxSize}" rx="2.2" fill="#fffdf8" />
-    <rect class="styled-qr-code__ivory-field" x="${quietZone}" y="${quietZone}" width="${moduleCount}" height="${moduleCount}" rx="0.7" fill="url(#links-qr-ivory-keys)" />
+    ${surface === 'transparent' ? '' : `<rect class="styled-qr-code__backing" width="${viewBoxSize}" height="${viewBoxSize}" rx="2.2" fill="#fffdf8" />`}
+    ${surface === 'transparent' ? '' : `<rect class="styled-qr-code__ivory-field" x="${quietZone}" y="${quietZone}" width="${moduleCount}" height="${moduleCount}" rx="0.7" fill="url(#links-qr-ivory-keys)" />`}
     <g class="styled-qr-code__key-depths" fill="url(#links-qr-key-depth)">${depths}</g>
     <g class="styled-qr-code__dots styled-qr-code__piano-keys" fill="url(#links-qr-ink)">${keys}</g>
     <g class="styled-qr-code__finders">${finders}</g>
@@ -121,6 +139,22 @@ export const renderPianoQrContent = (model: PianoQrModel, label: string, value: 
       </g>
       <path d="M${mark.x + 1.55} ${mark.y + 5.45}v0.72 M${mark.x + 7.45} ${mark.y + 5.45}v0.72 M${mark.x + 4.2} ${mark.y + 5.48}l0.3 0.48 0.3-0.48" fill="none" stroke="#6f4d31" stroke-width="0.32" stroke-linecap="round" stroke-linejoin="round" />
     </g>`;
+};
+
+export const renderPianoQrSvg = (value: string, options: PianoQrSvgOptions = {}) => {
+  const model = createPianoQrModel(value);
+  const surface = options.surface ?? 'transparent';
+  const padding = Math.max(0, options.padding ?? 0);
+  const quietZone = Math.min(12, Math.max(0, options.quietZone ?? model.quietZone));
+  const origin = model.quietZone - quietZone - padding;
+  const size = model.moduleCount + quietZone * 2 + padding * 2;
+  const label = options.label ?? 'Piano QR Code';
+  const content = renderPianoQrContent(model, label, value, { surface });
+  const extendedBacking = surface === 'transparent'
+    ? ''
+    : `<rect class="styled-qr-code__extended-backing" x="${origin}" y="${origin}" width="${size}" height="${size}" rx="2.2" fill="#fffdf8" />`;
+
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="${origin} ${origin} ${size} ${size}" role="img" aria-labelledby="links-qr-title links-qr-description">${extendedBacking}${content}</svg>`;
 };
 
 export const getRuntimePageUrl = (href: string) => {

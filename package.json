@@ -7,6 +7,11 @@
     "dev": "astro dev",
     "build": "astro build",
     "preview": "astro preview",
+    "qr:studio": "vite tools/piano-qr-studio --host 127.0.0.1",
+    "qr:studio:build": "vite build tools/piano-qr-studio --outDir ../../.qr-studio-dist --emptyOutDir",
+    "qa:qr-studio": "node scripts/qa-piano-qr-studio.mjs",
+    "qa:official-links": "node scripts/qa-official-links-popover.mjs",
+    "qa:concert-stage": "node scripts/qa-concert-stage.mjs",
     "astro": "astro"
   },
   "dependencies": {

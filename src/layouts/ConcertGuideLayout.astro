@@ -1,0 +1,442 @@
+---
+import BaseLayout from './BaseLayout.astro';
+import programmeCsv from '../data/concert-2026-programme.csv?raw';
+import { concert2026 } from '../data/concert-2026';
+import { parseConcertProgramme } from '../utils/concertProgramme';
+import '../styles/concert-guide.css';
+
+interface Props {
+    frontmatter: {
+        title: string;
+        description: string;
+    };
+}
+
+const { frontmatter } = Astro.props;
+const programme = parseConcertProgramme(programmeCsv);
+const halves = [
+    {
+        id: 'first-half',
+        title: '上半場',
+        range: '01–15',
+        entries: programme.filter((entry) => entry.half === '上半場'),
+    },
+    {
+        id: 'second-half',
+        title: '下半場',
+        range: '16–30',
+        entries: programme.filter((entry) => entry.half === '下半場'),
+    },
+] as const;
+---
+
+<BaseLayout
+    title={frontmatter.title}
+    description={frontmatter.description}
+    ogImage="/concert/2026/og-2026-concert.jpg"
+    ogImageAlt="櫻花樹下，大手牽著小手走向鋼琴的 2026 師生音樂會主視覺"
+    includeReviewSchema={false}
+    robots="noindex, nofollow, noarchive"
+>
+    <div class="programme-page">
+        <header class="programme-nav">
+            <nav class="programme-shell programme-nav__inner" aria-label="曲目解說頁導覽">
+                <a class="programme-nav__brand" href="/concert/2026/" aria-label="回到 2026 師生音樂會">
+                    <img src="/logo.webp" alt="" width="38" height="38" />
+                    <span>
+                        <strong>林美杏音樂教室</strong>
+                        <small>2026 Teacher–Student Concert</small>
+                    </span>
+                </a>
+                <a class="programme-nav__back" href="/concert/2026/"><span aria-hidden="true">←</span>音樂會首頁</a>
+            </nav>
+        </header>
+
+        <main id="main-content">
+            <header class="programme-masthead programme-shell">
+                <div class="programme-masthead__identity">
+                    <p class="programme-kicker">2026 林美杏老師師生音樂會</p>
+                    <h1>曲目解說</h1>
+                    <p>點選任一節目，即可查看作品背景、主持口白、上台提示與查證來源；關閉後會回到原來的位置。</p>
+                </div>
+                <dl class="programme-masthead__facts" aria-label="音樂會資訊">
+                    <div>
+                        <dt>Date · Time</dt>
+                        <dd><time datetime={concert2026.dateTime}>{concert2026.dateLabel}　{concert2026.time}</time></dd>
+                    </div>
+                    <div>
+                        <dt>Venue</dt>
+                        <dd>{concert2026.venue}</dd>
+                    </div>
+                    <div>
+                        <dt>Programme</dt>
+                        <dd>30 個節目</dd>
+                    </div>
+                </dl>
+            </header>
+
+            <section id="programme-sheet" class="programme-sheet programme-shell" aria-labelledby="programme-sheet-title">
+                <header class="programme-sheet__header">
+                    <div>
+                        <p>Programme · Annotated edition</p>
+                        <h2 id="programme-sheet-title" tabindex="-1">演出節目</h2>
+                    </div>
+                    <div class="programme-sheet__legend" aria-label="解說類型">
+                        <span><i class="is-featured"></i>重點解說</span>
+                        <span><i class="is-optional"></i>備用資料</span>
+                        <span><i class="is-cue"></i>僅報幕</span>
+                    </div>
+                </header>
+
+                <div class="programme-sheet__halves">
+                    {halves.map((half) => (
+                        <section id={half.id} class="programme-half" aria-labelledby={`${half.id}-title`}>
+                            <header class="programme-half__header">
+                                <div>
+                                    <p>{half.range}</p>
+                                    <h3 id={`${half.id}-title`}>{half.title}</h3>
+                                </div>
+                                {half.id === 'first-half' && <span>主持人｜{concert2026.hosts.join('、')}</span>}
+                            </header>
+
+                            <ol class="programme-list" start={half.entries[0]?.number}>
+                                {half.entries.map((entry) => {
+                                    const number = String(entry.number).padStart(2, '0');
+                                    const displayTitle = entry.isMasked ? '彩蛋曲目' : entry.work;
+                                    const performerText = [entry.performer, entry.details].filter(Boolean).join('\n');
+
+                                    return (
+                                        <li class:list={['programme-row', entry.isMasked && 'programme-row--masked']} data-programme-row={number}>
+                                            <button
+                                                type="button"
+                                                class="programme-row__button"
+                                                aria-haspopup="dialog"
+                                                aria-expanded="false"
+                                                aria-label={`查看第 ${entry.number} 個節目：${displayTitle}`}
+                                                data-programme-trigger={number}
+                                                data-title={displayTitle}
+                                                data-half={entry.half}
+                                                data-performers={performerText}
+                                                data-format={entry.format}
+                                            >
+                                                <span class="programme-row__number" aria-hidden="true">{number}</span>
+                                                <span class="programme-row__content">
+                                                    <span class="programme-row__title-line">
+                                                        <strong>{displayTitle}</strong>
+                                                        {entry.format && <small>{entry.format}</small>}
+                                                    </span>
+                                                    {entry.performer && <span class="programme-row__performer">{entry.performer}</span>}
+                                                    {entry.details && (
+                                                        <span class="programme-row__details">
+                                                            {entry.details.split('\n').map((line) => <span>{line}</span>)}
+                                                        </span>
+                                                    )}
+                                                </span>
+                                                <span class="programme-row__action">
+                                                    <span class="programme-row__kind" data-programme-kind aria-hidden="true"></span>
+                                                    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5l7 7-7 7" /></svg>
+                                                </span>
+                                            </button>
+                                        </li>
+                                    );
+                                })}
+                            </ol>
+
+                            {half.id === 'first-half' && (
+                                <div class="programme-intermission" aria-label="中場休息">
+                                    <span></span><p>中場休息</p><span></span>
+                                </div>
+                            )}
+                        </section>
+                    ))}
+                </div>
+            </section>
+
+            <section class="programme-source programme-shell" aria-labelledby="programme-source-title" data-programme-source>
+                <header>
+                    <p>Plain text fallback</p>
+                    <h2 id="programme-source-title">完整曲目解說</h2>
+                </header>
+                <div data-programme-source-content>
+                    <slot />
+                </div>
+            </section>
+        </main>
+
+        <button class="programme-back-top" type="button" aria-label="回到節目表頂端" data-back-top>
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 14l7-7 7 7" /></svg>
+            <span>回到節目表</span>
+        </button>
+
+        <dialog class="programme-dialog" aria-labelledby="programme-dialog-title" aria-describedby="programme-dialog-performers" data-programme-dialog>
+            <article class="programme-dialog__sheet">
+                <header class="programme-dialog__header">
+                    <div class="programme-dialog__heading">
+                        <p><span data-dialog-number>01</span><span data-dialog-half>上半場</span><span data-dialog-level>重點解說</span></p>
+                        <h2 id="programme-dialog-title" data-dialog-title></h2>
+                        <p id="programme-dialog-performers" data-dialog-performers></p>
+                    </div>
+                    <button class="programme-dialog__close" type="button" aria-label="關閉曲目解說" data-dialog-close>
+                        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18" /></svg>
+                        <span>關閉</span>
+                    </button>
+                </header>
+
+                <div class="programme-dialog__body" data-dialog-scroll>
+                    <div class="programme-detail" data-dialog-content></div>
+                </div>
+
+                <footer class="programme-dialog__footer">
+                    <button type="button" data-dialog-previous><span aria-hidden="true">←</span><span data-previous-label>上一個節目</span></button>
+                    <p data-dialog-position>01 / 30</p>
+                    <button type="button" data-dialog-next><span data-next-label>下一個節目</span><span aria-hidden="true">→</span></button>
+                </footer>
+            </article>
+        </dialog>
+    </div>
+
+    <script>
+        const source = document.querySelector<HTMLElement>('[data-programme-source-content]');
+        const dialog = document.querySelector<HTMLDialogElement>('[data-programme-dialog]');
+        const dialogContent = document.querySelector<HTMLElement>('[data-dialog-content]');
+        const dialogScroll = document.querySelector<HTMLElement>('[data-dialog-scroll]');
+        const dialogTitle = document.querySelector<HTMLElement>('[data-dialog-title]');
+        const dialogNumber = document.querySelector<HTMLElement>('[data-dialog-number]');
+        const dialogHalf = document.querySelector<HTMLElement>('[data-dialog-half]');
+        const dialogLevel = document.querySelector<HTMLElement>('[data-dialog-level]');
+        const dialogPerformers = document.querySelector<HTMLElement>('[data-dialog-performers]');
+        const dialogPosition = document.querySelector<HTMLElement>('[data-dialog-position]');
+        const previousButton = document.querySelector<HTMLButtonElement>('[data-dialog-previous]');
+        const nextButton = document.querySelector<HTMLButtonElement>('[data-dialog-next]');
+        const previousLabel = document.querySelector<HTMLElement>('[data-previous-label]');
+        const nextLabel = document.querySelector<HTMLElement>('[data-next-label]');
+        const closeButton = document.querySelector<HTMLButtonElement>('[data-dialog-close]');
+        const backTop = document.querySelector<HTMLButtonElement>('[data-back-top]');
+        const sheetHeading = document.querySelector<HTMLElement>('#programme-sheet-title');
+        const triggers = Array.from(document.querySelectorAll<HTMLButtonElement>('[data-programme-trigger]'));
+        const notes = new Map<string, { element: HTMLElement; level: string }>();
+        const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+        let activeNumber = '';
+        let activeTrigger: HTMLButtonElement | null = null;
+
+        const levelLabels: Record<string, string> = {
+            A: '重點解說',
+            B: '備用資料',
+            C: '僅報幕',
+        };
+
+        const buildNotes = () => {
+            if (!source) return false;
+            const headings = Array.from(source.querySelectorAll<HTMLHeadingElement>(':scope > h2'));
+            const trackHeadings = headings.filter((heading) => /^\d{2}\s/.test(heading.textContent?.trim() ?? ''));
+            const closingHeading = headings.find((heading) => heading.textContent?.trim() === '最後校對說明') ?? null;
+
+            trackHeadings.forEach((heading, index) => {
+                const number = heading.textContent?.trim().slice(0, 2) ?? '';
+                const section = document.createElement('section');
+                const nextHeading = trackHeadings[index + 1] ?? closingHeading;
+                section.className = 'programme-source-note';
+                section.id = `source-note-${number}`;
+                heading.parentNode?.insertBefore(section, heading);
+
+                let node: Element | null = heading;
+                while (node && node !== nextHeading) {
+                    const following: Element | null = node.nextElementSibling;
+                    section.appendChild(node);
+                    node = following;
+                }
+
+                const recommendation = Array.from(section.querySelectorAll('strong'))
+                    .find((strong) => strong.textContent?.includes('採用建議'))
+                    ?.textContent ?? '';
+                const level = recommendation.match(/採用建議：([ABC])/)?.[1] ?? 'B';
+                notes.set(number, { element: section, level });
+            });
+
+            return notes.size === 30;
+        };
+
+        const decorateDetail = (section: HTMLElement) => {
+            const clone = section.cloneNode(true) as HTMLElement;
+            clone.removeAttribute('id');
+            clone.querySelector('h2')?.remove();
+            clone.querySelectorAll('hr').forEach((rule) => rule.remove());
+
+            Array.from(clone.querySelectorAll('p')).forEach((paragraph) => {
+                const text = paragraph.textContent?.trim() ?? '';
+                if (text.startsWith('採用建議：')) {
+                    paragraph.remove();
+                    return;
+                }
+
+                if (text === '查證重點') {
+                    paragraph.className = 'programme-detail__label programme-detail__label--facts';
+                    paragraph.textContent = '查證摘要';
+                    paragraph.nextElementSibling?.classList.add('programme-detail__facts');
+                    return;
+                }
+
+                if (text === '主持可直接念') {
+                    paragraph.className = 'programme-detail__label programme-detail__label--script';
+                    paragraph.textContent = '主持口白';
+                    paragraph.nextElementSibling?.classList.add('programme-detail__script');
+                    return;
+                }
+
+                if (text.startsWith('🎙 報幕／上台提示')) {
+                    paragraph.className = 'programme-detail__cue';
+                    const strong = paragraph.querySelector('strong');
+                    if (strong) strong.textContent = '上台提示';
+                    return;
+                }
+
+                if (text === '主持注意') {
+                    paragraph.className = 'programme-detail__label programme-detail__label--notice';
+                    paragraph.nextElementSibling?.classList.add('programme-detail__notice');
+                    return;
+                }
+
+                if (text === '來源依據') {
+                    const list = paragraph.nextElementSibling;
+                    if (list?.tagName !== 'UL') return;
+                    const details = document.createElement('details');
+                    const summary = document.createElement('summary');
+                    const count = list.querySelectorAll('li').length;
+                    details.className = 'programme-detail__sources';
+                    summary.textContent = `查證來源 · ${count} 則`;
+                    paragraph.parentNode?.insertBefore(details, paragraph);
+                    details.append(summary, list);
+                    paragraph.remove();
+                }
+            });
+
+            clone.querySelectorAll<HTMLAnchorElement>('a').forEach((link) => {
+                link.target = '_blank';
+                link.rel = 'noopener noreferrer';
+            });
+
+            return clone;
+        };
+
+        const updateRowKinds = () => {
+            triggers.forEach((trigger) => {
+                const number = trigger.dataset.programmeTrigger ?? '';
+                const level = notes.get(number)?.level ?? 'B';
+                const kind = trigger.querySelector<HTMLElement>('[data-programme-kind]');
+                trigger.closest<HTMLElement>('[data-programme-row]')!.dataset.level = level;
+                if (kind) kind.textContent = levelLabels[level];
+            });
+        };
+
+        const closeDialog = (restoreFocus = true) => {
+            if (!dialog?.open) return;
+            dialog.close();
+            document.body.classList.remove('is-programme-dialog-open');
+            triggers.forEach((trigger) => trigger.setAttribute('aria-expanded', 'false'));
+            activeNumber = '';
+            if (restoreFocus) activeTrigger?.focus({ preventScroll: true });
+        };
+
+        const requestClose = () => {
+            const hashNumber = window.location.hash.match(/^#note-(\d{2})$/)?.[1];
+            if (hashNumber && window.history.state?.programmeNote === hashNumber) {
+                window.history.back();
+                return;
+            }
+
+            if (hashNumber) {
+                window.history.replaceState(null, '', `${window.location.pathname}${window.location.search}`);
+            }
+            closeDialog();
+        };
+
+        const openNote = (number: string, historyMode: 'push' | 'replace' | 'none' = 'push') => {
+            if (!dialog || !dialogContent || !dialogTitle || !dialogNumber || !dialogHalf || !dialogLevel || !dialogPerformers) return;
+            const note = notes.get(number);
+            const trigger = triggers.find((candidate) => candidate.dataset.programmeTrigger === number);
+            if (!note || !trigger) return;
+
+            activeNumber = number;
+            activeTrigger = trigger;
+            dialogContent.replaceChildren(decorateDetail(note.element));
+            dialogTitle.textContent = trigger.dataset.title ?? `第 ${Number(number)} 個節目`;
+            dialogNumber.textContent = number;
+            dialogHalf.textContent = trigger.dataset.half ?? '';
+            dialogLevel.textContent = levelLabels[note.level];
+            dialogLevel.dataset.level = note.level;
+            dialog.dataset.level = note.level;
+            dialogPerformers.textContent = trigger.dataset.performers ?? '';
+            if (dialogPosition) dialogPosition.textContent = `${number} / 30`;
+
+            const numeric = Number(number);
+            const previous = numeric > 1 ? String(numeric - 1).padStart(2, '0') : '';
+            const next = numeric < 30 ? String(numeric + 1).padStart(2, '0') : '';
+            if (previousButton) previousButton.disabled = !previous;
+            if (nextButton) nextButton.disabled = !next;
+            if (previousLabel) previousLabel.textContent = previous ? `上一個 · ${previous}` : '已是第一個節目';
+            if (nextLabel) nextLabel.textContent = next ? `下一個 · ${next}` : '已是最後一個節目';
+            previousButton!.dataset.target = previous;
+            nextButton!.dataset.target = next;
+
+            triggers.forEach((candidate) => candidate.setAttribute('aria-expanded', String(candidate === trigger)));
+            if (!dialog.open) dialog.showModal();
+            document.body.classList.add('is-programme-dialog-open');
+            dialogScroll?.scrollTo({ top: 0, behavior: 'auto' });
+            closeButton?.focus({ preventScroll: true });
+
+            const nextHash = `#note-${number}`;
+            if (historyMode === 'push') window.history.pushState({ programmeNote: number }, '', nextHash);
+            if (historyMode === 'replace') window.history.replaceState({ programmeNote: number }, '', nextHash);
+        };
+
+        const syncFromLocation = () => {
+            const number = window.location.hash.match(/^#note-(\d{2})$/)?.[1];
+            if (number && notes.has(number)) openNote(number, 'none');
+            else closeDialog();
+        };
+
+        if (buildNotes() && dialog && triggers.length === 30) {
+            document.documentElement.classList.add('programme-enhanced');
+            updateRowKinds();
+
+            triggers.forEach((trigger) => {
+                trigger.addEventListener('click', () => openNote(trigger.dataset.programmeTrigger ?? ''));
+            });
+            closeButton?.addEventListener('click', requestClose);
+            previousButton?.addEventListener('click', () => {
+                const target = previousButton.dataset.target;
+                if (target) openNote(target, 'replace');
+            });
+            nextButton?.addEventListener('click', () => {
+                const target = nextButton.dataset.target;
+                if (target) openNote(target, 'replace');
+            });
+            dialog.addEventListener('cancel', (event) => {
+                event.preventDefault();
+                requestClose();
+            });
+            dialog.addEventListener('keydown', (event) => {
+                if (event.key !== 'Escape') return;
+                event.preventDefault();
+                requestClose();
+            });
+            dialog.addEventListener('click', (event) => {
+                if (event.target === dialog) requestClose();
+            });
+            window.addEventListener('popstate', syncFromLocation);
+            syncFromLocation();
+        }
+
+        if (backTop && sheetHeading) {
+            const updateBackTop = () => {
+                backTop.dataset.visible = String(window.scrollY > 720);
+            };
+            window.addEventListener('scroll', updateBackTop, { passive: true });
+            updateBackTop();
+            backTop.addEventListener('click', () => {
+                sheetHeading.scrollIntoView({ behavior: reduceMotion.matches ? 'auto' : 'smooth', block: 'start' });
+                window.setTimeout(() => sheetHeading.focus({ preventScroll: true }), reduceMotion.matches ? 0 : 360);
+            });
+        }
+    </script>
+</BaseLayout>

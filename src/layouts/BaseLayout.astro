@@ -7,6 +7,7 @@ export interface Props {
   ogType?: 'website' | 'article';
   includeReviewSchema?: boolean;
   structuredData?: Record<string, unknown>[];
+  robots?: string;
 }
 
 import '../styles/global.css';
@@ -46,6 +47,7 @@ const {
   ogType = 'website',
   includeReviewSchema = true,
   structuredData = [],
+  robots = 'index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1',
 } = Astro.props;
 
 const siteUrl = 'https://ms.linho.me';
@@ -157,7 +159,7 @@ const reviewSchema = {
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="description" content={description} />
     <meta name="author" content="林美杏" />
-    <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
+    <meta name="robots" content={robots} />
     <meta name="generator" content={Astro.generator} />
 
     <!-- Canonical -->

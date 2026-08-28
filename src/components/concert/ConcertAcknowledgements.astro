@@ -58,6 +58,14 @@ const choirMemberCount = concert2026.choirs.reduce((total, choir) => total + cho
                                 <span>{choir.name}</span>
                                 <span>{choir.members.length} 位團員</span>
                             </summary>
+                            <dl class="concert-choirs__leadership" aria-label={`${choir.name}團務名單`}>
+                                {choir.leadership.map((entry) => (
+                                    <div>
+                                        <dt>{entry.role}</dt>
+                                        <dd>{entry.names.join('、')}</dd>
+                                    </div>
+                                ))}
+                            </dl>
                             <ul>
                                 {choir.members.map((member) => <li>{member}</li>)}
                             </ul>

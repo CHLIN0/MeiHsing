@@ -1,0 +1,368 @@
+.official-links-popover {
+    position: relative;
+    display: inline-flex;
+    color: inherit;
+    font-family: 'Noto Sans TC', sans-serif;
+}
+
+.official-links-popover__trigger {
+    appearance: none;
+    min-height: 2.75rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.42rem;
+    padding: 0.45rem 0.1rem;
+    color: inherit;
+    border: 0;
+    background: transparent;
+    font-size: 0.875rem;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    cursor: pointer;
+    transition: color 160ms ease;
+}
+
+.official-links-popover__trigger > svg {
+    width: 1rem;
+    height: 1rem;
+    fill: currentColor;
+}
+
+.official-links-popover__trigger:focus-visible {
+    outline: 2px solid currentColor;
+    outline-offset: 4px;
+    border-radius: 0.25rem;
+}
+
+.official-links-popover__positioner {
+    position: absolute;
+    top: 100%;
+    right: -0.8rem;
+    z-index: 120;
+    width: 21.5rem;
+    padding-top: 0.7rem;
+    color: #3d2d28;
+    animation: official-links-panel-in 180ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.official-links-popover__positioner::before {
+    content: '';
+    position: absolute;
+    top: 0.36rem;
+    right: 2.1rem;
+    width: 0.78rem;
+    height: 0.78rem;
+    z-index: 1;
+    border-top: 1px solid rgba(114, 79, 53, 0.22);
+    border-left: 1px solid rgba(114, 79, 53, 0.22);
+    background: #fffaf2;
+    transform: rotate(45deg);
+}
+
+.official-links-popover__panel {
+    position: relative;
+    overflow: hidden;
+    border: 1px solid rgba(114, 79, 53, 0.2);
+    border-radius: 1.2rem;
+    background: #fffaf2;
+    box-shadow: 0 24px 70px rgba(42, 29, 24, 0.24), 0 2px 8px rgba(42, 29, 24, 0.08);
+    backdrop-filter: blur(18px);
+}
+
+.official-links-popover__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 1rem 1rem 0.8rem;
+    border-bottom: 1px solid rgba(114, 79, 53, 0.12);
+}
+
+.official-links-popover__header p,
+.official-links-popover__header h2 {
+    margin: 0;
+}
+
+.official-links-popover__header p {
+    color: #a1784c;
+    font-family: 'Cormorant', serif;
+    font-size: 0.62rem;
+    font-weight: 700;
+    letter-spacing: 0.2em;
+}
+
+.official-links-popover__header h2 {
+    margin-top: 0.18rem;
+    color: #3d2d28;
+    font-family: 'Noto Serif TC', serif;
+    font-size: 0.93rem;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+}
+
+.official-links-popover__pin {
+    width: 2.35rem;
+    height: 2.35rem;
+    display: grid;
+    flex: 0 0 auto;
+    place-items: center;
+    padding: 0;
+    color: #766158;
+    border: 1px solid transparent;
+    border-radius: 50%;
+    background: transparent;
+    cursor: pointer;
+    transition: color 160ms ease, border-color 160ms ease, background-color 160ms ease;
+}
+
+.official-links-popover__pin svg {
+    width: 0.9rem;
+    height: 0.9rem;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.7;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+.official-links-popover__pin[aria-pressed='true'] {
+    color: #725033;
+    border-color: rgba(142, 101, 54, 0.2);
+    background: rgba(201, 165, 116, 0.13);
+}
+
+.official-links-popover__pin:hover {
+    color: #725033;
+    border-color: rgba(142, 101, 54, 0.16);
+    background: rgba(201, 165, 116, 0.08);
+}
+
+.official-links-popover__destinations {
+    display: flex;
+    align-items: center;
+    gap: 0.15rem;
+    padding: 0.28rem 0.82rem 0.35rem;
+    border-bottom: 1px solid rgba(114, 79, 53, 0.1);
+}
+
+.official-links-popover__destinations button {
+    position: relative;
+    min-height: 2.15rem;
+    flex: 1;
+    padding: 0.35rem 0.2rem;
+    color: rgba(95, 75, 66, 0.66);
+    border: 0;
+    background: transparent;
+    font-size: 0.64rem;
+    letter-spacing: 0.025em;
+    cursor: pointer;
+    transition: color 150ms ease;
+}
+
+.official-links-popover__destinations button::after {
+    content: '';
+    position: absolute;
+    right: 28%;
+    bottom: 0.08rem;
+    left: 28%;
+    height: 1px;
+    background: currentColor;
+    opacity: 0;
+    transform: scaleX(0.5);
+    transition: opacity 150ms ease, transform 150ms ease;
+}
+
+.official-links-popover__destinations button:hover,
+.official-links-popover__destinations button:focus-visible,
+.official-links-popover__destinations button[aria-pressed='true'] {
+    color: #5c4033;
+}
+
+.official-links-popover__destinations button[aria-pressed='true']::after {
+    opacity: 0.55;
+    transform: scaleX(1);
+}
+
+.official-links-popover__tabs {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.3rem;
+    margin: 0.75rem 1rem 0;
+    padding: 0.28rem;
+    border: 1px solid rgba(114, 79, 53, 0.13);
+    border-radius: 0.72rem;
+    background: #f2e9df;
+}
+
+.official-links-popover__tabs button {
+    min-height: 2.35rem;
+    padding: 0.4rem;
+    color: #7a685e;
+    border: 0;
+    border-radius: 0.5rem;
+    background: transparent;
+    font-size: 0.68rem;
+    cursor: pointer;
+}
+
+.official-links-popover__tabs button[aria-selected='true'] {
+    color: #3d2d28;
+    background: #fffdf8;
+    box-shadow: 0 3px 10px rgba(70, 47, 36, 0.08);
+}
+
+.official-links-popover__qr-view {
+    display: grid;
+    grid-template-columns: 8.6rem minmax(0, 1fr);
+    gap: 0.85rem;
+    padding: 1rem;
+}
+
+.official-links-popover__qr-frame {
+    grid-row: 1 / 3;
+    padding: 0.42rem;
+    border: 1px solid rgba(142, 101, 54, 0.22);
+    border-radius: 0.92rem;
+    background: #fffdf8;
+    box-shadow: 0 8px 22px rgba(72, 49, 37, 0.1);
+}
+
+.official-links-popover__qr {
+    width: 100%;
+    height: auto;
+    display: block;
+}
+
+.official-links-popover__qr .styled-qr-code__ivory-field { opacity: 0.08; }
+.official-links-popover__qr .styled-qr-code__key-depths { opacity: 0.16; }
+
+.official-links-popover__destination {
+    min-width: 0;
+    align-self: end;
+}
+
+.official-links-popover__destination span,
+.official-links-popover__destination strong {
+    display: block;
+}
+
+.official-links-popover__destination span {
+    color: #89756b;
+    font-size: 0.65rem;
+}
+
+.official-links-popover__destination strong {
+    margin-top: 0.3rem;
+    overflow-wrap: anywhere;
+    color: #4b3730;
+    font-family: 'Cormorant', serif;
+    font-size: 0.82rem;
+    line-height: 1.3;
+}
+
+.official-links-popover__copy {
+    min-height: 2.6rem;
+    align-self: start;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.4rem;
+    padding: 0.5rem 0.7rem;
+    color: #fffaf2;
+    border: 0;
+    border-radius: 0.65rem;
+    background: #4b3730;
+    font-size: 0.68rem;
+    cursor: pointer;
+}
+
+.official-links-popover__copy svg {
+    width: 0.92rem;
+    height: 0.92rem;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.7;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+.official-links-popover__lyrics {
+    padding: 1rem;
+}
+
+.official-links-popover__lyrics-heading {
+    padding-bottom: 0.8rem;
+    border-bottom: 1px solid rgba(114, 79, 53, 0.14);
+}
+
+.official-links-popover__lyrics-heading span {
+    color: #a1784c;
+    font-family: 'Cormorant', serif;
+    font-size: 0.62rem;
+    font-weight: 700;
+    letter-spacing: 0.18em;
+}
+
+.official-links-popover__lyrics-heading h3 {
+    margin: 0.28rem 0 0;
+    color: #3d2d28;
+    font-family: 'Noto Serif TC', serif;
+    font-size: 1.05rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+}
+
+.official-links-popover__lyrics-scroll {
+    max-height: min(26rem, 56vh);
+    overflow-y: auto;
+    padding: 0.55rem 0.45rem 0 0;
+    scrollbar-color: rgba(142, 101, 54, 0.45) transparent;
+    scrollbar-width: thin;
+}
+
+.official-links-popover__lyrics-scroll p {
+    margin: 0;
+    padding: 0.68rem 0;
+    color: #5f4b42;
+    font-family: 'Noto Serif TC', serif;
+    font-size: 0.79rem;
+    line-height: 1.8;
+}
+
+.official-links-popover__lyrics-scroll p + p {
+    border-top: 1px solid rgba(142, 101, 54, 0.1);
+}
+
+.official-links-popover__lyrics-scroll span {
+    display: block;
+}
+
+@keyframes official-links-panel-in {
+    from { opacity: 0; transform: translateY(-0.45rem) scale(0.985); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@media (max-width: 760px) {
+    .official-links-popover__positioner {
+        position: fixed;
+        top: 4.7rem;
+        right: 0.75rem;
+        left: 0.75rem;
+        width: auto;
+        max-width: calc(100vw - 1.5rem);
+        padding-top: 0;
+    }
+
+    .official-links-popover__positioner::before { display: none; }
+    .official-links-popover__panel { max-width: 25rem; margin-inline: auto; }
+}
+
+@media (max-width: 440px) {
+    .official-links-popover__trigger { width: 2.65rem; justify-content: center; padding-inline: 0.45rem; }
+    .official-links-popover__trigger-label { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+    .official-links-popover__qr-view { grid-template-columns: 7.7rem minmax(0, 1fr); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .official-links-popover__positioner { animation: none; }
+}
