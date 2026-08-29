@@ -11,8 +11,8 @@ const target = process.env.MS_CONCERT_URL ?? 'http://127.0.0.1:4334/concert/2026
 const evidenceDir = process.env.MS_PROGRAMME_MEDIA_QA_DIR ?? '/tmp/ms-concert-programme-media-qa';
 fs.mkdirSync(evidenceDir, { recursive: true });
 
-const mediaPattern = /programme-(11|17|20)-.+\.(?:mp4|m4a)/;
-const expectedCacheName = 'concert-2026-programme-media-v2';
+const mediaPattern = /programme-(?:11|17|20|guest)-.+\.(?:mp4|m4a)/;
+const expectedCacheName = 'concert-2026-programme-media-v3';
 const failures = [];
 const consoleErrors = [];
 const networkMediaResponses = [];
@@ -96,8 +96,8 @@ const coldState = await coldPage.evaluate(async (cacheName) => {
   };
 }, expectedCacheName);
 
-if (!coldState.cacheNames.includes(expectedCacheName) || coldState.cacheKeys.length !== 3) {
-  failures.push(`cold cache: expected 3 entries, got ${coldState.cacheKeys.length}`);
+if (!coldState.cacheNames.includes(expectedCacheName) || coldState.cacheKeys.length !== 4) {
+  failures.push(`cold cache: expected 4 entries, got ${coldState.cacheKeys.length}`);
 }
 if (coldState.horizontalOverflow !== 0) failures.push(`mobile overflow: ${coldState.horizontalOverflow}px`);
 if (coldState.buttons.some((button) => button.state !== 'ready' || button.disabled || button.width < 44 || button.height < 44)) {
@@ -108,6 +108,10 @@ if (!progressSamples.some((sample) => sample.buttons.some((button) => button.pro
 }
 
 await coldPage.locator('[data-programme-tab][href="#second-half"]').click();
+const secondHalfOrder = await coldPage.locator('[data-programme-panel][id="second-half"] [data-programme-number]').evaluateAll((entries) => entries.map((entry) => entry.dataset.programmeNumber));
+if (secondHalfOrder.indexOf('guest') !== secondHalfOrder.indexOf('29') - 1) {
+  failures.push(`guest programme is not immediately before programme 29: ${JSON.stringify(secondHalfOrder)}`);
+}
 await coldPage.locator('[data-programme-media-button][data-media-number="17"]').click();
 await coldPage.waitForFunction(() => {
   const player = document.querySelector('[data-programme-media-player][data-active="true"]');
@@ -235,6 +239,36 @@ await coldPage.locator('[data-programme-media-player][data-active="true"]').eval
 await coldPage.waitForFunction(() => /已完成 2 次播放/.test(document.querySelector('[data-programme-media-status]')?.textContent ?? ''), null, { timeout: 5000 });
 await coldPage.locator('[data-programme-media-close]').click();
 
+await coldPage.locator('[data-programme-tab][href="#second-half"]').click();
+await coldPage.locator('[data-programme-media-button][data-media-number="guest"]').click();
+await coldPage.waitForFunction(() => {
+  const player = document.querySelector('[data-programme-media-player][data-active="true"]');
+  return document.querySelector('[data-programme-media-dialog]')?.open
+    && player?.currentSrc.startsWith('blob:')
+    && player.paused
+    && player.readyState >= HTMLMediaElement.HAVE_CURRENT_DATA;
+});
+const guestProgrammeState = await coldPage.evaluate(() => ({
+  kicker: document.querySelector('[data-programme-media-kicker]')?.textContent?.trim(),
+  title: document.querySelector('[data-programme-media-title]')?.textContent?.trim(),
+  credit: document.querySelector('[data-programme-media-credit]')?.textContent?.trim(),
+  paused: document.querySelector('[data-programme-media-player][data-active="true"]')?.paused,
+}));
+if (guestProgrammeState.kicker !== 'Guest performance · 客串節目'
+  || guestProgrammeState.title !== '失戀無罪'
+  || !guestProgrammeState.credit?.includes('荊泳瑜')
+  || !guestProgrammeState.paused) {
+  failures.push(`guest programme presentation failed: ${JSON.stringify(guestProgrammeState)}`);
+}
+await coldPage.locator('[data-programme-media-play]').click();
+await coldPage.waitForFunction(() => document.querySelector('[data-programme-media-player][data-active="true"]')?.paused === false);
+const guestStart = await coldPage.locator('[data-programme-media-player][data-active="true"]').evaluate((player) => player.currentTime);
+await coldPage.waitForTimeout(650);
+const guestEnd = await coldPage.locator('[data-programme-media-player][data-active="true"]').evaluate((player) => player.currentTime);
+if (guestEnd <= guestStart) failures.push('guest programme video did not advance');
+await coldPage.screenshot({ path: path.join(evidenceDir, 'mobile-guest-programme.png') });
+await coldPage.locator('[data-programme-media-close]').click();
+
 await coldPage.locator('[data-programme-tab][href="#first-half"]').click();
 await coldPage.locator('[data-programme-media-button][data-media-number="11"]').click();
 await coldPage.waitForFunction(() => {
@@ -266,7 +300,7 @@ await warmPage.addInitScript(() => {
   const originalFetch = window.fetch.bind(window);
   window.fetch = (input, init) => {
     const url = typeof input === 'string' ? input : input instanceof URL ? input.href : input.url;
-    if (/\/concert\/2026\/media\/programme-(11|17|20)-.+\.(?:mp4|m4a)/.test(url)) {
+    if (/\/concert\/2026\/media\/programme-(?:11|17|20|guest)-.+\.(?:mp4|m4a)/.test(url)) {
       window.__programmeMediaNetworkAttempts.push(url);
       return Promise.reject(new TypeError('Programme media network fetch blocked by QA'));
     }
@@ -298,6 +332,46 @@ if (warmButtons.some((button) => button.state !== 'ready' || button.disabled)) f
 if (networkMediaResponses.length !== mediaResponsesAfterCold || warmNetworkAttempts.length) failures.push('warm cache: a programme media request reached the network');
 if (warmEnd <= warmStart) failures.push('warm cache: Blob-backed video did not advance');
 
+const desktopConsoleErrors = [];
+const desktopContext = await browser.newContext({ viewport: { width: 1440, height: 900 } });
+const desktopPage = await desktopContext.newPage();
+desktopPage.on('console', (message) => {
+  if (message.type() === 'error') desktopConsoleErrors.push(message.text());
+});
+await desktopPage.goto(target, { waitUntil: 'domcontentloaded' });
+await desktopPage.waitForFunction(() => [...document.querySelectorAll('[data-programme-media-button]')]
+  .every((button) => button.dataset.state === 'ready'), null, { timeout: 30000 });
+await desktopPage.locator('[data-programme-tab][href="#second-half"]').click();
+const desktopProgrammeLayout = await desktopPage.evaluate(() => ({
+  horizontalOverflow: document.documentElement.scrollWidth - innerWidth,
+  guestRect: (() => {
+    const rect = document.querySelector('[data-programme-number="guest"]')?.getBoundingClientRect();
+    return rect ? { top: rect.top, right: rect.right, bottom: rect.bottom, left: rect.left } : null;
+  })(),
+  programme29Rect: (() => {
+    const rect = document.querySelector('[data-programme-number="29"]')?.getBoundingClientRect();
+    return rect ? { top: rect.top, right: rect.right, bottom: rect.bottom, left: rect.left } : null;
+  })(),
+}));
+if (desktopProgrammeLayout.horizontalOverflow !== 0
+  || !desktopProgrammeLayout.guestRect
+  || !desktopProgrammeLayout.programme29Rect
+  || desktopProgrammeLayout.guestRect.bottom > desktopProgrammeLayout.programme29Rect.top) {
+  failures.push(`desktop guest layout failed: ${JSON.stringify(desktopProgrammeLayout)}`);
+}
+await desktopPage.screenshot({ path: path.join(evidenceDir, 'desktop-second-half.png'), fullPage: true });
+await desktopPage.locator('[data-programme-number="guest"]').scrollIntoViewIfNeeded();
+await desktopPage.waitForTimeout(320);
+await desktopPage.screenshot({ path: path.join(evidenceDir, 'desktop-guest-row.png') });
+await desktopPage.locator('[data-programme-media-button][data-media-number="guest"]').click();
+await desktopPage.waitForFunction(() => {
+  const player = document.querySelector('[data-programme-media-player][data-active="true"]');
+  return document.querySelector('[data-programme-media-dialog]')?.open && player?.currentSrc.startsWith('blob:') && player.paused;
+});
+await desktopPage.waitForTimeout(320);
+await desktopPage.screenshot({ path: path.join(evidenceDir, 'desktop-guest-programme.png') });
+await desktopContext.close();
+
 await browser.close();
 
 const result = {
@@ -309,6 +383,8 @@ const result = {
   networkMediaResponses,
   modalState,
   programme11State,
+  guestProgrammeState,
+  secondHalfOrder,
   customControls: {
     seekTime,
     volume,
@@ -320,6 +396,8 @@ const result = {
   warmButtons,
   warmNetworkAttempts,
   warmPlaybackAdvancedBy: warmEnd - warmStart,
+  desktopProgrammeLayout,
+  desktopConsoleErrors,
   consoleErrors,
   failures,
   verdict: failures.length ? 'fail' : 'pass',

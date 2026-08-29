@@ -1,4 +1,4 @@
-number,half,work,format,performer,details,is_masked
+number,half,work,format,performer,details,is_masked,display_label
 1,上半場,大魚｜《大魚海棠》印象曲,,,"空靈鼓｜林美杏老師　吉他｜林炳宏
 鋼琴｜林承漢　電子琴｜林軒緯",false
 2,上半場,愛之夢第3首［S.541 No.3］,,王宏恩,,false
@@ -29,5 +29,6 @@ number,half,work,format,performer,details,is_masked
 26,下半場,西班牙舞曲,,荊永蘅,,false
 27,下半場,殘酷天使的行動綱領,四手聯彈,林彧丞、蕭才譯,,false
 28,下半場,哦！蘇珊娜,四手聯彈,荊永蘅、荊永謙,,false
+,下半場,失戀無罪,客串演出,荊泳瑜,,false,客串
 29,下半場,,,林承漢,,true
 30,下半場,明天會更好,大合唱,全體師生,,false

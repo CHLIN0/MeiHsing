@@ -2,7 +2,7 @@ export type ConcertAudioAssetOrigin = 'cache' | 'network';
 
 export const concertAudioCacheName = 'concert-2026-audio-v3';
 export const concertAudioCachePrefix = 'concert-2026-audio-';
-export const concertProgrammeMediaCacheName = 'concert-2026-programme-media-v2';
+export const concertProgrammeMediaCacheName = 'concert-2026-programme-media-v3';
 export const concertProgrammeMediaCachePrefix = 'concert-2026-programme-media-';
 
 type LoadConcertAudioAssetOptions = {

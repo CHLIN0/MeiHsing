@@ -30,7 +30,7 @@ const halves = [
                 <p class="concert-eyebrow">Programme · 2026</p>
                 <h2 id="programme-heading">節目表</h2>
             </div>
-            <p>三十個節目，上、下半場各十五場演出。從獨奏、四手聯彈到合唱，讓一整年的練習在今天被聽見。</p>
+            <p>三十個正式節目，上、下半場各十五場演出，並在尾聲迎來一場客串。從獨奏、四手聯彈到合唱，讓一整年的練習在今天被聽見。</p>
         </header>
 
         <nav class="concert-programme__jump" aria-label="選擇節目半場" data-programme-tabs>
@@ -68,18 +68,19 @@ const halves = [
 
                     <ol class="concert-programme__list" start={half.entries[0]?.number}>
                         {half.entries.map((entry) => {
-                            const media = concert2026ProgrammeMediaByNumber.get(entry.number as 11 | 17 | 20);
+                            const programmeMediaKey = entry.number ?? 'guest';
+                            const media = concert2026ProgrammeMediaByNumber.get(programmeMediaKey as 11 | 17 | 20 | 'guest');
                             const mediaLabel = media?.kind === 'audio' ? '音訊' : '影片';
                             return (
                             <li class:list={[
                                 'concert-programme__entry',
                                 entry.details && 'concert-programme__entry--detailed',
                                 entry.isMasked && 'concert-programme__entry--masked',
-                                [16, 17, 30].includes(entry.number) && 'concert-programme__entry--feature',
+                                (entry.number === null || [16, 17, 30].includes(entry.number)) && 'concert-programme__entry--feature',
                                 media && 'concert-programme__entry--media',
-                            ]} data-programme-number={entry.number}>
-                                <span class="concert-programme__number" aria-hidden="true">
-                                    {String(entry.number).padStart(2, '0')}
+                            ]} data-programme-number={entry.number ?? 'guest'}>
+                                <span class:list={['concert-programme__number', entry.number === null && 'concert-programme__number--guest']} aria-hidden="true">
+                                    {entry.displayLabel || String(entry.number).padStart(2, '0')}
                                 </span>
 
                                 <div class="concert-programme__content">
@@ -100,6 +101,7 @@ const halves = [
                                                 type="button"
                                                 data-programme-media-button
                                                 data-media-number={media.number}
+                                                data-media-kicker={media.kicker}
                                                 data-media-title={media.title}
                                                 data-media-performer={entry.performer}
                                                 data-media-kind={media.kind}
@@ -457,7 +459,8 @@ const halves = [
 
     type ProgrammeMediaEntry = {
         button: HTMLButtonElement;
-        number: number;
+        number: string;
+        kicker: string;
         title: string;
         source: string;
         expectedBytes: number;
@@ -507,7 +510,8 @@ const halves = [
 
     const mediaEntries: ProgrammeMediaEntry[] = Array.from(document.querySelectorAll<HTMLButtonElement>('[data-programme-media-button]')).map((button) => ({
         button,
-        number: Number(button.dataset.mediaNumber),
+        number: button.dataset.mediaNumber || '',
+        kicker: button.dataset.mediaKicker || 'Programme media',
         title: button.dataset.mediaTitle || '節目影片',
         source: button.dataset.mediaSource || '',
         expectedBytes: Number(button.dataset.mediaBytes || 0),
@@ -719,10 +723,10 @@ const halves = [
             entry.button.disabled = state === 'loading';
             const kindLabel = entry.kind === 'audio' ? '音訊' : '影片';
             entry.button.setAttribute('aria-label', state === 'ready'
-                ? `播放第 ${entry.number} 節目 ${entry.title} ${kindLabel}，已完整載入`
+                ? `播放 ${entry.kicker}：${entry.title}${kindLabel}，已完整載入`
                 : state === 'failed'
-                    ? `第 ${entry.number} 節目 ${entry.title} ${kindLabel}載入失敗，按下重新載入`
-                    : `第 ${entry.number} 節目 ${entry.title} ${kindLabel}載入中 ${percent}%`);
+                    ? `${entry.kicker}：${entry.title}${kindLabel}載入失敗，按下重新載入`
+                    : `${entry.kicker}：${entry.title}${kindLabel}載入中 ${percent}%`);
         };
 
         const loadMediaEntry = async (entry: ProgrammeMediaEntry, forceNetwork = false) => {
@@ -786,7 +790,7 @@ const halves = [
             activeEntry = entry;
             completedLoops = 0;
             mediaTitle.textContent = entry.title;
-            mediaKicker.textContent = `Programme ${String(entry.number).padStart(2, '0')}`;
+            mediaKicker.textContent = entry.kicker;
             mediaNotice.textContent = entry.note;
             mediaNotice.hidden = !entry.note;
             mediaCredit.textContent = entry.credit;

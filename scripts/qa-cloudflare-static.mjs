@@ -59,7 +59,8 @@ const concertAudioPatterns = [
 const concertProgrammeMediaPatterns = [
   '/concert/2026/media/programme-11-sasameyuki-v1.mp4',
   '/concert/2026/media/programme-17-opalite-audio-v1.m4a',
-  '/concert/2026/media/programme-20-yours-always-v1.mp4',
+  '/concert/2026/media/programme-20-yours-always-karaoke-v2.mp4',
+  '/concert/2026/media/programme-guest-lovelorn-innocent-v1.mp4',
 ];
 const allowedImmutablePatterns = new Set(['/_astro/*', ...concertAudioPatterns, ...concertProgrammeMediaPatterns]);
 for (const rule of immutableRules) {

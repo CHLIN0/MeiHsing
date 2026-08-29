@@ -1,11 +1,13 @@
 export interface ConcertProgrammeEntry {
-    number: number;
+    id: string;
+    number: number | null;
     half: '上半場' | '下半場';
     work: string;
     format: string;
     performer: string;
     details: string;
     isMasked: boolean;
+    displayLabel: string;
 }
 
 function parseCsvRows(input: string): string[][] {
@@ -66,31 +68,55 @@ export function parseConcertProgramme(csv: string): ConcertProgrammeEntry[] {
     const headers = rows.shift();
     assert(Boolean(headers), 'missing header row');
 
-    const requiredHeaders = ['number', 'half', 'work', 'format', 'performer', 'details', 'is_masked'];
+    const requiredHeaders = ['number', 'half', 'work', 'format', 'performer', 'details', 'is_masked', 'display_label'];
     assert(requiredHeaders.every((header) => headers?.includes(header)), 'unexpected CSV headers');
 
+    let guestIndex = 0;
     const entries = rows.map((values) => {
         const record = Object.fromEntries(headers!.map((header, index) => [header, values[index] ?? '']));
         const half = record.half.trim();
-        assert(half === '上半場' || half === '下半場', `invalid half for item ${record.number}`);
+        const numberText = record.number.trim();
+        const number = numberText ? Number(numberText) : null;
+        const displayLabel = record.display_label.trim();
+        assert(half === '上半場' || half === '下半場', `invalid half for item ${numberText || displayLabel}`);
+        assert(number === null || (Number.isInteger(number) && number > 0), `invalid number ${numberText}`);
+        if (number === null) {
+            guestIndex += 1;
+            assert(Boolean(displayLabel), 'unnumbered programme entries require a display label');
+        }
 
         return {
-            number: Number(record.number),
+            id: number === null ? `guest-${guestIndex}` : `programme-${number}`,
+            number,
             half,
             work: record.work.trim(),
             format: record.format.trim(),
             performer: record.performer.trim(),
             details: record.details.trim(),
             isMasked: record.is_masked.trim().toLowerCase() === 'true',
+            displayLabel,
         } satisfies ConcertProgrammeEntry;
     });
 
-    assert(entries.length === 30, `expected 30 entries, found ${entries.length}`);
-    assert(entries.every((entry, index) => entry.number === index + 1), 'numbers must be continuous from 1 to 30');
-    assert(entries.filter((entry) => entry.half === '上半場').length === 15, 'first half must contain 15 entries');
-    assert(entries.filter((entry) => entry.half === '下半場').length === 15, 'second half must contain 15 entries');
+    const numberedEntries = entries.filter((entry): entry is ConcertProgrammeEntry & { number: number } => entry.number !== null);
+    const guestEntries = entries.filter((entry) => entry.number === null);
+    assert(entries.length === 31, `expected 30 numbered entries and one guest entry, found ${entries.length}`);
+    assert(numberedEntries.length === 30, `expected 30 numbered entries, found ${numberedEntries.length}`);
+    assert(numberedEntries.every((entry, index) => entry.number === index + 1), 'numbers must be continuous from 1 to 30');
+    assert(numberedEntries.filter((entry) => entry.half === '上半場').length === 15, 'first half must contain 15 numbered entries');
+    assert(numberedEntries.filter((entry) => entry.half === '下半場').length === 15, 'second half must contain 15 numbered entries');
+    assert(guestEntries.length === 1, `expected one guest entry, found ${guestEntries.length}`);
+    const guestPosition = entries.indexOf(guestEntries[0]);
+    assert(
+        entries[guestPosition - 1]?.number === 28 && entries[guestPosition + 1]?.number === 29,
+        'guest entry must remain between programmes 28 and 29',
+    );
+    assert(
+        guestEntries[0].work === '失戀無罪' && guestEntries[0].performer === '荊泳瑜' && guestEntries[0].displayLabel === '客串',
+        'guest entry must remain 失戀無罪 by 荊泳瑜',
+    );
 
-    const item = (number: number) => entries.find((entry) => entry.number === number)!;
+    const item = (number: number) => numberedEntries.find((entry) => entry.number === number)!;
     assert(item(6).performer === '荊永謙', 'item 6 performer must be 荊永謙');
     assert(item(12).work === '崖上的波妞' && item(12).performer === '陳綩妤、林美杏老師', 'item 12 must match the latest master');
     assert(item(14).work === '降E大調夜曲［Op.9 No.2］' && item(14).performer === '蔡宜澄', 'item 14 must be the verified Chopin nocturne');

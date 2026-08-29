@@ -1593,6 +1593,12 @@
     grid-template-columns: 3.5rem minmax(0, 1fr);
 }
 
+.concert-programme__number--guest {
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+}
+
 .concert-programme__entry--media .concert-programme__title-line {
     display: flex;
     align-items: center;

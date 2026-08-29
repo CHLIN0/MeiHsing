@@ -14,18 +14,19 @@ interface Props {
 
 const { frontmatter } = Astro.props;
 const programme = parseConcertProgramme(programmeCsv);
+const numberedProgramme = programme.filter((entry): entry is typeof entry & { number: number } => entry.number !== null);
 const halves = [
     {
         id: 'first-half',
         title: '上半場',
         range: '01–15',
-        entries: programme.filter((entry) => entry.half === '上半場'),
+        entries: numberedProgramme.filter((entry) => entry.half === '上半場'),
     },
     {
         id: 'second-half',
         title: '下半場',
         range: '16–30',
-        entries: programme.filter((entry) => entry.half === '下半場'),
+        entries: numberedProgramme.filter((entry) => entry.half === '下半場'),
     },
 ] as const;
 ---

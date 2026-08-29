@@ -13,11 +13,12 @@ import { parseConcertProgramme } from '../../../utils/concertProgramme';
 import '../../../styles/concert-production-guide.css';
 
 const programme = parseConcertProgramme(programmeCsv);
-const byNumber = new Map(programme.map((entry) => [entry.number, entry]));
+const numberedProgramme = programme.filter((entry): entry is typeof entry & { number: number } => entry.number !== null);
+const byNumber = new Map(numberedProgramme.map((entry) => [entry.number, entry]));
 const scheduledNumbers = rehearsalBlocks.flatMap((block) => block.programmes.map((item) => item.number));
 const technicalNumbers = new Set(technicalCues.map((cue) => cue.number));
 
-if (scheduledNumbers.length !== programme.length || programme.some((entry) => !scheduledNumbers.includes(entry.number))) {
+if (scheduledNumbers.length !== numberedProgramme.length || numberedProgramme.some((entry) => !scheduledNumbers.includes(entry.number))) {
     throw new Error('The production guide is out of sync with the concert programme CSV.');
 }
 
